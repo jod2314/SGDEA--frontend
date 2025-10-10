@@ -1,67 +1,397 @@
-:root {
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* Google Drive - inspired minimal theme
+   Replaces previous index.css. Touches only CSS (no HTML/JS changes).
+   Key principles: Roboto, 8px spacing scale, neutral palette, subtle elevation, accessible contrast.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+:root{
+  /* Typography */
+  --font-base: 'Roboto', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fs-body: 16px;
+  --fs-h1: 34px;
+  --fs-h2: 24px;
+  --fs-h3: 18px;
+  --line-body: 1.45;
+  /* Spacing scale (8px) */
+  --space: 8px;
+  /* Widths */
+  --container-max: 1100px;
+  /* Colors (Drive-like minimal) */
+  --bg-app: #f1f3f4;      /* light neutral background */
+  --surface: #ffffff;     /* card surfaces */
+  --text-primary: #202124;/* main text */
+  --text-secondary: #5f6368;
+  --muted: #80868b;
+  --primary: #1a73e8;     /* Google blue-ish accent */
+  --danger: #d93025;
+  /* Elevation / radius */
+  --shadow-1: 0 1px 2px rgba(60,64,67,0.08);
+  --shadow-2: 0 4px 8px rgba(60,64,67,0.08);
+  --radius: 10px;
+  --control-height: 48px;
+  --focus-ring: 3px;
+}
+
+/* Reset / global */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-app);
+  font-family: var(--font-base);
+  font-size: var(--fs-body);
+  line-height: var(--line-body);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* App container (centers main content) */
+#root > div, /* vite mount may wrap app */
+#root {
+  /* max-width: var(--container-max); */ /* REMOVED to allow full-width layout */
+  /* margin: 0 auto; */ /* REMOVED to allow full-width layout */
+  padding: 0; /* Let child components handle padding */
+}
+
+/* Header / nav (simple top bar similar to Drive) */
+header {
+  background: var(--surface);
+  padding: calc(var(--space) * 2) calc(var(--space) * 3);
+  border-radius: calc(var(--radius) / 1.5);
+  box-shadow: var(--shadow-1);
+  margin-bottom: calc(var(--space) * 4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space) * 2);
+  position: sticky;
+  top: calc(var(--space) * 2);
+  z-index: 20;
+}
+
+header nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: calc(var(--space) * 2);
+  align-items: center;
+}
+
+header nav a {
+  text-decoration: none;
+  color: var(--text-primary);
+  padding: calc(var(--space) * 1) calc(var(--space) * 2);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background 120ms, color 120ms, transform 120ms;
+}
+
+header nav a:hover,
+header nav a:focus {
+  background: rgba(26,115,232,0.06);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Main content */
+main {
+  min-height: calc(100vh - 160px);
+  background: transparent;
+}
+
+/* Generic card used by login and cards */
+.card {
+  position: relative; /* Crucial for positioning action buttons */
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  padding: calc(var(--space) * 3);
+  margin-bottom: calc(var(--space) * 3);
+}
+
+/* Logo */
+.logo {
+  height: 48px;
+  display: inline-block;
+}
+
+/* Forms - target .form used by Login/Signup components */
+.form {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: calc(var(--space) * 3);
+  background: var(--surface);
+  border-radius: calc(var(--radius) * 0.9);
+  box-shadow: var(--shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) * 2);
+}
+
+/* Inputs inside .form */
+.form input[type="text"],
+.form input[type="password"],
+.form input[type="email"],
+.form textarea {
+  height: var(--control-height);
+  padding: 0 calc(var(--space) * 2);
+  border-radius: calc(var(--radius) * 0.7);
+  border: 1px solid rgba(60,64,67,0.12);
+  background: transparent;
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: box-shadow 120ms, border-color 120ms;
+}
+
+.form input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* Input focus */
+.form input:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 var(--focus-ring) rgba(26,115,232,0.12);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--space) * 1);
+  height: var(--control-height);
+  padding: 0 calc(var(--space) * 3);
+  font-weight: 500;
+  border-radius: 22px;
+  cursor: pointer;
+  border: none;
+  transition: transform 120ms, box-shadow 120ms, filter 120ms;
+}
+
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 1px 2px rgba(26,115,232,0.18);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.03);
+  transform: translateY(-2px);
+}
+
+/* Secondary / outline button */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid rgba(60,64,67,0.08);
+}
+
+/* Error message */
+.errorMessage {
+  color: var(--danger);
+  background: rgba(217,48,37,0.06);
+  padding: calc(var(--space) * 1);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Dashboard container */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: calc(var(--space) * 3);
+}
+
+/* Todo list cards (if rendered as divs) */
+.dashboard > div,
+.todo-card {
+  background: var(--surface);
+  padding: calc(var(--space) * 2);
+  border-radius: calc(var(--radius) * 0.9);
+  box-shadow: var(--shadow-1);
+}
+
+/* Simple responsive adjustments */
+@media (min-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr 360px; /* main content + side panel */
+  }
+}
+
+/* Accessibility helpers */
+:focus {
+  outline: none;
+}
+
+a:focus {
+  box-shadow: 0 0 0 var(--focus-ring) rgba(26,115,232,0.12);
+  border-radius: 6px;
+}
+
+/* Utility classes */
+.text-muted { color: var(--text-secondary); font-size: 0.95rem; }
+.center { text-align: center; }
+.small { font-size: 0.9rem; }
+
+/* === DASHBOARD STYLES ADDED === */
+.create-todo-form {
+  display: flex;
+  gap: var(--space);
+  margin-bottom: calc(var(--space) * 2);
+}
+
+.create-todo-form input {
+  flex-grow: 1; /* Make input take available space */
+  height: var(--control-height);
+  padding: 0 calc(var(--space) * 2);
+  border-radius: calc(var(--radius) * 0.7);
+  border: 1px solid rgba(60,64,67,0.12);
+  background: transparent;
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: box-shadow 120ms, border-color 120ms;
+}
+.create-todo-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 var(--focus-ring) rgba(26,115,232,0.12);
+}
+
+.todo-item-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.todo-item-status {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+  color: var(--text-secondary);
+  margin-top: var(--space);
+  font-size: 0.9rem;
+}
+
+.card-actions {
+  position: absolute;
+  top: calc(var(--space) * 1.5);
+  right: calc(var(--space) * 1.5);
+  display: flex;
+  gap: calc(var(--space) / 2);
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: calc(var(--space) / 2);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: background-color 120ms, color 120ms;
+}
+
+.icon-btn:hover {
+  background-color: rgba(60,64,67,0.08);
+  color: var(--text-primary);
+}
+
+/* === APP LAYOUT STYLES === */
+.app-layout {
+  display: flex;
+}
+
+.drawer {
+  width: 256px;
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid rgba(60,64,67,0.12);
+  padding: var(--space);
+  transition: transform 220ms ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.drawer nav ul {
+  list-style: none;
   padding: 0;
   margin: 0;
+  margin-top: calc(var(--space) * 8);
 }
 
-label {
-  display: block;
-}
-
-.form {
-  width: 400px;
-  margin: 0 auto;
-}
-
-input[type="text"],
-[type="password"] {
-  display: block;
-  padding: 10px;
-  box-sizing: border-box;
-  width: 100%;
-  margin: 5px 0 10px 0;
-}
-
-input[type="button"],
-button {
-  background-color: rgb(39, 131, 212);
-  padding: 10px;
-  border: 0;
-  min-width: 100px;
-  border-radius: 5px;
-  color: white;
-}
-
-nav {
-  background-color: #eee;
-}
-
-nav ul {
-  margin: 0;
-}
-
-nav ul li {
-  display: inline-block;
-  padding: 10px;
-}
-
-a {
-  color: rgb(97, 28, 161);
+.drawer nav a {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space) * 2);
+  padding: calc(var(--space) * 1.5) var(--space);
   text-decoration: none;
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 1rem;
 }
 
-.dashboard {
-  width: 500px;
-  margin: auto;
+.drawer nav a:hover {
+  background-color: rgba(60,64,67,0.08);
 }
 
-.errorMessage {
-  background-color: #f2dede;
-  color: #a94442;
-  padding: 10px;
+.drawer nav a.active {
+  background-color: rgba(26,115,232,0.1);
+  color: var(--primary);
 }
+
+.app-main-content {
+  flex-grow: 1;
+  margin-left: 256px; /* Same as drawer width */
+  display: flex;
+  flex-direction: column;
+}
+
+.app-bar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space);
+  border-bottom: 1px solid rgba(60,64,67,0.12);
+  background: rgba(241,243,244,0.8);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.app-bar-title {
+  font-weight: 500;
+  font-size: 1.2rem;
+  margin-left: var(--space);
+}
+
+.app-content {
+  padding: calc(var(--space) * 3);
+}
+
+
+/* Final note: contrast checks
+   - Ensure any custom brand color passed as --primary meets contrast requirements
+*/

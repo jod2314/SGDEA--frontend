@@ -1,17 +1,18 @@
-import { Link } from "react-router-dom";
-import React, { MouseEvent } from "react";
+import React, { useState, MouseEvent } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/authConstants";
+import AppBar from "./AppBar";
+import Drawer from "./Drawer";
 
 interface PortalLayoutProps {
   children?: React.ReactNode;
 }
+
 export default function PortalLayout({ children }: PortalLayoutProps) {
   const auth = useAuth();
+  const [isDrawerOpen, setDrawerOpen] = useState(true); // Drawer is open by default
 
-  async function handleSignOut(e: MouseEvent) {
-    e.preventDefault();
-
+  async function handleSignOut() {
     try {
       const response = await fetch(`${API_URL}/signout`, {
         method: "DELETE",
@@ -27,30 +28,14 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
       console.log(error);
     }
   }
-  return (
-    <>
-      <header>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/dashboard">Dashboard</Link>
-            </li>
-            <li>
-              <Link to="/me">Profile</Link>
-            </li>
-            <li>
-              <Link to="/me">{auth.getUser()?.username ?? ""}</Link>
-            </li>
-            <li>
-              <a href="#" onClick={handleSignOut}>
-                Sign out
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </header>
 
-      <main>{children}</main>
-    </>
+  return (
+    <div className="app-layout">
+      <Drawer isOpen={isDrawerOpen} onLogout={handleSignOut} />
+      <div className="app-main-content">
+        <AppBar onMenuClick={() => setDrawerOpen(!isDrawerOpen)} />
+        <main className="app-content">{children}</main>
+      </div>
+    </div>
   );
 }

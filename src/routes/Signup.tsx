@@ -4,6 +4,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { Navigate, useNavigate } from "react-router-dom";
 import { AuthResponse, AuthResponseError } from "../types/types";
 import { API_URL } from "../auth/authConstants";
+import { MdPersonAdd } from "react-icons/md";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -72,7 +73,10 @@ export default function Signup() {
           value={password}
         />
 
-        <button>Create account</button>
+        <button className="btn btn-primary">
+          <span>Create account</span>
+          <MdPersonAdd />
+        </button>
       </form>
     </DefaultLayout>
   );
