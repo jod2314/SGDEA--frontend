@@ -1,80 +1,84 @@
 import { useState } from "react";
 import DefaultLayout from "../layout/DefaultLayout";
-import { useAuth } from "../auth/AuthProvider";
-import { Navigate, useNavigate } from "react-router-dom";
-import { AuthResponse, AuthResponseError } from "../types/types";
+import { useNavigate } from "react-router-dom";
 import { API_URL } from "../auth/authConstants";
 import { MdPersonAdd } from "react-icons/md";
+import { AuthResponseError } from "../types/types";
 
 export default function Signup() {
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [empresaName, setEmpresaName] = useState("");
+  const [nit, setNit] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
-  const auth = useAuth();
   const goTo = useNavigate();
 
-  async function handleSubmit(e: React.ChangeEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log(username, password, name);
 
     try {
       const response = await fetch(`${API_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, name }),
+        body: JSON.stringify({ name, username, password, empresaName, nit }),
       });
+
       if (response.ok) {
-        const json = (await response.json()) as AuthResponse;
-        console.log(json);
-        setUsername("");
-        setPassword("");
-        setName("");
-        goTo("/");
+        console.log("User created successfully");
+        goTo("/"); // Redirect to login page after successful signup
       } else {
         const json = (await response.json()) as AuthResponseError;
-
         setErrorResponse(json.body.error);
       }
     } catch (error) {
       console.log(error);
+      setErrorResponse("Error al contactar el servidor");
     }
-  }
-
-  if (auth.isAuthenticated) {
-    return <Navigate to="/dashboard" />;
   }
 
   return (
     <DefaultLayout>
       <form onSubmit={handleSubmit} className="form">
-        <h1>Signup</h1>
+        <h1>Crear Cuenta de Empresa</h1>
+        <p className="text-muted center" style={{marginTop: '-10px', marginBottom: '10px'}}>El primer usuario será el Administrador.</p>
         {!!errorResponse && <div className="errorMessage">{errorResponse}</div>}
-        <label>Name</label>
+
+        <label>Nombre de la Empresa</label>
         <input
           type="text"
-          name="name"
-          onChange={(e) => setName(e.target.value)}
-          value={name}
-        />
-        <label>Username</label>
-        <input
-          type="text"
-          name="username"
-          onChange={(e) => setUsername(e.target.value)}
-          value={username}
-        />
-        <label>Password</label>
-        <input
-          type="password"
-          name="password"
-          onChange={(e) => setPassword(e.target.value)}
-          value={password}
+          value={empresaName}
+          onChange={(e) => setEmpresaName(e.target.value)}
+          required
         />
 
-        <button className="btn btn-primary">
-          <span>Create account</span>
+        <label>NIT de la Empresa</label>
+        <input type="text" value={nit} onChange={(e) => setNit(e.target.value)} required />
+
+        <hr style={{width: '100%', border: '1px solid var(--bg-app)'}}/>
+
+        <label>Tu Nombre Completo</label>
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+
+        <label>Nombre de Usuario (para login)</label>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+
+        <label>Contraseña</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit" className="btn btn-primary">
+          <span>Crear Cuenta</span>
           <MdPersonAdd />
         </button>
       </form>
