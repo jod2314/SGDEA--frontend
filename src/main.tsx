@@ -8,6 +8,10 @@ import { AuthProvider } from "./auth/AuthProvider.tsx";
 import Dashboard from "./routes/Dashboard.tsx";
 import ProtectedRoute from "./routes/ProtectedRoute.tsx";
 import Profile from "./routes/Profile.tsx";
+import Diagnostico from "./routes/Diagnostico.tsx";
+import Inventario from "./routes/Inventario.tsx";
+import Tvd from "./routes/Tvd.tsx";
+import DiagnosticoAssistant from "./routes/DiagnosticoAssistant.tsx";
 
 import "./index.css";
 
@@ -31,6 +35,22 @@ const router = createBrowserRouter([
       {
         path: "/me",
         element: <Profile />,
+      },
+      {
+        path: "/diagnostico",
+        element: <Diagnostico />,
+      },
+      {
+        path: "/diagnostico-assistant",
+        element: <DiagnosticoAssistant />,
+      },
+      {
+        path: "/inventario",
+        element: <Inventario />,
+      },
+      {
+        path: "/tvd",
+        element: <Tvd />,
       },
     ],
   },
