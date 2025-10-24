@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PortalLayout from '../layout/PortalLayout';
 import { useAuth } from '../auth/AuthProvider';
 import { API_URL } from '../auth/authConstants';
@@ -16,7 +16,6 @@ interface FilaTvd {
 }
 
 export default function Tvd() {
-  const [unidades, setUnidades] = useState<Unidad[]>([]);
   const [filasTvd, setFilasTvd] = useState<FilaTvd[]>([]);
   const auth = useAuth();
 
@@ -31,7 +30,6 @@ export default function Tvd() {
       if (invResponse.ok) {
         const invJson = await invResponse.json();
         inventarioData = invJson.body.data || [];
-        setUnidades(inventarioData);
       }
 
       // Cargar TVD
