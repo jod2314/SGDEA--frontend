@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PortalLayout from '../layout/PortalLayout';
 import { useAuth } from '../auth/AuthProvider';
 import { API_URL } from '../auth/authConstants';
-import { MdAdd } from 'react-icons/lib/md';
+import { MdAdd } from 'react-icons/md';
 
 // Interfaz para la Unidad de Conservación
 interface Unidad {

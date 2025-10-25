@@ -9,7 +9,7 @@ import {
   MdCheckBoxOutlineBlank,
   MdEdit,
   MdDelete,
-} from "react-icons/lib/md";
+} from "react-icons/md";
 
 interface Todo {
   _id: string;

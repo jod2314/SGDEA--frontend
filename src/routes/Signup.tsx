@@ -2,7 +2,7 @@ import { useState } from "react";
 import DefaultLayout from "../layout/DefaultLayout";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../auth/authConstants";
-import { MdPersonAdd } from "react-icons/lib/md";
+import { MdPersonAdd } from "react-icons/md";
 import { AuthResponseError } from "../types/types";
 
 export default function Signup() {
