@@ -1,4 +1,4 @@
-import React, { useState, MouseEvent } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/authConstants";
 import AppBar from "./AppBar";

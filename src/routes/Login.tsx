@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { Navigate } from "react-router-dom";
 import { AuthResponse, AuthResponseError } from "../types/types";
 import { API_URL } from "../auth/authConstants";
-import { MdLogin } from "react-icons/md";
+import { MdLogin } from "react-icons/lib/md";
 
 export default function Login() {
   const [username, setUsername] = useState("");

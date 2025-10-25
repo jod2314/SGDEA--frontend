@@ -1,5 +1,5 @@
 import React from 'react';
-import { MdMenu } from 'react-icons/md';
+import { MdMenu } from 'react-icons/lib/md';
 
 interface AppBarProps {
   onMenuClick: () => void;

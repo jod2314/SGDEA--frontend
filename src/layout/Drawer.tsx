@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MdDashboard, MdPerson, MdLogout, MdOutlineScience, MdInventory, MdOutlineTableView, MdNoteAdd } from 'react-icons/md';
+import { MdDashboard, MdPerson, MdLogout, MdOutlineScience, MdInventory, MdOutlineTableView, MdNoteAdd } from 'react-icons/lib/md';
 
 interface DrawerProps {
   isOpen: boolean;
