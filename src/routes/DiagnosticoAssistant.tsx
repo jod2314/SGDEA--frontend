@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 // Interfaz para los datos del formulario de diagnóstico
 interface DiagnosticoFormData {
   historiaInstitucional: string;
-  organigramas: string; // Simplificado a texto por ahora
+  organigramas: { descripcion: string, tipo?: string, archivoUrl?: string }[]; // Ahora es un array de objetos
+  fechasClave: { fecha: string, descripcion: string }[]; // Añadido para gestionar hitos
   condicionFisica: string;
   temperatura: string;
   humedad: string;
@@ -18,7 +19,10 @@ interface DiagnosticoFormData {
 
 export default function DiagnosticoAssistant() {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<Partial<DiagnosticoFormData>>({});
+  const [formData, setFormData] = useState<Partial<DiagnosticoFormData>>({
+    organigramas: [],
+    fechasClave: [],
+  });
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -27,24 +31,63 @@ export default function DiagnosticoAssistant() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // --- Funciones para Organigramas ---
+  const addOrganigrama = () => {
+    setFormData(prev => ({
+      ...prev,
+      organigramas: [...(prev.organigramas || []), { descripcion: '' }],
+    }));
+  };
+
+  const handleOrganigramaChange = (index: number, value: string) => {
+    const newOrganigramas = [...(formData.organigramas || [])];
+    newOrganigramas[index].descripcion = value;
+    setFormData(prev => ({ ...prev, organigramas: newOrganigramas }));
+  };
+
+  const removeOrganigrama = (index: number) => {
+    const newOrganigramas = (formData.organigramas || []).filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, organigramas: newOrganigramas }));
+  };
+
+  // --- Funciones para Fechas Clave ---
+  const addFechaClave = () => {
+    setFormData(prev => ({
+      ...prev,
+      fechasClave: [...(prev.fechasClave || []), { fecha: '', descripcion: '' }],
+    }));
+  };
+
+  const handleFechaClaveChange = (index: number, field: keyof ({ fecha: string, descripcion: string }), value: string) => {
+    const newFechasClave = [...(formData.fechasClave || [])];
+    (newFechasClave[index] as any)[field] = value; // Type assertion as field is dynamic
+    setFormData(prev => ({ ...prev, fechasClave: newFechasClave }));
+  };
+
+  const removeFechaClave = (index: number) => {
+    const newFechasClave = (formData.fechasClave || []).filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, fechasClave: newFechasClave }));
+  };
+
   const handleSubmit = async () => {
     try {
-      const response = await fetch(`${API_URL}/diagnosticos`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/diagnostico`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${auth.getAccessToken()}`,
         },
         body: JSON.stringify({
           historiaInstitucional: formData.historiaInstitucional,
-          organigramas: [{ descripcion: formData.organigramas }], // Adaptado a la estructura del schema
+          organigramas: formData.organigramas, // Ahora es un array de objetos
+          fechasClave: formData.fechasClave,   // Ahora es un array de objetos
           infraestructura: {
             condicionFisica: formData.condicionFisica,
             temperatura: formData.temperatura,
             humedad: formData.humedad,
             observaciones: formData.observacionesInfra,
           },
-          resumenCCDPropuesto: [{ descripcion: formData.resumenCCDPropuesto }], // Adaptado
+          resumenCCDPropuesto: (formData.resumenCCDPropuesto && formData.resumenCCDPropuesto.length > 0) ? [{ descripcion: formData.resumenCCDPropuesto }] : [], // Si hay texto, se convierte a array de objeto
           observaciones: formData.observaciones,
         }),
       });
@@ -67,17 +110,50 @@ export default function DiagnosticoAssistant() {
       case 1:
         return (
           <div>
-            <h2>Paso 1: Historia Institucional</h2>
+            <h2>Paso 1: Historia Institucional y Fechas Clave</h2>
             <p>Describa los hitos, reestructuraciones y momentos clave de la historia de la entidad.</p>
-            <textarea name="historiaInstitucional" value={formData.historiaInstitucional || ''} onChange={handleChange} rows={10} style={{ width: '100%' }} />
+            <textarea name="historiaInstitucional" value={formData.historiaInstitucional || ''} onChange={handleChange} rows={10} style={{ width: '100%' }} /><br/>
+            
+            <h3>Fechas Clave</h3>
+            {(formData.fechasClave || []).map((fc, index) => (
+              <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                <input
+                  type="date"
+                  value={fc.fecha}
+                  onChange={(e) => handleFechaClaveChange(index, 'fecha', e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <input
+                  type="text"
+                  placeholder="Descripción del evento"
+                  value={fc.descripcion}
+                  onChange={(e) => handleFechaClaveChange(index, 'descripcion', e.target.value)}
+                  style={{ flex: 2 }}
+                />
+                <button type="button" onClick={() => removeFechaClave(index)} className="btn" style={{ minWidth: 'unset', padding: '5px 10px' }}>X</button>
+              </div>
+            ))}
+            <button type="button" onClick={addFechaClave} className="btn btn-secondary">Añadir Fecha Clave</button>
           </div>
         );
       case 2:
         return (
           <div>
             <h2>Paso 2: Organigrama y Estructura</h2>
-            <p>Liste las dependencias o áreas principales que ha tenido la empresa. (Por ahora, como texto plano).</p>
-            <textarea name="organigramas" value={formData.organigramas || ''} onChange={handleChange} rows={10} style={{ width: '100%' }} />
+            <p>Liste las dependencias o áreas principales que ha tenido la empresa.</p>
+            {(formData.organigramas || []).map((org, index) => (
+              <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="Descripción del Organigrama/Estructura"
+                  value={org.descripcion}
+                  onChange={(e) => handleOrganigramaChange(index, e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <button type="button" onClick={() => removeOrganigrama(index)} className="btn" style={{ minWidth: 'unset', padding: '5px 10px' }}>X</button>
+              </div>
+            ))}
+            <button type="button" onClick={addOrganigrama} className="btn btn-secondary">Añadir Organigrama</button>
           </div>
         );
       case 3:

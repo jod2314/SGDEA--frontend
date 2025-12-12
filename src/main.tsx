@@ -12,6 +12,7 @@ import Diagnostico from "./routes/Diagnostico.tsx";
 import Inventario from "./routes/Inventario.tsx";
 import Tvd from "./routes/Tvd.tsx";
 import DiagnosticoAssistant from "./routes/DiagnosticoAssistant.tsx";
+import Trd from "./routes/Trd.tsx"; // Import the new Trd component
 
 import "./index.css";
 
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: "/tvd",
         element: <Tvd />,
+      },
+      {
+        path: "/trd", // New TRD route
+        element: <Trd />,
       },
     ],
   },
