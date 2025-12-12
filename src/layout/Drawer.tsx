@@ -47,6 +47,12 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
               <span>Gestión TRD</span>
             </NavLink>
           </li>
+          <li className="drawer-menu-item">
+            <NavLink to="/radicacion">
+              <MdNoteAdd />
+              <span>Radicación</span>
+            </NavLink>
+          </li>
         </ul>
         <div className="drawer-divider"></div>
         <ul className="drawer-menu">

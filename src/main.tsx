@@ -13,6 +13,7 @@ import Inventario from "./routes/Inventario.tsx";
 import Tvd from "./routes/Tvd.tsx";
 import DiagnosticoAssistant from "./routes/DiagnosticoAssistant.tsx";
 import Trd from "./routes/Trd.tsx"; // Import the new Trd component
+import Radicacion from "./routes/Radicacion.tsx"; // Import the new Radicacion component
 
 import "./index.css";
 
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
       {
         path: "/trd", // New TRD route
         element: <Trd />,
+      },
+      {
+        path: "/radicacion", // New Radicacion route
+        element: <Radicacion />,
       },
     ],
   },
