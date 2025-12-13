@@ -14,6 +14,8 @@ import Tvd from "./routes/Tvd.tsx";
 import DiagnosticoAssistant from "./routes/DiagnosticoAssistant.tsx";
 import Trd from "./routes/Trd.tsx"; // Import the new Trd component
 import Radicacion from "./routes/Radicacion.tsx"; // Import the new Radicacion component
+import Expedientes from "./routes/Expedientes.tsx";
+import ExpedienteDetalle from "./routes/ExpedienteDetalle.tsx";
 
 import "./index.css";
 
@@ -55,12 +57,20 @@ const router = createBrowserRouter([
         element: <Tvd />,
       },
       {
-        path: "/trd", // New TRD route
+        path: "/trd", 
         element: <Trd />,
       },
       {
-        path: "/radicacion", // New Radicacion route
+        path: "/radicacion", 
         element: <Radicacion />,
+      },
+      {
+        path: "/expedientes",
+        element: <Expedientes />,
+      },
+      {
+        path: "/expedientes/:id", 
+        element: <ExpedienteDetalle />,
       },
     ],
   },
