@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import PortalLayout from '../layout/PortalLayout';
 import { useAuth } from '../auth/AuthProvider';
 import { API_URL } from '../auth/authConstants';
-import { MdAdd, MdDelete, MdSave } from 'react-icons/md';
+import { MdAdd, MdDelete, MdSave, MdPrint } from 'react-icons/md';
+import RotuloCaja from '../components/RotuloCaja';
 
 // Interfaz alineada con el nuevo Schema FUID
 interface FUIDItem {
@@ -36,6 +37,7 @@ export default function Inventario() {
   const [items, setItems] = useState<FUIDItem[]>([]);
   const [newItem, setNewItem] = useState<FUIDItem>(emptyItem);
   const [loading, setLoading] = useState(false);
+  const [printingItem, setPrintingItem] = useState<any>(null);
   const auth = useAuth();
 
   // Cargar inventario existente
@@ -44,6 +46,7 @@ export default function Inventario() {
   }, [auth]);
 
   const fetchInventario = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${API_URL}/inventario`, {
         headers: { Authorization: `Bearer ${auth.getAccessToken()}` },
@@ -54,6 +57,77 @@ export default function Inventario() {
       }
     } catch (error) {
       console.error("Error cargando inventario", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- Lógica de Importación Masiva ---
+  const handleImportClick = () => {
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) fileInput.click();
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await fetch(`${API_URL}/exportar/fuid`, {
+        headers: { Authorization: `Bearer ${auth.getAccessToken()}` },
+      });
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "FUID_Oficial.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        alert("Error al exportar");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error de conexión al exportar");
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/importar/inventario`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${auth.getAccessToken()}`,
+            // No Content-Type header needed for FormData, browser sets it with boundary
+          },
+          body: formData,
+        });
+
+        const json = await response.json();
+        if (response.ok) {
+          alert(`Importación completada.\nInsertados: ${json.body.resumen.insertados}\nFallidos: ${json.body.resumen.fallidos}`);
+          if (json.body.resumen.errores.length > 0) {
+            console.warn("Errores de importación:", json.body.resumen.errores);
+            alert("Revise la consola para ver los detalles de los errores.");
+          }
+          fetchInventario();
+        } else {
+          alert(`Error en importación: ${json.body.error}`);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error de conexión al importar.");
+      } finally {
+        setLoading(false);
+        // Limpiar input
+        e.target.value = '';
+      }
     }
   };
 
@@ -115,14 +189,29 @@ export default function Inventario() {
     <PortalLayout>
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <h1>Inventario Documental (FUID)</h1>
-        <button className="btn btn-secondary" onClick={fetchInventario}>Refrescar</button>
+        <div style={{display:'flex', gap:'10px'}}>
+            <input type="file" id="fileInput" style={{display:'none'}} accept=".xlsx, .xls" onChange={handleFileChange} />
+            <button className="btn btn-secondary" onClick={handleImportClick}>📂 Importar Excel</button>
+            <button className="btn btn-success" onClick={handleExport} style={{backgroundColor:'#137333', color:'white'}}>📊 Exportar FUID</button>
+            <button className="btn btn-secondary" onClick={fetchInventario}>Refrescar</button>
+        </div>
       </div>
       
-      <p className="text-muted">
-        Formato Único de Inventario Documental. Ingrese los expedientes fila por fila.
-      </p>
-
-      {/* Tabla Grid */}
+            
+      
+            <p className="text-muted">
+      
+              Formato Único de Inventario Documental. Ingrese los expedientes fila por fila.
+      
+            </p>
+      
+      
+      
+            {loading && <div style={{textAlign: 'center', padding: '10px', color: '#1a73e8'}}>Cargando datos...</div>}
+      
+      
+      
+            {/* Tabla Grid */}
       <div className='card' style={{padding: '0', overflowX: 'auto'}}>
         <table style={{width: '100%', borderCollapse: 'collapse', minWidth: '1200px', fontSize: '14px'}}>
             <thead style={{backgroundColor: '#f8f9fa'}}>
@@ -202,6 +291,19 @@ export default function Inventario() {
                         <td style={tdStyle}>{item.numeroFolios}</td>
                         <td style={tdStyle}>{item.soporte}</td>
                         <td style={tdStyle}>
+                           <button onClick={() => setPrintingItem({
+                               empresa: 'EMPRESA DEMO S.A.S',
+                               unidadAdministrativa: 'Gestión Documental',
+                               serie: item.nombreSerie || item.codigo || 'Sin Serie',
+                               subserie: '',
+                               asunto: item.asunto,
+                               fechas: `${item.fechaInicial || ''} - ${item.fechaFinal || ''}`,
+                               noCaja: item.numeroCaja || '0',
+                               noCarpeta: item.numeroCarpeta || '0',
+                               noFolios: item.numeroFolios || 0
+                           })} style={{border:'none', background:'none', color:'#555', cursor:'pointer', marginRight:'5px'}} title="Imprimir Rótulo">
+                             <MdPrint />
+                           </button>
                            <button onClick={() => item._id && handleDelete(item._id)} style={{border:'none', background:'none', color:'red', cursor:'pointer'}}>
                              <MdDelete />
                            </button>
@@ -213,6 +315,13 @@ export default function Inventario() {
         
         {items.length === 0 && <div style={{padding: '20px', textAlign: 'center', color: '#666'}}>No hay registros en el inventario. Use la primera fila azul para agregar.</div>}
       </div>
+
+      {printingItem && (
+        <RotuloCaja 
+            data={printingItem} 
+            onClose={() => setPrintingItem(null)} 
+        />
+      )}
 
       <style>{`
         .input-grid {
