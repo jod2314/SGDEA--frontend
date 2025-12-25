@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PortalLayout from '../layout/PortalLayout';
 import { useAuth } from '../auth/AuthProvider';
 import { API_URL } from '../auth/authConstants';
-import { MdAdd, MdDelete, MdSave, MdPrint } from 'react-icons/md';
+import { MdAdd, MdDelete, MdSave, MdPrint, MdRule } from 'react-icons/md';
 import RotuloCaja from '../components/RotuloCaja';
 
 // Interfaz alineada con el nuevo Schema FUID
@@ -21,6 +21,11 @@ interface FUIDItem {
   soporte?: string;
   frecuenciaConsulta?: 'Alta' | 'Media' | 'Baja';
   notas?: string;
+  valuation?: {
+    estado: string;
+    accionSugerida: string;
+    fechaDisposicionFinal: string;
+  };
 }
 
 const emptyItem: FUIDItem = {
@@ -59,6 +64,39 @@ export default function Inventario() {
       console.error("Error cargando inventario", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // --- Lógica de Valoración (Nuevo) ---
+  const handleCheckValuation = async () => {
+    setLoading(true);
+    try {
+        const response = await fetch(`${API_URL}/valuation/report`, {
+            headers: { Authorization: `Bearer ${auth.getAccessToken()}` }
+        });
+        if(response.ok) {
+            const json = await response.json();
+            const report = json.body.data;
+            
+            // Mezclar el reporte con los items actuales
+            // Asumimos que el orden o los IDs coinciden. Lo ideal es mapear por ID.
+            const newItems = items.map(item => {
+                const valResult = report.find((r:any) => r._id === item._id);
+                if (valResult && valResult.calculable) {
+                    return { ...item, valuation: valResult };
+                }
+                return item;
+            });
+            setItems(newItems);
+            alert("Valoración completada. Revise la columna de acciones/estado.");
+        } else {
+            alert("No se pudo realizar la valoración. Asegúrese de tener una TRD activa.");
+        }
+    } catch(error) {
+        console.error(error);
+        alert("Error al consultar el motor de valoración");
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -192,6 +230,9 @@ export default function Inventario() {
         <div style={{display:'flex', gap:'10px'}}>
             <input type="file" id="fileInput" style={{display:'none'}} accept=".xlsx, .xls" onChange={handleFileChange} />
             <button className="btn btn-secondary" onClick={handleImportClick}>📂 Importar Excel</button>
+            <button className="btn btn-warning" onClick={handleCheckValuation} title="Aplicar TVD/TRD para ver disposición final">
+                <MdRule /> Valorar
+            </button>
             <button className="btn btn-success" onClick={handleExport} style={{backgroundColor:'#137333', color:'white'}}>📊 Exportar FUID</button>
             <button className="btn btn-secondary" onClick={fetchInventario}>Refrescar</button>
         </div>
@@ -276,10 +317,28 @@ export default function Inventario() {
                 </tr>
 
                 {/* Filas de Datos */}
-                {items.map((item, idx) => (
-                    <tr key={item._id || idx} style={{borderBottom: '1px solid #ddd'}}>
+                {items.map((item, idx) => {
+                    // Determinar estilo de fila según valoración
+                    let rowStyle = {borderBottom: '1px solid #ddd', backgroundColor: 'transparent'};
+                    if (item.valuation) {
+                        if (item.valuation.estado === 'CUMPLIDO') {
+                            rowStyle.backgroundColor = '#ffebee'; // Rojo claro para eliminar/disposición
+                        } else if (item.valuation.estado === 'VIGENTE') {
+                            rowStyle.backgroundColor = '#e8f5e9'; // Verde claro vigente
+                        }
+                    }
+
+                    return (
+                    <tr key={item._id || idx} style={rowStyle}>
                         <td style={tdStyle}>{item.numeroOrden || idx + 1}</td>
-                        <td style={tdStyle}>{item.codigo}</td>
+                        <td style={tdStyle}>
+                            {item.codigo}
+                            {item.valuation && (
+                                <div style={{fontSize:'0.7em', color: item.valuation.estado === 'CUMPLIDO' ? 'red' : 'green'}}>
+                                    {item.valuation.accionSugerida}
+                                </div>
+                            )}
+                        </td>
                         <td style={tdStyle}>{item.asunto}</td>
                         <td style={tdStyle}>
                           {item.fechaInicial ? new Date(item.fechaInicial).toLocaleDateString() : ''} - 
@@ -309,7 +368,7 @@ export default function Inventario() {
                            </button>
                         </td>
                     </tr>
-                ))}
+                )})}
             </tbody>
         </table>
         
