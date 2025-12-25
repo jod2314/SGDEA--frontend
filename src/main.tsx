@@ -16,6 +16,7 @@ import Trd from "./routes/Trd.tsx"; // Import the new Trd component
 import Radicacion from "./routes/Radicacion.tsx"; // Import the new Radicacion component
 import Expedientes from "./routes/Expedientes.tsx";
 import ExpedienteDetalle from "./routes/ExpedienteDetalle.tsx";
+import HistoriaInstitucional from "./routes/HistoriaInstitucional.tsx"; // Import
 
 import "./index.css";
 
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/me",
         element: <Profile />,
+      },
+      {
+        path: "/historia", // Nueva ruta
+        element: <HistoriaInstitucional />,
       },
       {
         path: "/diagnostico",

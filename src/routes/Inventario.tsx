@@ -10,6 +10,7 @@ interface FUIDItem {
   _id?: string;
   numeroOrden?: number;
   codigo?: string;
+  dependencia?: string; // ID de dependencia productora
   nombreSerie?: string;
   asunto: string; // Required
   fechaInicial?: string;
@@ -35,7 +36,8 @@ const emptyItem: FUIDItem = {
   frecuenciaConsulta: 'Baja',
   numeroCaja: '',
   numeroCarpeta: '',
-  numeroFolios: 0
+  numeroFolios: 0,
+  dependencia: ''
 };
 
 export default function Inventario() {
@@ -43,12 +45,39 @@ export default function Inventario() {
   const [newItem, setNewItem] = useState<FUIDItem>(emptyItem);
   const [loading, setLoading] = useState(false);
   const [printingItem, setPrintingItem] = useState<any>(null);
+  
+  // Estados para Dependencias Dinámicas (Fondos Acumulados)
+  const [periodos, setPeriodos] = useState<any[]>([]);
+  const [dependencias, setDependencias] = useState<any[]>([]);
+  const [periodoActivo, setPeriodoActivo] = useState<string>(''); // Nombre del periodo detectado
+
   const auth = useAuth();
 
-  // Cargar inventario existente
+  // Cargar inventario existente y periodos históricos
   useEffect(() => {
     fetchInventario();
+    fetchPeriodos();
   }, [auth]);
+
+  // Efecto: Cuando cambia la fecha inicial, buscar el periodo y cargar sus dependencias
+  useEffect(() => {
+    if (newItem.fechaInicial && periodos.length > 0) {
+        const fecha = new Date(newItem.fechaInicial);
+        const periodoEncontrado = periodos.find(p => {
+            const inicio = new Date(p.fechaInicio);
+            const fin = new Date(p.fechaFin);
+            return fecha >= inicio && fecha <= fin;
+        });
+
+        if (periodoEncontrado) {
+            setPeriodoActivo(periodoEncontrado.nombre);
+            fetchDependencias(periodoEncontrado._id);
+        } else {
+            setPeriodoActivo('Sin periodo histórico definido para esta fecha');
+            setDependencias([]);
+        }
+    }
+  }, [newItem.fechaInicial, periodos]);
 
   const fetchInventario = async () => {
     setLoading(true);
@@ -65,6 +94,30 @@ export default function Inventario() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPeriodos = async () => {
+      try {
+          const res = await fetch(`${API_URL}/historico`, {
+              headers: { Authorization: `Bearer ${auth.getAccessToken()}` }
+          });
+          if(res.ok) {
+              const json = await res.json();
+              setPeriodos(json.body.data);
+          }
+      } catch (err) { console.error(err); }
+  };
+
+  const fetchDependencias = async (periodoId: string) => {
+      try {
+          const res = await fetch(`${API_URL}/estructura?periodoId=${periodoId}`, {
+              headers: { Authorization: `Bearer ${auth.getAccessToken()}` }
+          });
+          if(res.ok) {
+              const json = await res.json();
+              setDependencias(json.body.data);
+          }
+      } catch(err) { console.error(err); }
   };
 
   // --- Lógica de Valoración (Nuevo) ---
@@ -196,7 +249,7 @@ export default function Inventario() {
 
       if (response.ok) {
         setItems([...items, json.body.data]);
-        setNewItem({ ...emptyItem, numeroCaja: newItem.numeroCaja }); // Mantener el número de caja para agilizar ingreso
+        setNewItem({ ...emptyItem, numeroCaja: newItem.numeroCaja, fechaInicial: newItem.fechaInicial, dependencia: newItem.dependencia }); // Mantener datos contextuales
       } else {
         alert(`Error: ${json.body.error}`);
       }
@@ -241,9 +294,8 @@ export default function Inventario() {
             
       
             <p className="text-muted">
-      
               Formato Único de Inventario Documental. Ingrese los expedientes fila por fila.
-      
+              {periodoActivo && <span style={{marginLeft: '15px', color: '#1a73e8', fontWeight:'bold'}}> Periodo Detectado: {periodoActivo}</span>}
             </p>
       
       
@@ -252,20 +304,20 @@ export default function Inventario() {
       
       
       
-            {/* Tabla Grid */}
+            {/*Tabla Grid */}
       <div className='card' style={{padding: '0', overflowX: 'auto'}}>
-        <table style={{width: '100%', borderCollapse: 'collapse', minWidth: '1200px', fontSize: '14px'}}>
+        <table style={{width: '100%', borderCollapse: 'collapse', minWidth: '1300px', fontSize: '14px'}}>
             <thead style={{backgroundColor: '#f8f9fa'}}>
                 <tr>
                     <th style={thStyle}>No. Orden</th>
+                    <th style={thStyle}>Fechas Extremas</th>
+                    <th style={thStyle}>Dependencia</th>
                     <th style={thStyle}>Código</th>
                     <th style={thStyle}>Asunto / Descripción</th>
-                    <th style={thStyle}>Fechas Extremas</th>
                     <th style={thStyle}>U. Conserv.</th>
                     <th style={thStyle}>No. Caja</th>
                     <th style={thStyle}>No. Carpeta</th>
                     <th style={thStyle}>Folios</th>
-                    <th style={thStyle}>Soporte</th>
                     <th style={thStyle}>Acciones</th>
                 </tr>
             </thead>
@@ -274,17 +326,26 @@ export default function Inventario() {
                 <tr style={{backgroundColor: '#e8f0fe', borderBottom: '2px solid #1a73e8'}}>
                    <td style={tdStyle}>Auto</td>
                    <td style={tdStyle}>
+                     <div style={{display:'flex', gap:'2px', flexDirection:'column'}}>
+                       <input type="date" className="input-grid" name="fechaInicial" value={newItem.fechaInicial || ''} onChange={handleInputChange} title="Fecha Inicial" style={{fontSize:'11px'}} />
+                       <input type="date" className="input-grid" name="fechaFinal" value={newItem.fechaFinal || ''} onChange={handleInputChange} title="Fecha Final" style={{fontSize:'11px'}} />
+                     </div>
+                   </td>
+                   <td style={tdStyle}>
+                       <select className="input-grid" name="dependencia" value={newItem.dependencia || ''} onChange={handleInputChange} disabled={!newItem.fechaInicial}>
+                           <option value="">Seleccione...</option>
+                           {dependencias.map(d => (
+                               <option key={d._id} value={d._id}>{d.codigo} - {d.nombre}</option>
+                           ))}
+                       </select>
+                   </td>
+                   <td style={tdStyle}>
                      <input className="input-grid" name="codigo" placeholder="Serie/Sub" value={newItem.codigo || ''} onChange={handleInputChange} />
                    </td>
                    <td style={tdStyle}>
                      <input className="input-grid" name="asunto" placeholder="Descripción del expediente" value={newItem.asunto} onChange={handleInputChange} autoFocus />
                    </td>
-                   <td style={tdStyle}>
-                     <div style={{display:'flex', gap:'2px'}}>
-                       <input type="date" className="input-grid" name="fechaInicial" value={newItem.fechaInicial || ''} onChange={handleInputChange} title="Fecha Inicial" />
-                       <input type="date" className="input-grid" name="fechaFinal" value={newItem.fechaFinal || ''} onChange={handleInputChange} title="Fecha Final" />
-                     </div>
-                   </td>
+                   
                    <td style={tdStyle}>
                      <select className="input-grid" name="unidadConservacion" value={newItem.unidadConservacion} onChange={handleInputChange}>
                        <option value="Carpeta">Carpeta</option>
@@ -332,6 +393,14 @@ export default function Inventario() {
                     <tr key={item._id || idx} style={rowStyle}>
                         <td style={tdStyle}>{item.numeroOrden || idx + 1}</td>
                         <td style={tdStyle}>
+                          {item.fechaInicial ? new Date(item.fechaInicial).toLocaleDateString() : ''} <br/>
+                          {item.fechaFinal ? new Date(item.fechaFinal).toLocaleDateString() : ''}
+                        </td>
+                        <td style={tdStyle}>
+                           {/* Mostrar nombre de dependencia si está poblado (requeriría ajuste en backend .populate o búsqueda local) */}
+                           {item.dependencia || '-'}
+                        </td>
+                        <td style={tdStyle}>
                             {item.codigo}
                             {item.valuation && (
                                 <div style={{fontSize:'0.7em', color: item.valuation.estado === 'CUMPLIDO' ? 'red' : 'green'}}>
@@ -340,10 +409,7 @@ export default function Inventario() {
                             )}
                         </td>
                         <td style={tdStyle}>{item.asunto}</td>
-                        <td style={tdStyle}>
-                          {item.fechaInicial ? new Date(item.fechaInicial).toLocaleDateString() : ''} - 
-                          {item.fechaFinal ? new Date(item.fechaFinal).toLocaleDateString() : ''}
-                        </td>
+                        
                         <td style={tdStyle}>{item.unidadConservacion}</td>
                         <td style={tdStyle}>{item.numeroCaja}</td>
                         <td style={tdStyle}>{item.numeroCarpeta}</td>
@@ -368,7 +434,7 @@ export default function Inventario() {
                            </button>
                         </td>
                     </tr>
-                )})}
+                )})
             </tbody>
         </table>
         

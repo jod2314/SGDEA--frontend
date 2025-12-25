@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { MdDashboard, MdPerson, MdLogout, MdOutlineScience, MdInventory, MdOutlineTableView, MdNoteAdd, MdFolder } from 'react-icons/md';
+import { MdDashboard, MdPerson, MdLogout, MdOutlineScience, MdInventory, MdOutlineTableView, MdNoteAdd, MdFolder, MdHistory } from 'react-icons/md';
 
 interface DrawerProps {
   isOpen: boolean;
@@ -17,6 +17,12 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
       <nav>
         <ul className="drawer-menu">
           <li className="drawer-menu-title">Gestión Documental</li>
+          <li className="drawer-menu-item">
+            <NavLink to="/historia">
+              <MdHistory />
+              <span>Historia Institucional</span>
+            </NavLink>
+          </li>
           <li className="drawer-menu-item">
             <NavLink to="/diagnostico">
               <MdOutlineScience />
