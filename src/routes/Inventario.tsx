@@ -434,7 +434,7 @@ export default function Inventario() {
                            </button>
                         </td>
                     </tr>
-                )})
+                )})}
             </tbody>
         </table>
         
