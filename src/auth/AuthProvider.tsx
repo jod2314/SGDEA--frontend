@@ -156,7 +156,10 @@ async function retrieveUserInfo(accessToken: string) {
       console.log(json);
       return json.body;
     }
-  } catch (error) {}
+    return null;
+  } catch (error) {
+    return null;
+  }
 }
 
 export const useAuth = () => useContext(AuthContext);
