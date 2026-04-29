@@ -1,6 +1,9 @@
 import React, { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { MdPrint, MdClose } from 'react-icons/md';
+import * as IconsMd from 'react-icons/md';
+
+const MdPrint = IconsMd.MdPrint as any;
+const MdClose = IconsMd.MdClose as any;
 
 interface RotuloProps {
   data: {
@@ -31,10 +34,10 @@ const RotuloCaja: React.FC<RotuloProps> = ({ data, onClose }) => {
             <h3>Vista Previa Rótulo</h3>
             <div>
                 <button onClick={() => handlePrint()} className="btn btn-primary" style={{marginRight:'10px'}}>
-                  <span><MdPrint/></span> Imprimir
+                  <MdPrint /> Imprimir
                 </button>
                 <button onClick={onClose} className="btn btn-secondary">
-                  <span><MdClose/></span>
+                  <MdClose />
                 </button>
             </div>
         </div>
