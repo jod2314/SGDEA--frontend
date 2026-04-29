@@ -3,7 +3,11 @@ import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/authConstants";
 import { useNavigate } from "react-router-dom";
 import PortalLayout from "../layout/PortalLayout";
-import { MdSearch, MdCheckCircle, MdBusiness } from "react-icons/md";
+import * as IconsMd from "react-icons/md";
+
+const MdSearch = IconsMd.MdSearch as any;
+const MdCheckCircle = IconsMd.MdCheckCircle as any;
+const MdBusiness = IconsMd.MdBusiness as any;
 
 export default function CrearEmpresa() {
   const [name, setName] = useState("");

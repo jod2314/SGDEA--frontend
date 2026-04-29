@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MdMenu, MdBusiness, MdPerson, MdKeyboardArrowDown, MdAdd } from 'react-icons/md';
+import * as IconsMd from 'react-icons/md';
 import { useAuth } from '../auth/AuthProvider';
 import { API_URL } from '../auth/authConstants';
 import { Empresa } from '../types/types';
 import { useNavigate } from 'react-router-dom';
+
+const MdMenu = IconsMd.MdMenu as any;
+const MdBusiness = IconsMd.MdBusiness as any;
+const MdPerson = IconsMd.MdPerson as any;
+const MdKeyboardArrowDown = IconsMd.MdKeyboardArrowDown as any;
+const MdAdd = IconsMd.MdAdd as any;
 
 interface AppBarProps {
   onMenuClick: () => void;

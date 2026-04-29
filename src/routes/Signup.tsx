@@ -2,8 +2,10 @@ import { useState } from "react";
 import DefaultLayout from "../layout/DefaultLayout";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../auth/authConstants";
-import { MdPersonAdd } from "react-icons/md";
+import * as IconsMd from "react-icons/md";
 import { AuthResponseError } from "../types/types";
+
+const MdPersonAdd = IconsMd.MdPersonAdd as any;
 
 export default function Signup() {
   const [name, setName] = useState("");

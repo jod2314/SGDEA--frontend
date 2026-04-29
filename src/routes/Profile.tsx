@@ -2,7 +2,15 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/authConstants";
 import PortalLayout from "../layout/PortalLayout";
-import { MdEdit, MdSave, MdCancel, MdBusiness, MdPerson, MdBadge, MdLocationOn } from "react-icons/md";
+import * as IconsMd from "react-icons/md";
+
+const MdEdit = IconsMd.MdEdit as any;
+const MdSave = IconsMd.MdSave as any;
+const MdCancel = IconsMd.MdCancel as any;
+const MdBusiness = IconsMd.MdBusiness as any;
+const MdPerson = IconsMd.MdPerson as any;
+const MdBadge = IconsMd.MdBadge as any;
+const MdLocationOn = IconsMd.MdLocationOn as any;
 
 export default function Profile() {
   const auth = useAuth();

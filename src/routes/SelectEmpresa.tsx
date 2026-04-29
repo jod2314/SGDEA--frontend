@@ -4,7 +4,11 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { API_URL } from "../auth/authConstants";
 import { Empresa } from "../types/types";
 import PortalLayout from "../layout/PortalLayout";
-import { MdPerson, MdBusiness, MdAddBusiness } from "react-icons/md";
+import * as IconsMd from "react-icons/md";
+
+const MdPerson = IconsMd.MdPerson as any;
+const MdBusiness = IconsMd.MdBusiness as any;
+const MdAddBusiness = IconsMd.MdAddBusiness as any;
 
 export default function SelectEmpresa() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
