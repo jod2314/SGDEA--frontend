@@ -41,6 +41,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     );
     setUser(userData.body.user);
     setIsAuthenticated(true);
+
+    // INICIALIZACIÓN DE CONTEXTO (Espacio Personal)
+    fetch(`${API_URL}/empresas/inicializar`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${userData.body.accessToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.body && json.body.personalSpace) {
+          setSelectedEmpresa(json.body.personalSpace);
+        }
+      })
+      .catch((err) => console.error("Error inicializando:", err));
   }
 
   function setSelectedEmpresa(empresa: Empresa) {
