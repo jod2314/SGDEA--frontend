@@ -18,10 +18,10 @@ interface RotuloProps {
 }
 
 const RotuloCaja: React.FC<RotuloProps> = ({ data, onClose }) => {
-  const componentRef = useRef(null);
+  const componentRef = useRef<HTMLDivElement>(null);
   
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
+    contentRef: componentRef,
   });
 
   return (
@@ -30,8 +30,12 @@ const RotuloCaja: React.FC<RotuloProps> = ({ data, onClose }) => {
         <div style={{display:'flex', justifyContent:'space-between', marginBottom:'20px'}}>
             <h3>Vista Previa Rótulo</h3>
             <div>
-                <button onClick={handlePrint} className="btn btn-primary" style={{marginRight:'10px'}}><MdPrint/> Imprimir</button>
-                <button onClick={onClose} className="btn btn-secondary"><MdClose/></button>
+                <button onClick={() => handlePrint()} className="btn btn-primary" style={{marginRight:'10px'}}>
+                  <span><MdPrint/></span> Imprimir
+                </button>
+                <button onClick={onClose} className="btn btn-secondary">
+                  <span><MdClose/></span>
+                </button>
             </div>
         </div>
 
