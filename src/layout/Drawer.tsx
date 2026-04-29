@@ -5,12 +5,6 @@ import * as IconsMd from 'react-icons/md';
 const MdDashboard = IconsMd.MdDashboard as any;
 const MdPerson = IconsMd.MdPerson as any;
 const MdLogout = IconsMd.MdLogout as any;
-const MdOutlineScience = IconsMd.MdOutlineScience as any;
-const MdInventory = IconsMd.MdInventory as any;
-const MdOutlineTableView = IconsMd.MdOutlineTableView as any;
-const MdNoteAdd = IconsMd.MdNoteAdd as any;
-const MdFolder = IconsMd.MdFolder as any;
-const MdHistory = IconsMd.MdHistory as any;
 
 interface DrawerProps {
   isOpen: boolean;
