@@ -8,9 +8,8 @@ import { AuthResponseError } from "../types/types";
 export default function Signup() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [identification, setIdentification] = useState("");
   const [password, setPassword] = useState("");
-  const [empresaName, setEmpresaName] = useState("");
-  const [nit, setNit] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
   const goTo = useNavigate();
@@ -22,12 +21,12 @@ export default function Signup() {
       const response = await fetch(`${API_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, username, password, empresaName, nit }),
+        body: JSON.stringify({ name, username, identification, password }),
       });
 
       if (response.ok) {
         console.log("User created successfully");
-        goTo("/"); // Redirect to login page after successful signup
+        goTo("/login");
       } else {
         const json = (await response.json()) as AuthResponseError;
         setErrorResponse(json.body.error);
@@ -41,25 +40,24 @@ export default function Signup() {
   return (
     <DefaultLayout>
       <form onSubmit={handleSubmit} className="form">
-        <h1>Crear Cuenta de Empresa</h1>
-        <p className="text-muted center" style={{marginTop: '-10px', marginBottom: '10px'}}>El primer usuario será el Administrador.</p>
+        <h1>Crear Cuenta</h1>
+        <p className="text-muted center" style={{marginTop: '-10px', marginBottom: '10px'}}>
+          Regístrate para gestionar tus documentos personales y corporativos.
+        </p>
+
         {!!errorResponse && <div className="errorMessage">{errorResponse}</div>}
-
-        <label>Nombre de la Empresa</label>
-        <input
-          type="text"
-          value={empresaName}
-          onChange={(e) => setEmpresaName(e.target.value)}
-          required
-        />
-
-        <label>NIT de la Empresa</label>
-        <input type="text" value={nit} onChange={(e) => setNit(e.target.value)} required />
-
-        <hr style={{width: '100%', border: '1px solid var(--bg-app)'}}/>
 
         <label>Tu Nombre Completo</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+
+        <label>Identificación (Cédula o NIT)</label>
+        <input 
+          type="text" 
+          value={identification} 
+          onChange={(e) => setIdentification(e.target.value)} 
+          required 
+          placeholder="Ej: 12345678"
+        />
 
         <label>Nombre de Usuario (para login)</label>
         <input
@@ -78,7 +76,7 @@ export default function Signup() {
         />
 
         <button type="submit" className="btn btn-primary">
-          <span>Crear Cuenta</span>
+          <span>Registrarse</span>
           <MdPersonAdd />
         </button>
       </form>

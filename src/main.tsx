@@ -8,6 +8,8 @@ import { AuthProvider } from "./auth/AuthProvider.tsx";
 import Dashboard from "./routes/Dashboard.tsx";
 import ProtectedRoute from "./routes/ProtectedRoute.tsx";
 import Profile from "./routes/Profile.tsx";
+import SelectEmpresa from "./routes/SelectEmpresa.tsx";
+import CrearEmpresa from "./routes/CrearEmpresa.tsx";
 
 import "./index.css";
 
@@ -29,6 +31,14 @@ const router = createBrowserRouter([
         element: <Navigate to="/dashboard" />,
       },
     ],
+  },
+  {
+    path: "/select-empresa",
+    element: <SelectEmpresa />,
+  },
+  {
+    path: "/crear-empresa",
+    element: <CrearEmpresa />,
   },
   {
     path: "/login",

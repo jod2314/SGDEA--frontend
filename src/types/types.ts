@@ -12,9 +12,19 @@ export interface AuthResponseError {
 }
 
 export interface User {
-  _id: string;
+  id: string;
   name: string;
   username: string;
+}
+
+export interface Empresa {
+  id: string;
+  name: string;
+  nit: string;
+  logo?: string;
+  isPersonal: boolean;
+  rol: string;
+  estado: string;
 }
 
 export interface AccessTokenResponse {

@@ -1,19 +1,21 @@
 import { useContext, createContext, useState, useEffect } from "react";
-import type { AuthResponse, User } from "../types/types";
+import type { AuthResponse, User, Empresa } from "../types/types";
 import requestNewAccessToken from "./requestNewAccessToken";
 import { API_URL } from "./authConstants";
 
 const AuthContext = createContext({
   isAuthenticated: false,
-  getAccessToken: () => {},
+  getAccessToken: () => "" as string,
   setAccessTokenAndRefreshToken: (
     _accessToken: string,
     _refreshToken: string
   ) => {},
-  getRefreshToken: () => {},
+  getRefreshToken: () => null as string | null,
   saveUser: (_userData: AuthResponse) => {},
   getUser: () => ({} as User | undefined),
   signout: () => {},
+  setSelectedEmpresa: (_empresa: Empresa) => {},
+  getSelectedEmpresa: () => ({} as Empresa | undefined),
 });
 
 interface AuthProviderProps {
@@ -26,6 +28,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [refreshToken, setRefreshToken] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isloading, setIsLoading] = useState(true);
+  const [selectedEmpresa, setSelectedEmpresaState] = useState<Empresa | undefined>();
 
   function getAccessToken() {
     return accessToken;
@@ -38,6 +41,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     );
     setUser(userData.body.user);
     setIsAuthenticated(true);
+  }
+
+  function setSelectedEmpresa(empresa: Empresa) {
+    setSelectedEmpresaState(empresa);
+    localStorage.setItem("selectedEmpresa", JSON.stringify(empresa));
+  }
+
+  function getSelectedEmpresa(): Empresa | undefined {
+    return selectedEmpresa;
   }
 
   function setAccessTokenAndRefreshToken(
@@ -77,14 +89,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   function signout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("selectedEmpresa");
     setAccessToken("");
     setRefreshToken("");
     setUser(undefined);
+    setSelectedEmpresaState(undefined);
     setIsAuthenticated(false);
   }
 
   async function checkAuth() {
     try {
+      const storedEmpresa = localStorage.getItem("selectedEmpresa");
+      if (storedEmpresa) {
+        setSelectedEmpresaState(JSON.parse(storedEmpresa));
+      }
+
       if (!!accessToken) {
         //existe access token
         const userInfo = await retrieveUserInfo(accessToken);
@@ -134,6 +153,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         saveUser,
         getUser,
         signout,
+        setSelectedEmpresa,
+        getSelectedEmpresa,
       }}
     >
       {isloading ? <div>Loading...</div> : children}
