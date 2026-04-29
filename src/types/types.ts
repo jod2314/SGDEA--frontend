@@ -25,6 +25,7 @@ export interface Empresa {
   isPersonal: boolean;
   rol: string;
   estado: string;
+  direccion?: string;
 }
 
 export interface AccessTokenResponse {

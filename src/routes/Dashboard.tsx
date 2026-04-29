@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import PortalLayout from "../layout/PortalLayout";
 import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/authConstants";
-import {
-  MdPostAdd,
-  MdArticle,
-  MdCheckBox,
-  MdCheckBoxOutlineBlank,
-  MdEdit,
-  MdDelete,
-} from "react-icons/md";
+import * as IconsMd from "react-icons/md";
+
+const MdPostAdd = IconsMd.MdPostAdd as any;
+const MdArticle = IconsMd.MdArticle as any;
+const MdCheckBox = IconsMd.MdCheckBox as any;
+const MdCheckBoxOutlineBlank = IconsMd.MdCheckBoxOutlineBlank as any;
+const MdEdit = IconsMd.MdEdit as any;
+const MdDelete = IconsMd.MdDelete as any;
 
 interface Todo {
   _id: string;
