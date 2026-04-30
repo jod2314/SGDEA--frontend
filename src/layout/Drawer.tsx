@@ -40,6 +40,12 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
             </NavLink>
           </li>
           <li className="drawer-menu-item">
+            <NavLink to="/configuracion-trd">
+              <IconsMd.MdSettings />
+              <span>Configuración TRD</span>
+            </NavLink>
+          </li>
+          <li className="drawer-menu-item">
             <NavLink to="/entidades">
               <MdPeople />
               <span>Terceros (Entidades)</span>

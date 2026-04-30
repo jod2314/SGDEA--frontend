@@ -19,13 +19,76 @@ export interface User {
 
 export interface Empresa {
   id: string;
-  name: string;
+  razonSocial: string;
   nit: string;
   logo?: string;
   isPersonal: boolean;
   rol: string;
   estado: string;
   direccion?: string;
+  tipoPersona: 'natural' | 'juridica';
+  nombreComercial?: string;
+  sigla?: string;
+  nombres?: string;
+  primerApellido?: string;
+  segundoApellido?: string;
+  tipoDocumentoId: string;
+  numeroDocumentoId?: string;
+  digitoVerificacion?: string;
+  ciudad?: string;
+  departamento?: string;
+  telefono?: string;
+  correo?: string;
+  sitioWeb?: string;
+  logoAlturaMm?: number;
+  logoAnchoMm?: number;
+  configuracion?: {
+    tipografia: string;
+    colores: {
+      primario: string;
+      secundario: string;
+    };
+    margenesDefecto: {
+      top: string;
+      bottom: string;
+      left: string;
+      right: string;
+    };
+  };
+}
+
+export interface Dependencia {
+  id: string;
+  codigoDependencia: string;
+  nombreDependencia: string;
+  dependenciaPadreId?: string;
+  esJuntaDirectiva: boolean;
+  estado: 'activo' | 'inactivo';
+}
+
+export interface SerieDocumental {
+  id: string;
+  codigoSerie: string;
+  nombreSerie: string;
+  tiempoRetencionGestion?: number;
+  tiempoRetencionCentral?: number;
+  disposicionFinal?: 'Conservación Total' | 'Eliminación' | 'Selección' | 'Medio Técnico';
+  origen: 'BANTER' | 'manual';
+}
+
+export interface SubserieDocumental {
+  id: string;
+  serieId: string | SerieDocumental;
+  codigoSubserie: string;
+  nombreSubserie: string;
+}
+
+export interface TRD {
+  id: string;
+  dependenciaId: string | Dependencia;
+  subserieId: string | SubserieDocumental;
+  codigoTRD: string;
+  estado: 'vigente' | 'obsoleto';
 }
 
 export interface AccessTokenResponse {

@@ -13,6 +13,7 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { Image } from "@tiptap/extension-image";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import * as IconsMd from "react-icons/md";
+import { TRD } from "../types/types";
 
 const MdSave = (IconsMd as any).MdSave;
 const MdArrowBack = (IconsMd as any).MdArrowBack;
@@ -31,6 +32,8 @@ export default function CrearEditarPlantilla() {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [subserieId, setSubserieId] = useState("");
+  const [trds, setTrds] = useState<TRD[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -54,10 +57,31 @@ export default function CrearEditarPlantilla() {
   });
 
   useEffect(() => {
-    if (id && auth.isAuthenticated) {
-      fetchPlantilla();
+    if (auth.isAuthenticated) {
+      fetchTrds();
+      if (id) {
+        fetchPlantilla();
+      }
     }
   }, [id, auth.isAuthenticated]);
+
+  async function fetchTrds() {
+    const empresa = auth.getSelectedEmpresa();
+    try {
+      const response = await fetch(`${API_URL}/archivistica/trd`, {
+        headers: {
+          Authorization: `Bearer ${auth.getAccessToken()}`,
+          "X-Empresa-ID": empresa?.id || "",
+        },
+      });
+      if (response.ok) {
+        const json = await response.json();
+        setTrds(json.body.trd);
+      }
+    } catch (error) {
+      console.error("Error al cargar TRDs:", error);
+    }
+  }
 
   async function fetchPlantilla() {
     setLoading(true);
@@ -73,6 +97,7 @@ export default function CrearEditarPlantilla() {
         const json = await response.json();
         setNombre(json.body.plantilla.nombre);
         setDescripcion(json.body.plantilla.descripcion);
+        setSubserieId(json.body.plantilla.subserieId || "");
         editor?.commands.setContent(json.body.plantilla.contenidoHtml);
       }
     } catch (error) {
@@ -99,7 +124,7 @@ export default function CrearEditarPlantilla() {
           Authorization: `Bearer ${auth.getAccessToken()}`,
           "X-Empresa-ID": empresa?.id || "",
         },
-        body: JSON.stringify({ nombre, descripcion, contenidoHtml }),
+        body: JSON.stringify({ nombre, descripcion, contenidoHtml, subserieId }),
       });
 
       if (response.ok) {
@@ -141,7 +166,7 @@ export default function CrearEditarPlantilla() {
         </header>
 
         <div className="editor-meta card" style={{ marginBottom: '20px', padding: '15px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
             <div>
               <label>Nombre del Formato</label>
               <input 
@@ -152,6 +177,22 @@ export default function CrearEditarPlantilla() {
                 className="edit-input"
                 style={{ width: '100%' }}
               />
+            </div>
+            <div>
+              <label>Clasificación Archivística (TRD)</label>
+              <select 
+                value={subserieId} 
+                onChange={(e) => setSubserieId(e.target.value)}
+                className="edit-input"
+                style={{ width: '100%' }}
+              >
+                <option value="">Seleccionar TRD...</option>
+                {trds.map(trd => (
+                  <option key={trd.id} value={(trd.subserieId as any)._id}>
+                    {trd.codigoTRD} - {(trd.subserieId as any).nombreSubserie} ({(trd.dependenciaId as any).nombreDependencia})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label>Descripción / Observaciones</label>
@@ -210,7 +251,7 @@ export default function CrearEditarPlantilla() {
               
               <div className="variable-group" style={{ marginTop: '15px' }}>
                 <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Empresa</h4>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('empresa.name')}>Nombre Empresa</button>
+                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('empresa.razonSocial')}>Razón Social</button>
                 <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('empresa.nit')}>NIT Empresa</button>
                 <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('fecha_actual')}>Fecha Actual</button>
               </div>

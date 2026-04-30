@@ -14,6 +14,7 @@ import Plantillas from "./routes/Plantillas.tsx";
 import CrearEditarPlantilla from "./routes/CrearEditarPlantilla.tsx";
 import Proyeccion from "./routes/Proyeccion.tsx";
 import HistorialPlantilla from "./routes/HistorialPlantilla.tsx";
+import ConfiguracionTRD from "./routes/ConfiguracionTRD.tsx";
 
 import "./index.css";
 
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: "/proyeccion/:plantillaId",
         element: <Proyeccion />,
+      },
+      {
+        path: "/configuracion-trd",
+        element: <ConfiguracionTRD />,
       },
       {
         path: "/plantillas/:id/historial",
