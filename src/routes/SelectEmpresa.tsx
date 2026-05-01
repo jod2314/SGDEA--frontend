@@ -111,7 +111,7 @@ export default function SelectEmpresa() {
               >
                 <div className="card-icon"><MdBusiness /></div>
                 <div className="card-info">
-                  <h3>{empresa.name}</h3>
+                  <h3>{empresa.razonSocial}</h3>
                   <p>NIT: {empresa.nit}</p>
                   <span className="rol-badge">{empresa.rol}</span>
                 </div>

@@ -6,8 +6,6 @@ import * as IconsMd from "react-icons/md";
 import { Dependencia, SerieDocumental, SubserieDocumental, TRD } from "../types/types";
 
 const MdAdd = (IconsMd as any).MdAdd;
-const MdBusiness = (IconsMd as any).MdBusiness;
-const MdFolder = (IconsMd as any).MdFolder;
 const MdAssignment = (IconsMd as any).MdAssignment;
 
 export default function ConfiguracionTRD() {

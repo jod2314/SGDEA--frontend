@@ -21,7 +21,7 @@ export default function Profile() {
   const [message, setMessage] = useState({ text: "", type: "" });
   
   const [formData, setFormData] = useState({
-    name: "",
+    razonSocial: "",
     nit: "",
     direccion: "",
   });
@@ -29,7 +29,7 @@ export default function Profile() {
   useEffect(() => {
     if (selectedEmpresa) {
       setFormData({
-        name: selectedEmpresa.name || "",
+        razonSocial: selectedEmpresa.razonSocial || "",
         nit: selectedEmpresa.nit || "",
         direccion: selectedEmpresa.direccion || "",
       });
@@ -59,7 +59,7 @@ export default function Profile() {
         // Actualizar el estado global de la empresa seleccionada
         auth.setSelectedEmpresa({
           ...selectedEmpresa,
-          name: formData.name,
+          razonSocial: formData.razonSocial,
           nit: formData.nit,
           direccion: formData.direccion
         });
@@ -122,12 +122,12 @@ export default function Profile() {
                 {isEditing ? (
                   <input 
                     type="text" 
-                    value={formData.name} 
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    value={formData.razonSocial} 
+                    onChange={(e) => setFormData({...formData, razonSocial: e.target.value})}
                     className="edit-input"
                   />
                 ) : (
-                  <span>{selectedEmpresa.name}</span>
+                  <span>{selectedEmpresa.razonSocial}</span>
                 )}
               </div>
             </div>

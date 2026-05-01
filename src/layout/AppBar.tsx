@@ -85,7 +85,7 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
             ) : (
               <MdBusiness className="context-icon" />
             )}
-            <span className="context-name">{selectedEmpresa.name}</span>
+            <span className="context-name">{selectedEmpresa.razonSocial}</span>
             <MdKeyboardArrowDown className={`dropdown-arrow ${isMenuOpen ? 'open' : ''}`} />
 
             {isMenuOpen && (
@@ -116,7 +116,7 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
                       >
                         <div className="item-icon"><MdBusiness /></div>
                         <div className="item-info">
-                          <span className="item-name">{emp.name}</span>
+                          <span className="item-name">{emp.razonSocial}</span>
                           <span className="item-detail">NIT: {emp.nit} • {emp.rol}</span>
                         </div>
                       </div>

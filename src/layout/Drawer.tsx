@@ -7,6 +7,7 @@ const MdPerson = IconsMd.MdPerson as any;
 const MdLogout = IconsMd.MdLogout as any;
 const MdDescription = (IconsMd as any).MdDescription || (IconsMd as any).MdInsertDriveFile;
 const MdPeople = (IconsMd as any).MdPeople;
+const MdSettings = (IconsMd as any).MdSettings;
 
 interface DrawerProps {
   isOpen: boolean;
@@ -41,7 +42,7 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
           </li>
           <li className="drawer-menu-item">
             <NavLink to="/configuracion-trd">
-              <IconsMd.MdSettings />
+              <MdSettings />
               <span>Configuración TRD</span>
             </NavLink>
           </li>
