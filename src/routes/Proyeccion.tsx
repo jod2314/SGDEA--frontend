@@ -100,11 +100,13 @@ export default function Proyeccion() {
         a.click();
         a.remove();
       } else {
+        // Si no es OK, el backend devuelve un json con el error
         const json = await response.json();
-        alert(json.body.error || "Error al generar");
+        alert(json.body.error + (json.body.detalle ? ": " + json.body.detalle : ""));
       }
     } catch (error) {
       console.error("Error al proyectar:", error);
+      alert("Error de conexión al generar el documento");
     } finally {
       setGenerating(false);
     }
