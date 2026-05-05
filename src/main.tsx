@@ -15,6 +15,8 @@ import CrearEditarPlantilla from "./routes/CrearEditarPlantilla.tsx";
 import Proyeccion from "./routes/Proyeccion.tsx";
 import HistorialPlantilla from "./routes/HistorialPlantilla.tsx";
 import ConfiguracionTRD from "./routes/ConfiguracionTRD.tsx";
+import EstructuraOrganizacional from "./routes/EstructuraOrganizacional.tsx";
+import SeriesSubseries from "./routes/SeriesSubseries.tsx";
 
 import "./index.css";
 
@@ -36,6 +38,10 @@ const router = createBrowserRouter([
         element: <Plantillas />,
       },
       {
+        path: "/series-subseries",
+        element: <SeriesSubseries />,
+      },
+      {
         path: "/plantillas/nueva",
         element: <CrearEditarPlantilla />,
       },
@@ -50,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "/configuracion-trd",
         element: <ConfiguracionTRD />,
+      },
+      {
+        path: "/estructura-organizacional",
+        element: <EstructuraOrganizacional />,
       },
       {
         path: "/plantillas/:id/historial",

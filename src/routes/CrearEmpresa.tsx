@@ -66,11 +66,13 @@ export default function CrearEmpresa() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.getAccessToken()}`,
         },
-        body: JSON.stringify({ name, nit, direccion }),
+        body: JSON.stringify({ razonSocial: name, nit, direccion }),
       });
 
       if (response.ok) {
-        navigate("/select-empresa");
+        const json = await response.json();
+        auth.setSelectedEmpresa(json.body.empresa);
+        navigate("/estructura-organizacional");
       } else {
         const json = await response.json();
         setError(json.body.error);

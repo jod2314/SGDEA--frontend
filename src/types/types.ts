@@ -29,6 +29,7 @@ export interface Empresa {
   tipoPersona: 'natural' | 'juridica';
   nombreComercial?: string;
   sigla?: string;
+  onboardingCompleted?: boolean;
   nombres?: string;
   primerApellido?: string;
   segundoApellido?: string;

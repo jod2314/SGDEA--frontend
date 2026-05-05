@@ -113,7 +113,23 @@ export default function ConfiguracionTRD() {
         setSelectedSerie("");
         setSelectedSub("");
         setSubseries([]);
+      } else {
+        const json = await response.json();
+        alert(json.body.error || "Error al vincular");
       }
+    } catch (error) { console.log(error); }
+  }
+
+  async function handleDeleteTRD(id: string) {
+    if (!confirm("¿Deseas eliminar esta vinculación de la TRD?")) return;
+    try {
+      const response = await fetch(`${API_URL}/archivistica/trd/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${auth.getAccessToken()}`,
+        },
+      });
+      if (response.ok) fetchTrds();
     } catch (error) { console.log(error); }
   }
 
@@ -123,9 +139,9 @@ export default function ConfiguracionTRD() {
         <h1>Configuración Archivística (TRD)</h1>
         <p className="text-muted">Asigna series y subseries documentales a las dependencias de tu organización.</p>
 
-        <div className="trd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginTop: '30px' }}>
+        <div className="trd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '30px', marginTop: '30px' }}>
           
-          <section className="card" style={{ padding: '20px' }}>
+          <section className="card" style={{ padding: '20px', height: 'fit-content' }}>
             <h2><MdAdd /> Nueva Asignación</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
               <div>
@@ -177,15 +193,29 @@ export default function ConfiguracionTRD() {
                   <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Código TRD</th>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Dependencia</th>
-                    <th style={{ textAlign: 'left', padding: '10px' }}>Subserie</th>
+                    <th style={{ textAlign: 'left', padding: '10px' }}>Serie / Subserie</th>
+                    <th style={{ textAlign: 'center', padding: '10px' }}>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {trds.map(trd => (
+                  {trds.length === 0 ? (
+                    <tr><td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>No hay registros en la TRD</td></tr>
+                  ) : trds.map(trd => (
                     <tr key={trd.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '10px' }}>{trd.codigoTRD}</td>
-                      <td style={{ padding: '10px' }}>{(trd.dependenciaId as any).nombreDependencia}</td>
-                      <td style={{ padding: '10px' }}>{(trd.subserieId as any).nombreSubserie}</td>
+                      <td style={{ padding: '10px' }}><strong>{trd.codigoTRD}</strong></td>
+                      <td style={{ padding: '10px' }}>
+                        <div style={{ fontSize: '0.9rem' }}>{(trd.dependenciaId as any).nombreDependencia}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#888' }}>Cód: {(trd.dependenciaId as any).codigoDependencia}</div>
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        <div style={{ fontSize: '0.9rem' }}>{(trd.subserieId as any).serieId.nombreSerie}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#666' }}>{(trd.subserieId as any).nombreSubserie}</div>
+                      </td>
+                      <td style={{ padding: '10px', textAlign: 'center' }}>
+                        <button className="btn btn-icon btn-danger" onClick={() => handleDeleteTRD(trd.id)}>
+                          <IconsMd.MdDelete />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
