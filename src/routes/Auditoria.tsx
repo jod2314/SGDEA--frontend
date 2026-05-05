@@ -18,6 +18,7 @@ export default function Auditoria() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const auth = useAuth();
+  const selectedEmpresa = auth.getSelectedEmpresa();
 
   useEffect(() => {
     async function fetchLogs() {
@@ -25,7 +26,7 @@ export default function Auditoria() {
         const response = await fetch(`${API_URL}/audit`, {
           headers: {
             Authorization: `Bearer ${auth.getAccessToken()}`,
-            "X-Empresa-ID": auth.selectedEmpresa?.id || "",
+            "X-Empresa-ID": selectedEmpresa?.id || "",
           },
         });
 
@@ -40,10 +41,10 @@ export default function Auditoria() {
       }
     }
 
-    if (auth.selectedEmpresa) {
+    if (selectedEmpresa) {
       fetchLogs();
     }
-  }, [auth.selectedEmpresa]);
+  }, [selectedEmpresa]);
 
   return (
     <PortalLayout>

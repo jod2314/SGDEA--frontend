@@ -143,7 +143,7 @@ export default function EstructuraOrganizacional() {
       });
 
       if (response.ok) {
-        const _json = await response.json();
+        await response.json();
         // Actualizar el estado local de la empresa
         const empresaActualizada = { ...empresa, onboardingCompleted: true };
         auth.setSelectedEmpresa(empresaActualizada);
