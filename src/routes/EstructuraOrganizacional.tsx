@@ -7,7 +7,6 @@ import { Dependencia } from "../types/types";
 import { Tree, TreeNode } from "react-organizational-chart";
 import { useNavigate } from "react-router-dom";
 
-const MdAdd = (IconsMd as any).MdAdd;
 const MdEdit = (IconsMd as any).MdEdit;
 const MdDelete = (IconsMd as any).MdDelete;
 const MdAccountTree = (IconsMd as any).MdAccountTree;
@@ -144,7 +143,7 @@ export default function EstructuraOrganizacional() {
       });
 
       if (response.ok) {
-        const json = await response.json();
+        const _json = await response.json();
         // Actualizar el estado local de la empresa
         const empresaActualizada = { ...empresa, onboardingCompleted: true };
         auth.setSelectedEmpresa(empresaActualizada);
@@ -349,10 +348,10 @@ export default function EstructuraOrganizacional() {
                       <td style={{ padding: '10px' }} className="text-muted">{getNombrePadre(dep.dependenciaPadreId)}</td>
                       <td style={{ padding: '10px', textAlign: 'center' }}>
                         <button className="btn btn-icon" onClick={() => handleEdit(dep)} title="Editar">
-                          <IconsMd.MdEdit />
+                          <MdEdit />
                         </button>
                         <button className="btn btn-icon btn-danger" onClick={() => handleDelete(dep.id)} title="Eliminar">
-                          <IconsMd.MdDelete />
+                          <MdDelete />
                         </button>
                       </td>
                     </tr>
@@ -368,6 +367,96 @@ export default function EstructuraOrganizacional() {
                   </div>
                 ) : (
                   <Tree
+                    lineWidth={'2px'}
+                    lineColor={'var(--primary-color)'}
+                    lineBorderRadius={'10px'}
+                    label={
+                      <div className="tree-root-label">
+                        {selectedEmpresa?.razonSocial}
+                      </div>
+                    }
+                  >
+                    {renderTreeNodes(null)}
+                  </Tree>
+                )}
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+
+      <style>{`
+        .tree-node-card {
+          padding: 10px;
+          border-radius: 8px;
+          border: 1px solid var(--border-color);
+          display: inline-block;
+          background: white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          min-width: 120px;
+          position: relative;
+        }
+        .tree-node-code {
+          display: block;
+          font-size: 0.8rem;
+          font-weight: bold;
+          color: var(--primary-color);
+        }
+        .tree-node-name {
+          display: block;
+          font-size: 0.9rem;
+        }
+        .tree-node-actions {
+          display: flex;
+          justify-content: center;
+          gap: 5px;
+          margin-top: 5px;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+        .tree-node-card:hover .tree-node-actions {
+          opacity: 1;
+        }
+        .tree-node-actions button {
+          border: none;
+          background: none;
+          cursor: pointer;
+          color: var(--text-muted);
+          padding: 2px;
+        }
+        .tree-node-actions button:hover {
+          color: var(--primary-color);
+        }
+        .tree-node-actions button.danger:hover {
+          color: #e74c3c;
+        }
+        .tree-root-label {
+          padding: 15px;
+          background: var(--primary-color);
+          color: white;
+          border-radius: 8px;
+          display: inline-block;
+          font-weight: bold;
+          margin-bottom: 20px;
+        }
+        .btn-success {
+          background-color: #27ae60;
+          color: white;
+          border: none;
+        }
+        .btn-success:hover {
+          background-color: #2ecc71;
+        }
+        .alert-warning {
+          background-color: #fff3cd;
+          border: 1px solid #ffeeba;
+          color: #856404;
+          border-radius: 8px;
+        }
+      `}</style>
+    </PortalLayout>
+  );
+}
                     lineWidth={'2px'}
                     lineColor={'var(--primary-color)'}
                     lineBorderRadius={'10px'}

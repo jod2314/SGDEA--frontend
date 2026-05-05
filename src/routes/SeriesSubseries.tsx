@@ -9,7 +9,6 @@ const MdFolder = (IconsMd as any).MdFolder;
 const MdSubtitles = (IconsMd as any).MdSubtitles;
 const MdEdit = (IconsMd as any).MdEdit;
 const MdDelete = (IconsMd as any).MdDelete;
-const MdLibraryBooks = (IconsMd as any).MdLibraryBooks;
 const MdAdd = (IconsMd as any).MdAdd;
 const MdCloudDownload = (IconsMd as any).MdCloudDownload;
 

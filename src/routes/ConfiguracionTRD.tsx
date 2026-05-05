@@ -7,6 +7,7 @@ import { Dependencia, SerieDocumental, SubserieDocumental, TRD } from "../types/
 
 const MdAdd = (IconsMd as any).MdAdd;
 const MdAssignment = (IconsMd as any).MdAssignment;
+const MdDelete = (IconsMd as any).MdDelete;
 
 export default function ConfiguracionTRD() {
   const auth = useAuth();
@@ -213,7 +214,7 @@ export default function ConfiguracionTRD() {
                       </td>
                       <td style={{ padding: '10px', textAlign: 'center' }}>
                         <button className="btn btn-icon btn-danger" onClick={() => handleDeleteTRD(trd.id)}>
-                          <IconsMd.MdDelete />
+                          <MdDelete />
                         </button>
                       </td>
                     </tr>
