@@ -12,6 +12,7 @@ const MdSettings = (IconsMd as any).MdSettings;
 const MdAccountTree = (IconsMd as any).MdAccountTree;
 const MdLock = (IconsMd as any).MdLock;
 const MdLibraryBooks = (IconsMd as any).MdLibraryBooks;
+const MdHistory = (IconsMd as any).MdHistory;
 
 interface DrawerProps {
   isOpen: boolean;
@@ -119,6 +120,12 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
             <NavLink to="/me">
               <MdPerson />
               <span>Profile</span>
+            </NavLink>
+          </li>
+          <li className="drawer-menu-item">
+            <NavLink to="/auditoria">
+              <MdHistory />
+              <span>Auditoría</span>
             </NavLink>
           </li>
           <li className="drawer-menu-item">

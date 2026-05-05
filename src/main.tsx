@@ -17,6 +17,7 @@ import HistorialPlantilla from "./routes/HistorialPlantilla.tsx";
 import ConfiguracionTRD from "./routes/ConfiguracionTRD.tsx";
 import EstructuraOrganizacional from "./routes/EstructuraOrganizacional.tsx";
 import SeriesSubseries from "./routes/SeriesSubseries.tsx";
+import Auditoria from "./routes/Auditoria.tsx";
 
 import "./index.css";
 
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
       {
         path: "/plantillas/:id/historial",
         element: <HistorialPlantilla />,
+      },
+      {
+        path: "/auditoria",
+        element: <Auditoria />,
       },
       {
         path: "/",
