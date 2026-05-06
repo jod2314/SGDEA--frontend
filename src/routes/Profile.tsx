@@ -14,7 +14,6 @@ const MdBadge = IconsMd.MdBadge as any;
 const MdLocationOn = IconsMd.MdLocationOn as any;
 const MdPhone = IconsMd.MdPhone as any;
 const MdEmail = IconsMd.MdEmail as any;
-const MdLanguage = IconsMd.MdLanguage as any;
 const MdAccountTree = IconsMd.MdAccountTree as any;
 const MdPhotoSizeSelectLarge = IconsMd.MdPhotoSizeSelectLarge as any;
 
@@ -30,7 +29,7 @@ export default function Profile() {
     razonSocial: "",
     nit: "",
     direccion: "",
-    tipoPersona: "juridica",
+    tipoPersona: "juridica" as "natural" | "juridica",
     nombreComercial: "",
     sigla: "",
     ciudad: "",
