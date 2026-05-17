@@ -21,6 +21,7 @@ import Auditoria from "./routes/Auditoria.tsx";
 import Consecutivos from "./routes/Consecutivos.tsx";
 import DatosMaestros from "./routes/DatosMaestros.tsx";
 import Expedientes from "./routes/Expedientes.tsx";
+import Transferencias from "./routes/Transferencias.tsx";
 
 import "./index.css";
 
@@ -84,6 +85,10 @@ const router = createBrowserRouter([
       {
         path: "/expedientes",
         element: <Expedientes />,
+      },
+      {
+        path: "/transferencias",
+        element: <Transferencias />,
       },
       {
         path: "/",

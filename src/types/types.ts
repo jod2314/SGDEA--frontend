@@ -100,10 +100,22 @@ export interface Expediente {
   subserieId: SubserieDocumental;
   descripcion?: string;
   estado: 'ABIERTO' | 'CERRADO';
+  ubicacion: 'GESTION' | 'CENTRAL' | 'HISTORICO' | 'ELIMINADO';
   fechaApertura: string;
   fechaCierre?: string;
   indiceXml?: string;
   responsableId?: string;
+}
+
+export interface Transferencia {
+  id: string;
+  tipoTransferencia: 'PRIMARIA' | 'SECUNDARIA';
+  expedientes: string[] | Expediente[];
+  estado: 'BORRADOR' | 'FINALIZADA';
+  fechaTransferencia: string;
+  observaciones?: string;
+  numeroActa?: string;
+  createdAt: string;
 }
 
 export interface HistorialDocumento {
