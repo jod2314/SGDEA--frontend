@@ -233,7 +233,7 @@ export default function Auditoria() {
             <div className="card" style={{ width: '90%', maxWidth: '600px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', background: '#fff' }}>
               <div style={{ padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0 }}><MdTimeline /> Reconstrucción de Línea de Tiempo</h3>
-                <button className="btn btn-icon" onClick={() => setShowTimeline(false)}><IconsMd.MdClose /></button>
+                <button className="btn btn-icon" onClick={() => setShowTimeline(false)}><MdClose /></button>
               </div>
               
               <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>

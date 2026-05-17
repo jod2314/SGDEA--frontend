@@ -3,8 +3,10 @@ import PortalLayout from "../layout/PortalLayout";
 import { useAuth } from "../auth/AuthProvider";
 import * as IconsMd from "react-icons/md";
 import { 
-  BarChart as RechartsBarChart, Bar as RechartsBar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
-  PieChart as RechartsPieChart, Pie as RechartsPie, Cell as RechartsCell, LineChart as RechartsLineChart, Line as RechartsLine, Legend as RechartsLegend 
+  BarChart as RechartsBarChart, Bar as RechartsBar, XAxis as RechartsXAxis, YAxis as RechartsYAxis, 
+  CartesianGrid as RechartsCartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer as RechartsResponsiveContainer, 
+  PieChart as RechartsPieChart, Pie as RechartsPie, Cell as RechartsCell, 
+  LineChart as RechartsLineChart, Line as RechartsLine, Legend as RechartsLegend 
 } from "recharts";
 
 const BarChart = RechartsBarChart as any;
@@ -16,6 +18,10 @@ const Cell = RechartsCell as any;
 const Line = RechartsLine as any;
 const Tooltip = RechartsTooltip as any;
 const Legend = RechartsLegend as any;
+const XAxis = RechartsXAxis as any;
+const YAxis = RechartsYAxis as any;
+const CartesianGrid = RechartsCartesianGrid as any;
+const ResponsiveContainer = RechartsResponsiveContainer as any;
 
 const MdArticle = IconsMd.MdArticle as any;
 const MdFolder = IconsMd.MdFolder as any;
@@ -95,7 +101,7 @@ export default function Dashboard() {
             a.download = `Reporte_Produccion_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
           }}>
-            <IconsMd.MdFileDownload /> Exportar Producción
+            <MdFileDownload /> Exportar Producción
           </button>
         </header>
 

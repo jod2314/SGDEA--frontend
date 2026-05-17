@@ -7,7 +7,6 @@ import { Expediente, HistorialDocumento, TRD } from "../types/types";
 const MdFolder = (IconsMd as any).MdFolder;
 const MdFolderOpen = (IconsMd as any).MdFolderOpen;
 const MdAdd = (IconsMd as any).MdAdd;
-const MdClose = (IconsMd as any).MdClose;
 const MdDownload = (IconsMd as any).MdDownload;
 const MdDescription = (IconsMd as any).MdDescription;
 const MdLock = (IconsMd as any).MdLock;
@@ -280,7 +279,7 @@ export default function Expedientes() {
                               <td style={{ padding: '10px' }}>{new Date(doc.fechaGeneracion).toLocaleDateString()}</td>
                               <td style={{ padding: '10px', textAlign: 'center' }}>
                                 <span title={doc.hashIntegridad} style={{ color: '#27ae60', cursor: 'help' }}>
-                                  <IconsMd.MdVerifiedUser />
+                                  <MdVerifiedUser />
                                 </span>
                               </td>
                             </tr>
