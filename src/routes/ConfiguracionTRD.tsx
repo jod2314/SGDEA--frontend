@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthProvider";
-import { API_URL } from "../auth/authConstants";
 import PortalLayout from "../layout/PortalLayout";
 import * as IconsMd from "react-icons/md";
 import { Dependencia, SerieDocumental, SubserieDocumental, TRD } from "../types/types";

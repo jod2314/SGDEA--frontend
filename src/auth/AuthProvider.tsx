@@ -31,7 +31,6 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | undefined>();
   const [accessToken, setAccessToken] = useState<string>("");
-  const [refreshToken, setRefreshToken] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isloading, setIsLoading] = useState(true);
   const [selectedEmpresa, setSelectedEmpresaState] = useState<Empresa | undefined>();
@@ -99,7 +98,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       .finally(() => {
         localStorage.removeItem("selectedEmpresa");
         setAccessToken("");
-        setRefreshToken("");
         setUser(undefined);
         setSelectedEmpresaState(undefined);
         setIsAuthenticated(false);

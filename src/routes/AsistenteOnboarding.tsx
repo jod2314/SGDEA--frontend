@@ -9,6 +9,7 @@ const MdCheckCircle = (IconsMd as any).MdCheckCircle;
 const MdFileDownload = (IconsMd as any).MdFileDownload;
 const MdPlayArrow = (IconsMd as any).MdPlayArrow;
 const MdNavigateNext = (IconsMd as any).MdNavigateNext;
+const MdInfo = (IconsMd as any).MdInfo;
 
 export default function AsistenteOnboarding() {
   const auth = useAuth();

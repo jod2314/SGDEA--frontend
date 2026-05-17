@@ -4,10 +4,8 @@ import PortalLayout from "../layout/PortalLayout";
 import * as IconsMd from "react-icons/md";
 import { Expediente, ActaEliminacion } from "../types/types";
 
-const MdDeleteSweep = (IconsMd as any).MdDeleteSweep;
 const MdAssignmentLate = (IconsMd as any).MdAssignmentLate;
 const MdHistoryEdu = (IconsMd as any).MdHistoryEdu;
-const MdCheckCircle = (IconsMd as any).MdCheckCircle;
 const MdGavel = (IconsMd as any).MdGavel;
 const MdInfo = (IconsMd as any).MdInfo;
 

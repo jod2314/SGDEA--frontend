@@ -9,6 +9,7 @@ const MdVerifiedUser = (IconsMd as any).MdVerifiedUser;
 const MdInfo = (IconsMd as any).MdInfo;
 const MdTimeline = (IconsMd as any).MdTimeline;
 const MdFilterList = (IconsMd as any).MdFilterList;
+const MdClose = (IconsMd as any).MdClose;
 
 interface AuditLog {
   _id: string;

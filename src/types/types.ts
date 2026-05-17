@@ -82,6 +82,9 @@ export interface SubserieDocumental {
   serieId: string | SerieDocumental;
   codigoSubserie: string;
   nombreSubserie: string;
+  tiempoRetencionGestion?: number;
+  tiempoRetencionCentral?: number;
+  disposicionFinal?: 'Conservación Total' | 'Eliminación' | 'Selección' | 'Medio Técnico';
 }
 
 export interface TRD {

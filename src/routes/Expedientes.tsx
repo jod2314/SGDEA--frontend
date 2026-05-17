@@ -12,6 +12,7 @@ const MdDownload = (IconsMd as any).MdDownload;
 const MdDescription = (IconsMd as any).MdDescription;
 const MdLock = (IconsMd as any).MdLock;
 const MdSearch = (IconsMd as any).MdSearch;
+const MdVerifiedUser = (IconsMd as any).MdVerifiedUser;
 
 export default function Expedientes() {
   const auth = useAuth();

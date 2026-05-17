@@ -3,15 +3,25 @@ import PortalLayout from "../layout/PortalLayout";
 import { useAuth } from "../auth/AuthProvider";
 import * as IconsMd from "react-icons/md";
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell, LineChart, Line, Legend 
+  BarChart as RechartsBarChart, Bar as RechartsBar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
+  PieChart as RechartsPieChart, Pie as RechartsPie, Cell as RechartsCell, LineChart as RechartsLineChart, Line as RechartsLine, Legend as RechartsLegend 
 } from "recharts";
+
+const BarChart = RechartsBarChart as any;
+const PieChart = RechartsPieChart as any;
+const LineChart = RechartsLineChart as any;
+const Bar = RechartsBar as any;
+const Pie = RechartsPie as any;
+const Cell = RechartsCell as any;
+const Line = RechartsLine as any;
+const Tooltip = RechartsTooltip as any;
+const Legend = RechartsLegend as any;
 
 const MdArticle = IconsMd.MdArticle as any;
 const MdFolder = IconsMd.MdFolder as any;
 const MdSecurity = IconsMd.MdSecurity as any;
 const MdTrendingUp = IconsMd.MdTrendingUp as any;
-const MdCheckCircle = IconsMd.MdCheckCircle as any;
+const MdFileDownload = IconsMd.MdFileDownload as any;
 
 interface DashboardData {
   produccion: Array<{ _id: string; count: number; tipoArchivo: string }>;
