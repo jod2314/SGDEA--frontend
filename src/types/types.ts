@@ -92,6 +92,34 @@ export interface TRD {
   estado: 'vigente' | 'obsoleto';
 }
 
+export interface Expediente {
+  id: string;
+  nombreExpediente: string;
+  codigoTRD: string;
+  dependenciaId: Dependencia;
+  subserieId: SubserieDocumental;
+  descripcion?: string;
+  estado: 'ABIERTO' | 'CERRADO';
+  fechaApertura: string;
+  fechaCierre?: string;
+  indiceXml?: string;
+  responsableId?: string;
+}
+
+export interface HistorialDocumento {
+  id: string;
+  plantillaId: { nombre: string };
+  datosUsados: any;
+  usuarioId: { name: string };
+  fechaGeneracion: string;
+  hashIntegridad: string;
+  numeroRadicado?: string;
+  expedienteId?: string;
+  codigoTRD?: string;
+  tipoArchivo: 'PDF' | 'DOCX';
+  createdAt: string;
+}
+
 export interface AccessTokenResponse {
   statusCode: number;
   body: {
