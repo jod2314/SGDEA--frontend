@@ -177,6 +177,7 @@ async function retrieveUserInfo(accessToken: string) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
+      credentials: 'include',
     });
 
     if (response.ok) {

@@ -25,6 +25,7 @@ export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...fetchOptions,
     headers,
+    credentials: "include", // Asegura que las cookies se envíen/reciban en todas las peticiones
   });
 
   if (!response.ok) {

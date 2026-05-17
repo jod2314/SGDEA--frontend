@@ -27,18 +27,19 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // auth.setIsAuthenticated(true);
     try {
       const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
+        credentials: "include", // IMPORTANTE: Para recibir y guardar la cookie httpOnly
       });
       if (response.ok) {
         const json = (await response.json()) as AuthResponse;
         console.log(json);
 
-        if (json.body.accessToken && json.body.refreshToken) {
+        // Ya no verificamos json.body.refreshToken porque ahora viene en una cookie segura
+        if (json.body.accessToken) {
           auth.saveUser(json);
         }
       } else {
@@ -48,6 +49,7 @@ export default function Login() {
       }
     } catch (error) {
       console.log(error);
+      setErrorResponse("Error de conexión con el servidor");
     }
   }
   if (auth.isAuthenticated) {
