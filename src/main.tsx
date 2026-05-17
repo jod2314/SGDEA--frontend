@@ -18,6 +18,7 @@ import ConfiguracionTRD from "./routes/ConfiguracionTRD.tsx";
 import EstructuraOrganizacional from "./routes/EstructuraOrganizacional.tsx";
 import SeriesSubseries from "./routes/SeriesSubseries.tsx";
 import Auditoria from "./routes/Auditoria.tsx";
+import Consecutivos from "./routes/Consecutivos.tsx";
 
 import "./index.css";
 
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
       {
         path: "/auditoria",
         element: <Auditoria />,
+      },
+      {
+        path: "/consecutivos",
+        element: <Consecutivos />,
       },
       {
         path: "/",
