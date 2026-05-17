@@ -18,7 +18,10 @@ const AuthContext = createContext({
   signout: () => {},
   setSelectedEmpresa: (_empresa: Empresa) => {},
   getSelectedEmpresa: () => ({} as Empresa | undefined),
-  request: async <T>(_endpoint: string, _options?: any): Promise<T> => ({} as T),
+  request: async <T>(endpoint: string, options?: any): Promise<T> => {
+    console.log(endpoint, options);
+    return {} as T;
+  },
 });
 
 interface AuthProviderProps {
