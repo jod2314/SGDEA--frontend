@@ -189,7 +189,7 @@ export default function Dashboard() {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {inventarioData.map((entry, index) => (
+                    {inventarioData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
