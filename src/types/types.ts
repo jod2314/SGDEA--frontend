@@ -135,6 +135,23 @@ export interface ActaEliminacion {
   createdAt: string;
 }
 
+export interface OnboardingWizard {
+  id: string;
+  estadoActual: 'INICIO' | 'DIAGNOSTICO_MGDA' | 'COMITE_ARCHIVO' | 'POLITICA_DOCUMENTAL' | 'PGD' | 'COMPLETO';
+  respuestas: {
+    diagnostico?: any;
+    comite?: any;
+    politica?: any;
+    pgd?: any;
+  };
+  documentosGenerados: Array<{
+    tipo: string;
+    documentoId: string;
+    fechaGeneracion: string;
+  }>;
+  progreso: number;
+}
+
 export interface HistorialDocumento {
   id: string;
   plantillaId: { nombre: string };

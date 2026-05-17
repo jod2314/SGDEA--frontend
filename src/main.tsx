@@ -23,6 +23,7 @@ import DatosMaestros from "./routes/DatosMaestros.tsx";
 import Expedientes from "./routes/Expedientes.tsx";
 import Transferencias from "./routes/Transferencias.tsx";
 import Disposicion from "./routes/Disposicion.tsx";
+import AsistenteOnboarding from "./routes/AsistenteOnboarding.tsx";
 
 import "./index.css";
 
@@ -94,6 +95,10 @@ const router = createBrowserRouter([
       {
         path: "/disposicion",
         element: <Disposicion />,
+      },
+      {
+        path: "/onboarding",
+        element: <AsistenteOnboarding />,
       },
       {
         path: "/",

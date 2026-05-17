@@ -10,6 +10,7 @@ const MdBusiness = IconsMd.MdBusiness as any;
 const MdPerson = IconsMd.MdPerson as any;
 const MdKeyboardArrowDown = IconsMd.MdKeyboardArrowDown as any;
 const MdAdd = IconsMd.MdAdd as any;
+const MdAutoAwesome = (IconsMd as any).MdAutoAwesome;
 
 interface AppBarProps {
   onMenuClick: () => void;
@@ -22,6 +23,8 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const isOnboardingPending = selectedEmpresa && !selectedEmpresa.onboardingCompleted && !selectedEmpresa.isPersonal;
 
   useEffect(() => {
     async function fetchEmpresas() {
@@ -76,6 +79,16 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
         <div className="app-bar-title" onClick={() => navigate("/dashboard")} style={{cursor: 'pointer'}}>
           SGDEA
         </div>
+
+        {isOnboardingPending && (
+          <button 
+            className="btn btn-primary btn-sm" 
+            style={{ marginLeft: '20px', display: 'flex', alignItems: 'center', gap: '8px', background: '#8e44ad', border: 'none' }}
+            onClick={() => navigate("/onboarding")}
+          >
+            <MdAutoAwesome /> Asistente de Implementación
+          </button>
+        )}
 
         {selectedEmpresa && (
           <div className="context-indicator" onClick={() => setIsMenuOpen(!isMenuOpen)}>
