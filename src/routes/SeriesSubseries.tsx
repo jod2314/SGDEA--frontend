@@ -51,6 +51,9 @@ export default function SeriesSubseries() {
   const [targetSerieId, setTargetSerieId] = useState("");
   const [codigoSubserie, setCodigoSubserie] = useState("");
   const [nombreSubserie, setNombreSubserie] = useState("");
+  const [subGestion, setSubGestion] = useState(2);
+  const [subCentral, setSubCentral] = useState(8);
+  const [subDisposicion, setSubDisposicion] = useState("Eliminación");
 
   useEffect(() => {
     fetchSeries();
@@ -140,11 +143,17 @@ export default function SeriesSubseries() {
         body: JSON.stringify({
           serieId: targetSerieId,
           codigoSubserie,
-          nombreSubserie
+          nombreSubserie,
+          tiempoRetencionGestion: subGestion,
+          tiempoRetencionCentral: subCentral,
+          disposicionFinal: subDisposicion
         }),
       });
       setCodigoSubserie("");
       setNombreSubserie("");
+      setSubGestion(2);
+      setSubCentral(8);
+      setSubDisposicion("Eliminación");
       setShowSubForm(false);
       fetchSubseries(targetSerieId);
     } catch (err: any) {
@@ -317,10 +326,13 @@ export default function SeriesSubseries() {
                       
                       <div className="subseries-list" style={{ padding: '10px 10px 10px 40px' }}>
                         {subseries[ser.id]?.map(sub => (
-                          <div key={sub.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px dashed #eee' }}>
+                          <div key={sub.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #eee' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
                               <MdSubtitles size={14} color="#666" />
                               <span>{sub.codigoSubserie} - {sub.nombreSubserie}</span>
+                              <span className="small text-muted" style={{ fontSize: '0.75rem', background: '#f0f0f0', padding: '1px 5px', borderRadius: '3px' }}>
+                                Val: {sub.tiempoRetencionGestion || 0}+{sub.tiempoRetencionCentral || 0} | {sub.disposicionFinal || 'E'}
+                              </span>
                             </div>
                             <button className="btn btn-icon btn-danger" style={{ padding: '2px' }} onClick={() => handleDeleteSubserie(sub.id, ser.id)}><MdDelete size={14} /></button>
                           </div>
@@ -328,11 +340,34 @@ export default function SeriesSubseries() {
                         {subseries[ser.id]?.length === 0 && !showSubForm && <p style={{ fontSize: '0.8rem', color: '#999' }}>Sin subseries</p>}
                         
                         {showSubForm && targetSerieId === ser.id && (
-                          <form onSubmit={handleSubserieSubmit} style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-                            <input type="text" value={codigoSubserie} onChange={e => setCodigoSubserie(e.target.value)} placeholder="Cód" required style={{ width: '60px' }} className="edit-input" />
-                            <input type="text" value={nombreSubserie} onChange={e => setNombreSubserie(e.target.value)} placeholder="Nombre Subserie" required style={{ flex: 1 }} className="edit-input" />
-                            <button type="submit" className="btn btn-primary">Guardar</button>
-                            <button type="button" className="btn btn-ghost" onClick={() => setShowSubForm(false)}>X</button>
+                          <form onSubmit={handleSubserieSubmit} style={{ marginTop: '15px', padding: '15px', background: '#fff', border: '1px solid #ddd', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                              <input type="text" value={codigoSubserie} onChange={e => setCodigoSubserie(e.target.value)} placeholder="Cód" required style={{ width: '60px' }} className="edit-input" />
+                              <input type="text" value={nombreSubserie} onChange={e => setNombreSubserie(e.target.value)} placeholder="Nombre Subserie" required style={{ flex: 1 }} className="edit-input" />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                              <div>
+                                <label style={{ fontSize: '0.75rem' }}>Ret. Gestión</label>
+                                <input type="number" value={subGestion} onChange={e => setSubGestion(Number(e.target.value))} className="edit-input" style={{ width: '100%' }} />
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.75rem' }}>Ret. Central</label>
+                                <input type="number" value={subCentral} onChange={e => setSubCentral(Number(e.target.value))} className="edit-input" style={{ width: '100%' }} />
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.75rem' }}>Disposición</label>
+                                <select value={subDisposicion} onChange={e => setSubDisposicion(e.target.value)} className="edit-input" style={{ width: '100%', fontSize: '0.8rem' }}>
+                                  <option value="Eliminación">Eliminación</option>
+                                  <option value="Conservación Total">Conservación Total</option>
+                                  <option value="Selección">Selección</option>
+                                  <option value="Medio Técnico">Medio Técnico</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowSubForm(false)}>Cancelar</button>
+                              <button type="submit" className="btn btn-primary btn-sm">Guardar Subserie</button>
+                            </div>
                           </form>
                         )}
                       </div>

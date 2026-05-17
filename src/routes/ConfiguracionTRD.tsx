@@ -141,38 +141,50 @@ export default function ConfiguracionTRD() {
           </section>
 
           <section className="card" style={{ padding: '20px' }}>
-            <h2><MdAssignment /> Tabla de Retención Vigente</h2>
-            <div className="trd-list" style={{ marginTop: '20px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <h2><MdAssignment /> Tabla de Retención Vigente (Matriz TRD)</h2>
+            <div className="trd-list" style={{ marginTop: '20px', overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+                  <tr style={{ borderBottom: '2px solid var(--border-color)', background: '#f8f9fa' }}>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Código TRD</th>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Dependencia</th>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Serie / Subserie</th>
+                    <th style={{ textAlign: 'center', padding: '10px' }}>Gestión</th>
+                    <th style={{ textAlign: 'center', padding: '10px' }}>Central</th>
+                    <th style={{ textAlign: 'center', padding: '10px' }}>Disp.</th>
                     <th style={{ textAlign: 'center', padding: '10px' }}>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
                   {trds.length === 0 ? (
-                    <tr><td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>No hay registros en la TRD</td></tr>
-                  ) : trds.map(trd => (
-                    <tr key={trd.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '10px' }}><strong>{trd.codigoTRD}</strong></td>
-                      <td style={{ padding: '10px' }}>
-                        <div style={{ fontSize: '0.9rem' }}>{(trd.dependenciaId as any).nombreDependencia}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#888' }}>Cód: {(trd.dependenciaId as any).codigoDependencia}</div>
-                      </td>
-                      <td style={{ padding: '10px' }}>
-                        <div style={{ fontSize: '0.9rem' }}>{(trd.subserieId as any).serieId.nombreSerie}</div>
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>{(trd.subserieId as any).nombreSubserie}</div>
-                      </td>
-                      <td style={{ padding: '10px', textAlign: 'center' }}>
-                        <button className="btn btn-icon btn-danger" onClick={() => handleDeleteTRD(trd.id)}>
-                          <MdDelete />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                    <tr><td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}>No hay registros en la TRD</td></tr>
+                  ) : trds.map(trd => {
+                    const sub = trd.subserieId as any;
+                    return (
+                      <tr key={trd.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '10px' }}><strong>{trd.codigoTRD}</strong></td>
+                        <td style={{ padding: '10px' }}>
+                          <div style={{ fontWeight: '500' }}>{(trd.dependenciaId as any).nombreDependencia}</div>
+                        </td>
+                        <td style={{ padding: '10px' }}>
+                          <div style={{ color: '#666' }}>{sub.serieId.nombreSerie}</div>
+                          <div style={{ fontWeight: 'bold' }}>{sub.nombreSubserie}</div>
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>{sub.tiempoRetencionGestion || 0}</td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>{sub.tiempoRetencionCentral || 0}</td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <span title={sub.disposicionFinal} style={{ cursor: 'help', borderBottom: '1px dotted' }}>
+                            {sub.disposicionFinal?.charAt(0) || 'E'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>
+                          <button className="btn btn-icon btn-danger" onClick={() => handleDeleteTRD(trd.id)}>
+                            <MdDelete />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
