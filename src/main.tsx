@@ -19,6 +19,7 @@ import EstructuraOrganizacional from "./routes/EstructuraOrganizacional.tsx";
 import SeriesSubseries from "./routes/SeriesSubseries.tsx";
 import Auditoria from "./routes/Auditoria.tsx";
 import Consecutivos from "./routes/Consecutivos.tsx";
+import DatosMaestros from "./routes/DatosMaestros.tsx";
 
 import "./index.css";
 
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "/consecutivos",
         element: <Consecutivos />,
+      },
+      {
+        path: "/datos-maestros",
+        element: <DatosMaestros />,
       },
       {
         path: "/",

@@ -14,6 +14,7 @@ const MdLock = (IconsMd as any).MdLock;
 const MdLibraryBooks = (IconsMd as any).MdLibraryBooks;
 const MdHistory = (IconsMd as any).MdHistory;
 const MdNumbers = (IconsMd as any).MdNumbers;
+const MdFactCheck = (IconsMd as any).MdFactCheck;
 
 interface DrawerProps {
   isOpen: boolean;
@@ -112,6 +113,20 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
               <MdAccountTree />
               <span>Estructura Org.</span>
             </NavLink>
+          </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdFactCheck />
+                <span>Datos Maestros</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/datos-maestros">
+                <MdFactCheck />
+                <span>Datos Maestros</span>
+              </NavLink>
+            )}
           </li>
           <li className="drawer-menu-item">
             {!isOnboardingCompleted ? (

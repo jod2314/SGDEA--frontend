@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthProvider";
-import { API_URL } from "../auth/authConstants";
 import { useNavigate, useParams } from "react-router-dom";
 import PortalLayout from "../layout/PortalLayout";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -12,6 +11,7 @@ import { TableHeader } from "@tiptap/extension-table-header";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Image } from "@tiptap/extension-image";
 import { Placeholder } from "@tiptap/extension-placeholder";
+import Highlight from "@tiptap/extension-highlight";
 import * as IconsMd from "react-icons/md";
 import { TRD } from "../types/types";
 
@@ -25,6 +25,7 @@ const MdFormatAlignLeft = (IconsMd as any).MdFormatAlignLeft;
 const MdFormatAlignCenter = (IconsMd as any).MdFormatAlignCenter;
 const MdFormatAlignRight = (IconsMd as any).MdFormatAlignRight;
 const MdGridOn = (IconsMd as any).MdGridOn;
+const MdHighlighter = (IconsMd as any).MdHighlighter || (IconsMd as any).MdFormatColorFill;
 
 export default function CrearEditarPlantilla() {
   const { id } = useParams();
@@ -33,6 +34,7 @@ export default function CrearEditarPlantilla() {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [subserieId, setSubserieId] = useState("");
+  const [comentario, setComentario] = useState("");
   const [trds, setTrds] = useState<TRD[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -52,6 +54,7 @@ export default function CrearEditarPlantilla() {
       (Placeholder as any).configure({
         placeholder: "Comienza a redactar tu plantilla aquí...",
       }),
+      Highlight,
     ],
     content: "",
   });
@@ -66,18 +69,9 @@ export default function CrearEditarPlantilla() {
   }, [id, auth.isAuthenticated]);
 
   async function fetchTrds() {
-    const empresa = auth.getSelectedEmpresa();
     try {
-      const response = await fetch(`${API_URL}/archivistica/trd`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setTrds(json.body.trd);
-      }
+      const json = await auth.request<any>("/archivistica/trd");
+      setTrds(json.body.trd);
     } catch (error) {
       console.error("Error al cargar TRDs:", error);
     }
@@ -85,21 +79,12 @@ export default function CrearEditarPlantilla() {
 
   async function fetchPlantilla() {
     setLoading(true);
-    const empresa = auth.getSelectedEmpresa();
     try {
-      const response = await fetch(`${API_URL}/plantillas/${id}`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setNombre(json.body.plantilla.nombre);
-        setDescripcion(json.body.plantilla.descripcion);
-        setSubserieId(json.body.plantilla.subserieId || "");
-        editor?.commands.setContent(json.body.plantilla.contenidoHtml);
-      }
+      const json = await auth.request<any>(`/plantillas/${id}`);
+      setNombre(json.body.plantilla.nombre);
+      setDescripcion(json.body.plantilla.descripcion);
+      setSubserieId(json.body.plantilla.subserieId?._id || json.body.plantilla.subserieId || "");
+      editor?.commands.setContent(json.body.plantilla.contenidoHtml);
     } catch (error) {
       console.error("Error al cargar plantilla:", error);
     } finally {
@@ -110,28 +95,26 @@ export default function CrearEditarPlantilla() {
   async function handleSave() {
     if (!nombre || !editor) return;
     setSaving(true);
-    const empresa = auth.getSelectedEmpresa();
     const contenidoHtml = editor.getHTML();
 
     try {
-      const url = id ? `${API_URL}/plantillas/${id}` : `${API_URL}/plantillas`;
+      const endpoint = id ? `/plantillas/${id}` : "/plantillas";
       const method = id ? "PUT" : "POST";
 
-      const response = await fetch(url, {
+      await auth.request<any>(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
-        body: JSON.stringify({ nombre, descripcion, contenidoHtml, subserieId }),
+        body: JSON.stringify({ 
+          nombre, 
+          descripcion, 
+          contenidoHtml, 
+          subserieId,
+          comentario: comentario || (id ? "Actualización de contenido" : "Versión inicial")
+        }),
       });
 
-      if (response.ok) {
-        navigate("/plantillas");
-      }
-    } catch (error) {
-      console.error("Error al guardar:", error);
+      navigate("/plantillas");
+    } catch (error: any) {
+      alert(error.message || "Error al guardar");
     } finally {
       setSaving(false);
     }
@@ -166,7 +149,7 @@ export default function CrearEditarPlantilla() {
         </header>
 
         <div className="editor-meta card" style={{ marginBottom: '20px', padding: '15px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '15px' }}>
             <div>
               <label>Nombre del Formato</label>
               <input 
@@ -195,12 +178,22 @@ export default function CrearEditarPlantilla() {
               </select>
             </div>
             <div>
-              <label>Descripción / Observaciones</label>
+              <label>Descripción</label>
               <input 
                 type="text" 
                 value={descripcion} 
                 onChange={(e) => setDescripcion(e.target.value)} 
-                placeholder="Para qué se usa esta plantilla..."
+                className="edit-input"
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div>
+              <label>Comentario de Versión</label>
+              <input 
+                type="text" 
+                value={comentario} 
+                onChange={(e) => setComentario(e.target.value)} 
+                placeholder="¿Qué cambió?"
                 className="edit-input"
                 style={{ width: '100%' }}
               />
@@ -208,17 +201,18 @@ export default function CrearEditarPlantilla() {
           </div>
         </div>
 
-        <div className="editor-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 250px', gap: '20px' }}>
+        <div className="editor-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '20px' }}>
           <div className="main-editor-area">
             {/* Toolbar */}
             <div className="editor-toolbar card" style={{ padding: '5px', marginBottom: '10px', display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-              <button className="icon-btn" onClick={() => editor?.chain().focus().toggleBold().run()} title="Negrita"><MdFormatBold /></button>
-              <button className="icon-btn" onClick={() => editor?.chain().focus().toggleItalic().run()} title="Cursiva"><MdFormatItalic /></button>
+              <button className={`icon-btn ${editor?.isActive('bold') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleBold().run()} title="Negrita"><MdFormatBold /></button>
+              <button className={`icon-btn ${editor?.isActive('italic') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleItalic().run()} title="Cursiva"><MdFormatItalic /></button>
+              <button className={`icon-btn ${editor?.isActive('highlight') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHighlight().run()} title="Resaltar"><MdHighlighter /></button>
               <span className="separator">|</span>
-              <button className="icon-btn" onClick={() => editor?.chain().focus().setTextAlign('left').run()} title="Alinear Izquierda"><MdFormatAlignLeft /></button>
-              <button className="icon-btn" onClick={() => editor?.chain().focus().setTextAlign('center').run()} title="Centrar"><MdFormatAlignCenter /></button>
-              <button className="icon-btn" onClick={() => editor?.chain().focus().setTextAlign('right').run()} title="Alinear Derecha"><MdFormatAlignRight /></button>
-              <button className="icon-btn" onClick={() => editor?.chain().focus().setTextAlign('justify').run()} title="Justificar"><MdFormatAlignJustify /></button>
+              <button className={`icon-btn ${editor?.isActive({ textAlign: 'left' }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().setTextAlign('left').run()} title="Alinear Izquierda"><MdFormatAlignLeft /></button>
+              <button className={`icon-btn ${editor?.isActive({ textAlign: 'center' }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().setTextAlign('center').run()} title="Centrar"><MdFormatAlignCenter /></button>
+              <button className={`icon-btn ${editor?.isActive({ textAlign: 'right' }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().setTextAlign('right').run()} title="Alinear Derecha"><MdFormatAlignRight /></button>
+              <button className={`icon-btn ${editor?.isActive({ textAlign: 'justify' }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().setTextAlign('justify').run()} title="Justificar"><MdFormatAlignJustify /></button>
               <span className="separator">|</span>
               <button className="icon-btn" onClick={() => editor?.chain().focus().insertTable({ rows: 3, cols: 3 }).run()} title="Insertar Tabla"><MdGridOn /></button>
             </div>
@@ -246,26 +240,48 @@ export default function CrearEditarPlantilla() {
 
           <aside className="editor-sidebar">
             <div className="card" style={{ padding: '15px' }}>
-              <h3>Variables</h3>
-              <p className="small text-muted">Haz clic para insertar en el texto</p>
+              <h3>Variables Dinámicas</h3>
+              <p className="small text-muted">Haz clic para insertar tokens que se fusionarán al generar el documento.</p>
               
-              <div className="variable-group" style={{ marginTop: '15px' }}>
-                <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Empresa</h4>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('empresa.razonSocial')}>Razón Social</button>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('empresa.nit')}>NIT Empresa</button>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('fecha_actual')}>Fecha Actual</button>
+              <div className="variable-group" style={{ marginTop: '20px' }}>
+                <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#888', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>Empresa / Maestros</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px' }}>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('maestros.membrete.razonSocial')}>Razón Social</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('maestros.membrete.nit')}>NIT Empresa</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('maestros.representante_legal.nombre')}>Rep. Legal (Nombre)</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('maestros.representante_legal.cargo')}>Rep. Legal (Cargo)</button>
+                </div>
               </div>
 
-              <div className="variable-group" style={{ marginTop: '15px' }}>
-                <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Entidad (Tercero)</h4>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('entidad.nombre')}>Nombre/Razón S.</button>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('entidad.numeroIdentificacion')}>Identificación</button>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => insertVariable('entidad.direccion')}>Dirección</button>
+              <div className="variable-group" style={{ marginTop: '20px' }}>
+                <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#888', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>Entidad (Tercero)</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px' }}>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('entidad.nombre')}>Nombre / Razón S.</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('entidad.numeroIdentificacion')}>Identificación</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('entidad.direccion')}>Dirección</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('entidad.ciudad')}>Ciudad</button>
+                </div>
+              </div>
+
+              <div className="variable-group" style={{ marginTop: '20px' }}>
+                <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#888', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>Documento</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px' }}>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('documento.radicado')}>N° Radicado</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('documento.trd')}>Código TRD</button>
+                  <button className="btn btn-ghost btn-sm text-left" onClick={() => insertVariable('documento.fecha')}>Fecha Emisión</button>
+                </div>
               </div>
             </div>
           </aside>
         </div>
       </div>
+      <style>{`
+        .text-left { text-align: left !important; justify-content: flex-start !important; }
+        .icon-btn.active { background: var(--primary-color); color: white; }
+        .tiptap-paper *:focus { outline: none; }
+        .tiptap-paper table { border-collapse: collapse; table-layout: fixed; width: 100%; margin: 0; overflow: hidden; }
+        .tiptap-paper td, .tiptap-paper th { min-width: 1em; border: 1px solid #ced4da; padding: 3px 5px; vertical-align: top; box-sizing: border-box; position: relative; }
+      `}</style>
     </PortalLayout>
   );
 }
