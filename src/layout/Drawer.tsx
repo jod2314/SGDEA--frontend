@@ -17,6 +17,7 @@ const MdNumbers = (IconsMd as any).MdNumbers;
 const MdFactCheck = (IconsMd as any).MdFactCheck;
 const MdFolderSpecial = (IconsMd as any).MdFolderSpecial;
 const MdSwapHoriz = (IconsMd as any).MdSwapHoriz;
+const MdDeleteSweep = (IconsMd as any).MdDeleteSweep;
 
 interface DrawerProps {
   isOpen: boolean;
@@ -155,6 +156,20 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
               <NavLink to="/transferencias">
                 <MdSwapHoriz />
                 <span>Transferencias</span>
+              </NavLink>
+            )}
+          </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdDeleteSweep />
+                <span>Disposición Final</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/disposicion">
+                <MdDeleteSweep />
+                <span>Disposición Final</span>
               </NavLink>
             )}
           </li>

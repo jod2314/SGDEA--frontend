@@ -118,6 +118,23 @@ export interface Transferencia {
   createdAt: string;
 }
 
+export interface ActaEliminacion {
+  id: string;
+  numeroActa: string;
+  usuarioResponsableId: string | User;
+  expedientesEliminados: Array<{
+    expedienteId: string;
+    nombreExpediente: string;
+    codigoTRD: string;
+    fechaApertura: string;
+    fechaCierre: string;
+  }>;
+  fechaEliminacion: string;
+  justificacion: string;
+  estado: 'BORRADOR' | 'APROBADA';
+  createdAt: string;
+}
+
 export interface HistorialDocumento {
   id: string;
   plantillaId: { nombre: string };
