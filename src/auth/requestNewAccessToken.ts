@@ -1,13 +1,14 @@
 import { AccessTokenResponse } from "../types/types";
 import { API_URL } from "./authConstants";
 
-export default async function requestNewAccessToken(refreshToken: string) {
+export default async function requestNewAccessToken() {
   const response = await fetch(`${API_URL}/refresh-token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ refreshToken }),
+    // No enviamos el body, el backend lo leerá de la cookie httpOnly
+    credentials: 'include',
   });
 
   if (response.ok) {

@@ -38,10 +38,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   function saveUser(userData: AuthResponse) {
-    setAccessTokenAndRefreshToken(
-      userData.body.accessToken,
-      userData.body.refreshToken
-    );
+    setAccessToken(userData.body.accessToken);
     setUser(userData.body.user);
     setIsAuthenticated(true);
 
@@ -72,30 +69,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   function setAccessTokenAndRefreshToken(
     accessToken: string,
-    refreshToken: string
+    _refreshToken: string
   ) {
-    console.log("setAccessTokenAndRefreshToken", accessToken, refreshToken);
     setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
-
-    localStorage.setItem("token", JSON.stringify({ refreshToken }));
   }
 
   function getRefreshToken() {
-    if (!!refreshToken) {
-      return refreshToken;
-    }
-    const token = localStorage.getItem("token");
-    if (token) {
-      const { refreshToken } = JSON.parse(token);
-      setRefreshToken(refreshToken);
-      return refreshToken;
-    }
+    // El refresh token ahora vive en una cookie httpOnly
     return null;
   }
 
-  async function getNewAccessToken(refreshToken: string) {
-    const token = await requestNewAccessToken(refreshToken);
+  async function getNewAccessToken() {
+    const token = await requestNewAccessToken();
     if (token) {
       return token;
     }
@@ -106,13 +91,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   function signout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("selectedEmpresa");
-    setAccessToken("");
-    setRefreshToken("");
-    setUser(undefined);
-    setSelectedEmpresaState(undefined);
-    setIsAuthenticated(false);
+    // Llamar al backend para limpiar la cookie
+    apiFetch('/signout', { method: 'DELETE', credentials: 'include' })
+      .finally(() => {
+        localStorage.removeItem("selectedEmpresa");
+        setAccessToken("");
+        setRefreshToken("");
+        setUser(undefined);
+        setSelectedEmpresaState(undefined);
+        setIsAuthenticated(false);
+      });
   }
 
   async function checkAuth() {
@@ -123,34 +111,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       if (!!accessToken) {
-        //existe access token
         const userInfo = await retrieveUserInfo(accessToken);
         setUser(userInfo);
-        setAccessToken(accessToken);
         setIsAuthenticated(true);
         setIsLoading(false);
       } else {
-        //no existe access token
-        const token = localStorage.getItem("token");
-        if (token) {
-          console.log("useEffect: token", token);
-          const refreshToken = JSON.parse(token).refreshToken;
-          //pedir nuevo access token
-          getNewAccessToken(refreshToken)
-            .then(async (newToken) => {
-              const userInfo = await retrieveUserInfo(newToken!);
-              setUser(userInfo);
-              setAccessToken(newToken!);
-              setIsAuthenticated(true);
-              setIsLoading(false);
-            })
-            .catch((error) => {
-              console.log(error);
-              setIsLoading(false);
-            });
-        } else {
-          setIsLoading(false);
-        }
+        // Intentar refrescar usando la cookie httpOnly (si existe)
+        getNewAccessToken()
+          .then(async (newToken) => {
+            const userInfo = await retrieveUserInfo(newToken!);
+            setUser(userInfo);
+            setAccessToken(newToken!);
+            setIsAuthenticated(true);
+            setIsLoading(false);
+          })
+          .catch(() => {
+            setIsLoading(false);
+          });
       }
     } catch (error) {
       setIsLoading(false);

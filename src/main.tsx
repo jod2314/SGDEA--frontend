@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
@@ -11,21 +11,25 @@ import Profile from "./routes/Profile.tsx";
 import SelectEmpresa from "./routes/SelectEmpresa.tsx";
 import CrearEmpresa from "./routes/CrearEmpresa.tsx";
 import Plantillas from "./routes/Plantillas.tsx";
-import CrearEditarPlantilla from "./routes/CrearEditarPlantilla.tsx";
 import Proyeccion from "./routes/Proyeccion.tsx";
 import HistorialPlantilla from "./routes/HistorialPlantilla.tsx";
 import ConfiguracionTRD from "./routes/ConfiguracionTRD.tsx";
 import EstructuraOrganizacional from "./routes/EstructuraOrganizacional.tsx";
 import SeriesSubseries from "./routes/SeriesSubseries.tsx";
-import Auditoria from "./routes/Auditoria.tsx";
 import Consecutivos from "./routes/Consecutivos.tsx";
 import DatosMaestros from "./routes/DatosMaestros.tsx";
 import Expedientes from "./routes/Expedientes.tsx";
 import Transferencias from "./routes/Transferencias.tsx";
-import Disposicion from "./routes/Disposicion.tsx";
-import AsistenteOnboarding from "./routes/AsistenteOnboarding.tsx";
 
 import "./index.css";
+
+// Lazy loading de rutas pesadas (Tiptap, Recharts, etc)
+const CrearEditarPlantilla = lazy(() => import("./routes/CrearEditarPlantilla.tsx"));
+const Auditoria = lazy(() => import("./routes/Auditoria.tsx"));
+const Disposicion = lazy(() => import("./routes/Disposicion.tsx"));
+const AsistenteOnboarding = lazy(() => import("./routes/AsistenteOnboarding.tsx"));
+
+const Loading = () => <div style={{ padding: '20px', textAlign: 'center' }}>Cargando módulo...</div>;
 
 const router = createBrowserRouter([
   {
@@ -50,11 +54,19 @@ const router = createBrowserRouter([
       },
       {
         path: "/plantillas/nueva",
-        element: <CrearEditarPlantilla />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <CrearEditarPlantilla />
+          </Suspense>
+        ),
       },
       {
         path: "/plantillas/editar/:id",
-        element: <CrearEditarPlantilla />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <CrearEditarPlantilla />
+          </Suspense>
+        ),
       },
       {
         path: "/proyeccion/:plantillaId",
@@ -74,7 +86,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/auditoria",
-        element: <Auditoria />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Auditoria />
+          </Suspense>
+        ),
       },
       {
         path: "/consecutivos",
@@ -94,11 +110,19 @@ const router = createBrowserRouter([
       },
       {
         path: "/disposicion",
-        element: <Disposicion />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Disposicion />
+          </Suspense>
+        ),
       },
       {
         path: "/onboarding",
-        element: <AsistenteOnboarding />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AsistenteOnboarding />
+          </Suspense>
+        ),
       },
       {
         path: "/",
