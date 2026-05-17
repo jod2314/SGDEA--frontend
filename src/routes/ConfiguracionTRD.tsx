@@ -29,108 +29,62 @@ export default function ConfiguracionTRD() {
   }, [auth.isAuthenticated]);
 
   async function fetchDependencias() {
-    const empresa = auth.getSelectedEmpresa();
     try {
-      const response = await fetch(`${API_URL}/archivistica/dependencias`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setDependencias(json.body.dependencias);
-      }
+      const json = await auth.request<any>("/archivistica/dependencias");
+      setDependencias(json.body.dependencias);
     } catch (error) { console.log(error); }
   }
 
   async function fetchSeries() {
-    const empresa = auth.getSelectedEmpresa();
     try {
-      const response = await fetch(`${API_URL}/archivistica/series`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setSeries(json.body.series);
-      }
+      const json = await auth.request<any>("/archivistica/series");
+      setSeries(json.body.series);
     } catch (error) { console.log(error); }
   }
 
   async function fetchSubseries(serieId: string) {
     try {
-      const response = await fetch(`${API_URL}/archivistica/series/${serieId}/subseries`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setSubseries(json.body.subseries);
-      }
+      const json = await auth.request<any>(`/archivistica/series/${serieId}/subseries`);
+      setSubseries(json.body.subseries);
     } catch (error) { console.log(error); }
   }
 
   async function fetchTrds() {
-    const empresa = auth.getSelectedEmpresa();
     try {
-      const response = await fetch(`${API_URL}/archivistica/trd`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setTrds(json.body.trd);
-      }
+      const json = await auth.request<any>("/archivistica/trd");
+      setTrds(json.body.trd);
     } catch (error) { console.log(error); }
   }
 
   async function handleAddTRD() {
     if (!selectedDep || !selectedSub) return;
-    const empresa = auth.getSelectedEmpresa();
 
     try {
-      const response = await fetch(`${API_URL}/archivistica/trd`, {
+      await auth.request<any>("/archivistica/trd", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
         body: JSON.stringify({
           dependenciaId: selectedDep,
           subserieId: selectedSub
         }),
       });
 
-      if (response.ok) {
-        fetchTrds();
-        setSelectedDep("");
-        setSelectedSerie("");
-        setSelectedSub("");
-        setSubseries([]);
-      } else {
-        const json = await response.json();
-        alert(json.body.error || "Error al vincular");
-      }
-    } catch (error) { console.log(error); }
+      fetchTrds();
+      setSelectedDep("");
+      setSelectedSerie("");
+      setSelectedSub("");
+      setSubseries([]);
+    } catch (error: any) {
+      alert(error.message || "Error al vincular");
+    }
   }
 
   async function handleDeleteTRD(id: string) {
     if (!confirm("¿Deseas eliminar esta vinculación de la TRD?")) return;
     try {
-      const response = await fetch(`${API_URL}/archivistica/trd/${id}`, {
+      await auth.request<any>(`/archivistica/trd/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
       });
-      if (response.ok) fetchTrds();
+      fetchTrds();
     } catch (error) { console.log(error); }
   }
 

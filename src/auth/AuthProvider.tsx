@@ -3,6 +3,8 @@ import type { AuthResponse, User, Empresa } from "../types/types";
 import requestNewAccessToken from "./requestNewAccessToken";
 import { API_URL } from "./authConstants";
 
+import { apiFetch } from "../lib/api";
+
 const AuthContext = createContext({
   isAuthenticated: false,
   getAccessToken: () => "" as string,
@@ -16,6 +18,7 @@ const AuthContext = createContext({
   signout: () => {},
   setSelectedEmpresa: (_empresa: Empresa) => {},
   getSelectedEmpresa: () => ({} as Empresa | undefined),
+  request: async <T>(_endpoint: string, _options?: any): Promise<T> => ({} as T),
 });
 
 interface AuthProviderProps {
@@ -158,6 +161,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth();
   }, []);
 
+  async function request<T>(endpoint: string, options: any = {}): Promise<T> {
+    const token = getAccessToken();
+    const empresa = getSelectedEmpresa();
+    
+    return apiFetch(endpoint, {
+      ...options,
+      accessToken: token,
+      empresaId: empresa?.id,
+    });
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -170,6 +184,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signout,
         setSelectedEmpresa,
         getSelectedEmpresa,
+        request,
       }}
     >
       {isloading ? <div>Loading...</div> : children}

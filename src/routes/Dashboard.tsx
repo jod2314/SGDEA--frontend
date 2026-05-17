@@ -27,19 +27,9 @@ export default function Dashboard() {
 
   // Fetch Todos
   async function getTodos() {
-    const accessToken = auth.getAccessToken();
     try {
-      const response = await fetch(`${API_URL}/posts`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setTodos(json);
-      }
+      const json = await auth.request<Todo[]>("/posts");
+      setTodos(json);
     } catch (error) {
       console.log(error);
     }
@@ -49,19 +39,12 @@ export default function Dashboard() {
   async function createTodo() {
     if (value.length > 3) {
       try {
-        const response = await fetch(`${API_URL}/posts`, {
+        const todo = await auth.request<Todo>("/posts", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth.getAccessToken()}`,
-          },
           body: JSON.stringify({ title: value }),
         });
-        if (response.ok) {
-          const todo = (await response.json()) as Todo;
-          setTodos([...todos, todo]);
-          setValue("");
-        }
+        setTodos([...todos, todo]);
+        setValue("");
       } catch (error) {}
     }
   }

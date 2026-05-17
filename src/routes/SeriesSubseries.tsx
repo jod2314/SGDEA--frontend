@@ -11,6 +11,18 @@ const MdEdit = (IconsMd as any).MdEdit;
 const MdDelete = (IconsMd as any).MdDelete;
 const MdAdd = (IconsMd as any).MdAdd;
 const MdCloudDownload = (IconsMd as any).MdCloudDownload;
+const MdSearch = (IconsMd as any).MdSearch;
+
+interface BanterItem {
+  _id: string;
+  nivel: 'SERIE' | 'SUBSERIE';
+  codigo: string;
+  nombre: string;
+  definicion?: string;
+  retencionGestion?: number;
+  retencionCentral?: number;
+  disposicionFinal?: string;
+}
 
 export default function SeriesSubseries() {
   const auth = useAuth();
@@ -19,7 +31,13 @@ export default function SeriesSubseries() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
-  // Serie Form state
+  // Banter Search state
+  const [showBanterSearch, setShowBanterSearch] = useState(false);
+  const [banterQuery, setBanterQuery] = useState("");
+  const [banterResults, setBanterResults] = useState<BanterItem[]>([]);
+  const [isSearchingBanter, setIsBanterLoading] = useState(false);
+
+  // Serie Form state ... (rest of existing state)
   const [isEditingSerie, setIsEditingSerie] = useState(false);
   const [currentSerieId, setCurrentSerieId] = useState("");
   const [codigoSerie, setCodigoSerie] = useState("");
@@ -38,28 +56,45 @@ export default function SeriesSubseries() {
     fetchSeries();
   }, []);
 
-  async function fetchSeries() {
-    const empresa = auth.getSelectedEmpresa();
-    if (!empresa) return;
-
+  async function handleBanterSearch() {
+    if (!banterQuery) return;
+    setIsBanterLoading(true);
     try {
-      const response = await fetch(`${API_URL}/archivistica/series`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa.id,
-        },
-      });
-
-      if (response.ok) {
-        const json = await response.json();
-        setSeries(json.body.series);
-        // Cargar subseries para cada serie
-        json.body.series.forEach((s: SerieDocumental) => fetchSubseries(s.id));
-      } else {
-        setError("Error al cargar series");
-      }
+      const json = await auth.request<any>(`/archivistica/banter/buscar?q=${banterQuery}`);
+      setBanterResults(json.body.sugerencias);
     } catch (err) {
-      setError("Error de conexión");
+      console.error(err);
+    } finally {
+      setIsBanterLoading(false);
+    }
+  }
+
+  async function handleImportItem(item: BanterItem) {
+    try {
+      const json = await auth.request<any>("/archivistica/banter/importar", {
+        method: "POST",
+        body: JSON.stringify({ 
+          banterId: item._id, 
+          incluirSubseries: item.nivel === 'SERIE' 
+        })
+      });
+      alert(json.body.message);
+      fetchSeries();
+      setShowBanterSearch(false);
+      setBanterQuery("");
+      setBanterResults([]);
+    } catch (err: any) {
+      alert(err.message || "Error al importar");
+    }
+  }
+
+  async function fetchSeries() {
+    try {
+      const json = await auth.request<any>("/archivistica/series");
+      setSeries(json.body.series);
+      json.body.series.forEach((s: SerieDocumental) => fetchSubseries(s.id));
+    } catch (err) {
+      setError("Error al cargar series");
     } finally {
       setLoading(false);
     }
@@ -67,15 +102,8 @@ export default function SeriesSubseries() {
 
   async function fetchSubseries(serieId: string) {
     try {
-      const response = await fetch(`${API_URL}/archivistica/series/${serieId}/subseries`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setSubseries(prev => ({ ...prev, [serieId]: json.body.subseries }));
-      }
+      const json = await auth.request<any>(`/archivistica/series/${serieId}/subseries`);
+      setSubseries(prev => ({ ...prev, [serieId]: json.body.subseries }));
     } catch (err) {
       console.error("Error cargando subseries de", serieId);
     }
@@ -83,23 +111,12 @@ export default function SeriesSubseries() {
 
   async function handleSerieSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const empresa = auth.getSelectedEmpresa();
-    if (!empresa) return;
-
-    const url = isEditingSerie 
-      ? `${API_URL}/archivistica/series/${currentSerieId}`
-      : `${API_URL}/archivistica/series`;
-    
+    const endpoint = isEditingSerie ? `/archivistica/series/${currentSerieId}` : "/archivistica/series";
     const method = isEditingSerie ? "PUT" : "POST";
 
     try {
-      const response = await fetch(url, {
+      await auth.request<any>(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa.id,
-        },
         body: JSON.stringify({
           codigoSerie,
           nombreSerie,
@@ -108,97 +125,50 @@ export default function SeriesSubseries() {
           disposicionFinal: disposicion
         }),
       });
-
-      if (response.ok) {
-        resetSerieForm();
-        fetchSeries();
-      } else {
-        const json = await response.json();
-        setError(json.body.error || "Error al guardar serie");
-      }
-    } catch (err) {
-      setError("Error de conexión");
+      resetSerieForm();
+      fetchSeries();
+    } catch (err: any) {
+      setError(err.message || "Error al guardar serie");
     }
   }
 
   async function handleSubserieSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_URL}/archivistica/subseries`, {
+      await auth.request<any>("/archivistica/subseries", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
         body: JSON.stringify({
           serieId: targetSerieId,
           codigoSubserie,
           nombreSubserie
         }),
       });
-
-      if (response.ok) {
-        setCodigoSubserie("");
-        setNombreSubserie("");
-        setShowSubForm(false);
-        fetchSubseries(targetSerieId);
-      } else {
-        const json = await response.json();
-        alert(json.body.error || "Error al guardar subserie");
-      }
-    } catch (err) {
-      alert("Error de conexión");
+      setCodigoSubserie("");
+      setNombreSubserie("");
+      setShowSubForm(false);
+      fetchSubseries(targetSerieId);
+    } catch (err: any) {
+      alert(err.message || "Error al guardar subserie");
     }
   }
 
   async function handleDeleteSerie(id: string) {
     if (!confirm("¿Eliminar serie? Solo se puede si no tiene subseries.")) return;
     try {
-      const response = await fetch(`${API_URL}/archivistica/series/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
-      });
-      if (response.ok) fetchSeries();
-      else {
-        const json = await response.json();
-        alert(json.body.error);
-      }
-    } catch (err) {
-      alert("Error al eliminar");
+      await auth.request<any>(`/archivistica/series/${id}`, { method: "DELETE" });
+      fetchSeries();
+    } catch (err: any) {
+      alert(err.message);
     }
   }
 
   async function handleDeleteSubserie(id: string, serieId: string) {
     if (!confirm("¿Eliminar subserie?")) return;
     try {
-      const response = await fetch(`${API_URL}/archivistica/subseries/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
-      });
-      if (response.ok) fetchSubseries(serieId);
-    } catch (err) {
-      alert("Error al eliminar");
-    }
-  }
-
-  async function handleImportBanter() {
-    if (!confirm("¿Deseas importar el catálogo estándar BANTER? Esto agregará series y subseries comunes.")) return;
-    const empresa = auth.getSelectedEmpresa();
-    try {
-      const response = await fetch(`${API_URL}/archivistica/importar-banter`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
-      });
-      if (response.ok) fetchSeries();
-    } catch (err) {
-      alert("Error al importar");
+      await auth.request<any>(`/archivistica/subseries/${id}`, { method: "DELETE" });
+      fetchSubseries(serieId);
+    } catch (err: any) {
+      alert(err.message);
     }
   }
 
@@ -230,10 +200,48 @@ export default function SeriesSubseries() {
             <h1>Series y Subseries Documentales</h1>
             <p className="text-muted">Define el catálogo de categorías para la retención documental.</p>
           </div>
-          <button className="btn btn-secondary" onClick={handleImportBanter}>
-            <MdCloudDownload /> Importar BANTER
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn btn-secondary" onClick={() => setShowBanterSearch(!showBanterSearch)}>
+              <MdSearch /> Buscar en BANTER
+            </button>
+          </div>
         </header>
+
+        {showBanterSearch && (
+          <section className="card banter-search-section" style={{ padding: '20px', marginBottom: '20px', border: '2px solid var(--primary-color)' }}>
+            <h3>Buscador Catálogo BANTER (Archivo General de la Nación)</h3>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+              <input 
+                type="text" 
+                className="edit-input" 
+                style={{ flex: 1 }} 
+                placeholder="Busca por nombre (ej: ACTAS, CONTRATOS)..." 
+                value={banterQuery}
+                onChange={e => setBanterQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleBanterSearch()}
+              />
+              <button className="btn btn-primary" onClick={handleBanterSearch} disabled={isSearchingBanter}>
+                {isSearchingBanter ? '...' : 'Buscar'}
+              </button>
+            </div>
+
+            <div className="banter-results" style={{ marginTop: '20px', maxHeight: '300px', overflowY: 'auto' }}>
+              {banterResults.map(item => (
+                <div key={item._id} className="banter-result-item" style={{ padding: '10px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span className={`badge ${item.nivel.toLowerCase()}`} style={{ marginRight: '10px', fontSize: '0.7rem' }}>{item.nivel}</span>
+                    <strong>{item.codigo} - {item.nombre}</strong>
+                    <p className="small text-muted" style={{ margin: '5px 0 0 0' }}>{item.definicion?.substring(0, 100)}...</p>
+                  </div>
+                  <button className="btn btn-ghost btn-sm" onClick={() => handleImportItem(item)}>
+                    <MdCloudDownload /> Importar
+                  </button>
+                </div>
+              ))}
+              {banterResults.length === 0 && !isSearchingBanter && banterQuery && <p className="text-muted">No se encontraron resultados.</p>}
+            </div>
+          </section>
+        )}
 
         {error && <div className="errorMessage">{error}</div>}
 
@@ -285,7 +293,7 @@ export default function SeriesSubseries() {
 
           {/* Listado de Series y Subseries */}
           <section className="card" style={{ padding: '20px' }}>
-            <h2>Catálogo Documental</h2>
+            <h2>Catálogo Documental Local (CCD)</h2>
             <div style={{ marginTop: '15px' }}>
               {loading ? <p>Cargando...</p> : series.length === 0 ? <p>No hay series registradas.</p> : (
                 <div className="series-list">
@@ -298,6 +306,7 @@ export default function SeriesSubseries() {
                           <span className="badge" style={{ fontSize: '0.7rem', background: '#e9ecef', padding: '2px 6px', borderRadius: '4px' }}>
                             {ser.disposicionFinal} ({ser.tiempoRetencionGestion}+{ser.tiempoRetencionCentral})
                           </span>
+                          {ser.origen === 'BANTER' && <span title="Origen: Catálogo Nacional" style={{ color: 'var(--primary-color)', fontSize: '1.2rem' }}><MdCloudDownload /></span>}
                         </div>
                         <div style={{ display: 'flex', gap: '5px' }}>
                           <button className="btn btn-icon" onClick={() => { setTargetSerieId(ser.id); setShowSubForm(true); }} title="Añadir Subserie"><MdAdd /></button>
@@ -336,8 +345,11 @@ export default function SeriesSubseries() {
         </div>
       </div>
       <style>{`
-        .badge { font-weight: bold; color: #555; }
+        .badge { font-weight: bold; color: #555; padding: 2px 8px; border-radius: 4px; }
+        .badge.serie { background: #d1ecf1; color: #0c5460; }
+        .badge.subserie { background: #e2e3e5; color: #383d41; }
         .serie-item:hover { border-color: var(--primary-color) !important; }
+        .banter-result-item:hover { background: #f0f7ff; cursor: pointer; }
       `}</style>
     </PortalLayout>
   );

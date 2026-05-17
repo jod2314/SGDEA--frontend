@@ -23,17 +23,8 @@ export default function Auditoria() {
   useEffect(() => {
     async function fetchLogs() {
       try {
-        const response = await fetch(`${API_URL}/audit`, {
-          headers: {
-            Authorization: `Bearer ${auth.getAccessToken()}`,
-            "X-Empresa-ID": selectedEmpresa?.id || "",
-          },
-        });
-
-        if (response.ok) {
-          const json = await response.json();
-          setLogs(json.body.logs);
-        }
+        const json = await auth.request<any>("/audit");
+        setLogs(json.body.logs);
       } catch (error) {
         console.error("Error fetching logs:", error);
       } finally {
@@ -44,7 +35,7 @@ export default function Auditoria() {
     if (selectedEmpresa) {
       fetchLogs();
     }
-  }, [selectedEmpresa]);
+  }, [selectedEmpresa, auth]);
 
   return (
     <PortalLayout>
