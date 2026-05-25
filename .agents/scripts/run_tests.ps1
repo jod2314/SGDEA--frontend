@@ -18,56 +18,38 @@ Write-Host "========================================" -ForegroundColor Cyan
 
 Set-Location $repoRoot
 
-# -- 1. Verificar si hay script de test real ---------------------
-$pkg = Get-Content "package.json" | ConvertFrom-Json
-$testScript = $pkg.scripts.test
-
-if (-not $testScript -or $testScript -like "echo*") {
-    Write-Host ""
-    Write-Host "[ADVERTENCIA] No hay tests configurados en package.json" -ForegroundColor Yellow
-    Write-Host "   Instala Vitest y configura el script 'test' para activar el gate." -ForegroundColor Yellow
-    Write-Host "   El commit procedera SIN validacion de tests." -ForegroundColor Yellow
-
-    $entrada = "| $fecha | ADVERTENCIA Gate de testing | Sin tests configurados - commit permitido con advertencia | - |"
-    Add-Content -Path $hitosPath -Value $entrada -ErrorAction SilentlyContinue
-
-    Write-Host ""
-    Write-Host "[OK] Gate superado (modo permisivo - sin tests)" -ForegroundColor Green
-    exit 0
-}
-
-# -- 2. Verificar TypeScript -----------------------------------
+# -- 1. Verificar TypeScript -------------------------------------------
 Write-Host ""
 Write-Host "[TS] Verificando TypeScript..." -ForegroundColor Blue
-$tsResult = npx tsc --noEmit 2>&1
+npx tsc --noEmit 2>&1 | Tee-Object -Variable tsOutput | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] Error de TypeScript:" -ForegroundColor Red
-    Write-Host $tsResult -ForegroundColor Red
+    Write-Host $tsOutput -ForegroundColor Red
     $exitCode = 1
 } else {
     Write-Host "   [OK] TypeScript OK" -ForegroundColor Green
 }
 
-# -- 3. Ejecutar tests -----------------------------------------
+# -- 2. Ejecutar tests Vitest ------------------------------------------
 if ($exitCode -eq 0) {
     Write-Host ""
-    Write-Host "[RUN] Ejecutando tests..." -ForegroundColor Blue
-    npm test -- --run 2>&1
+    Write-Host "[RUN] Ejecutando tests (Vitest)..." -ForegroundColor Blue
+    npm test 2>&1 | Tee-Object -Variable testOutput
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[FALLO] Tests fallaron. Bloqueando commit." -ForegroundColor Red
         $exitCode = 1
     } else {
-        Write-Host "   [OK] Tests OK" -ForegroundColor Green
+        Write-Host "   [OK] Todos los tests pasaron" -ForegroundColor Green
     }
 }
 
-# -- 4. Registrar resultado en HITOS.md -----------------------
+# -- 3. Registrar resultado en HITOS.md --------------------------------
 if ($exitCode -eq 0) {
-    $entrada = "| $fecha | [OK] Gate de testing | Tests pasaron - commit autorizado | - |"
+    $entrada = "| $fecha | [OK] Gate de testing | TypeScript + Vitest OK - commit autorizado | - |"
     Write-Host ""
     Write-Host "[OK] Gate superado. Procediendo al commit." -ForegroundColor Green
 } else {
-    $entrada = "| $fecha | [FALLO] Gate de testing | Tests fallaron - commit bloqueado | - |"
+    $entrada = "| $fecha | [FALLO] Gate de testing | Gate fallido - commit bloqueado | - |"
     Write-Host ""
     Write-Host "[ERROR] Gate fallido. Ejecuta rollback.ps1 para revertir cambios." -ForegroundColor Red
 }

@@ -5,6 +5,7 @@ Registro de todos los subagentes disponibles o descargados para el repo frontend
 | Agente | Especialidad | Scope Permitido | Estado | Fecha |
 |--------|-------------|-----------------|--------|-------|
 | `self` (heredado) | Full-Stack general | Todos los archivos | ✅ Activo | Sistema |
+| `code-review-frontend` | Revisión React/TS — convenciones SGDEA | `src/` (lectura), `docs/HITOS.md` | ✅ Activo | 2026-05-20 |
 
 ---
 
