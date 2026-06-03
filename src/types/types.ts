@@ -185,3 +185,21 @@ export interface AccessTokenResponse {
   };
   error?: string;
 }
+
+export interface Entidad {
+  id: string;
+  tipo: 'NATURAL' | 'JURIDICA';
+  numeroIdentificacion: string;
+  nombre: string;
+  apellidos?: string;
+  razonSocial?: string;
+  direccion?: string;
+  telefono?: string;
+  correo?: string;
+  ciudad?: string;
+  departamento?: string;
+  empresaId: string;
+  activa: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}

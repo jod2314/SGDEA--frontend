@@ -21,6 +21,7 @@ import DatosMaestros from "./routes/DatosMaestros.tsx";
 import Expedientes from "./routes/Expedientes.tsx";
 import Transferencias from "./routes/Transferencias.tsx";
 import FondosAcumulados from "./routes/FondosAcumulados.tsx";
+import Entidades from "./routes/Entidades.tsx";
 
 import "./index.css";
 
@@ -112,6 +113,10 @@ const router = createBrowserRouter([
       {
         path: "/fondos-acumulados",
         element: <FondosAcumulados />,
+      },
+      {
+        path: "/entidades",
+        element: <Entidades />,
       },
       {
         path: "/disposicion",
