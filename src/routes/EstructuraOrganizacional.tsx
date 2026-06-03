@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthProvider";
-import { API_URL } from "../auth/authConstants";
 import PortalLayout from "../layout/PortalLayout";
 import * as IconsMd from "react-icons/md";
 import { Dependencia } from "../types/types";
@@ -21,38 +20,42 @@ export default function EstructuraOrganizacional() {
   const [error, setError] = useState("");
   const [viewMode, setViewMode] = useState<"lista" | "arbol">("arbol");
   
-  // Form state
+  // Estado del formulario
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState("");
   const [codigo, setCodigo] = useState("");
   const [nombre, setNombre] = useState("");
   const [padreId, setPadreId] = useState("");
   const [esJunta, setEsJunta] = useState(false);
+  const [jefeId, setJefeId] = useState("");
+  const [usuarios, setUsuarios] = useState<any[]>([]);
 
   const selectedEmpresa = auth.getSelectedEmpresa();
 
   useEffect(() => {
     fetchDependencias();
+    fetchUsuarios();
   }, []);
+
+  async function fetchUsuarios() {
+    const empresa = auth.getSelectedEmpresa();
+    if (!empresa) return;
+
+    try {
+      const json = await auth.request<any>(`/empresas/${empresa.id}/usuarios`);
+      setUsuarios(json.body.usuarios || []);
+    } catch (err) {
+      console.error("Error al cargar usuarios de la empresa", err);
+    }
+  }
 
   async function fetchDependencias() {
     const empresa = auth.getSelectedEmpresa();
     if (!empresa) return;
 
     try {
-      const response = await fetch(`${API_URL}/archivistica/dependencias`, {
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa.id,
-        },
-      });
-
-      if (response.ok) {
-        const json = await response.json();
-        setDependencias(json.body.dependencias);
-      } else {
-        setError("Error al cargar dependencias");
-      }
+      const json = await auth.request<any>("/archivistica/dependencias");
+      setDependencias(json.body.dependencias);
     } catch (err) {
       setError("Error de conexión");
     } finally {
@@ -65,61 +68,41 @@ export default function EstructuraOrganizacional() {
     const empresa = auth.getSelectedEmpresa();
     if (!empresa) return;
 
-    const url = isEditing 
-      ? `${API_URL}/archivistica/dependencias/${currentId}`
-      : `${API_URL}/archivistica/dependencias`;
+    const endpoint = isEditing 
+      ? `/archivistica/dependencias/${currentId}`
+      : `/archivistica/dependencias`;
     
     const method = isEditing ? "PUT" : "POST";
 
     try {
-      const response = await fetch(url, {
+      await auth.request<any>(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa.id,
-        },
         body: JSON.stringify({
           codigoDependencia: codigo,
           nombreDependencia: nombre,
           dependenciaPadreId: padreId || null,
-          esJuntaDirectiva: esJunta
+          esJuntaDirectiva: esJunta,
+          jefeDependenciaId: jefeId || null
         }),
       });
 
-      if (response.ok) {
-        resetForm();
-        fetchDependencias();
-      } else {
-        const json = await response.json();
-        setError(json.body.error || "Error al guardar");
-      }
-    } catch (err) {
-      setError("Error de conexión");
+      resetForm();
+      fetchDependencias();
+    } catch (err: any) {
+      setError(err.message || "Error al guardar");
     }
   }
 
   async function handleDelete(id: string) {
     if (!confirm("¿Estás seguro de eliminar esta dependencia?")) return;
     
-    const empresa = auth.getSelectedEmpresa();
     try {
-      const response = await fetch(`${API_URL}/archivistica/dependencias/${id}`, {
+      await auth.request<any>(`/archivistica/dependencias/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": empresa?.id || "",
-        },
       });
-
-      if (response.ok) {
-        fetchDependencias();
-      } else {
-        const json = await response.json();
-        alert(json.body.error || "No se pudo eliminar");
-      }
-    } catch (err) {
-      setError("Error al eliminar");
+      fetchDependencias();
+    } catch (err: any) {
+      alert(err.message || "No se pudo eliminar");
     }
   }
 
@@ -135,25 +118,16 @@ export default function EstructuraOrganizacional() {
     if (!empresa) return;
 
     try {
-      const response = await fetch(`${API_URL}/empresas/${empresa.id}/onboarding/completar`, {
+      await auth.request<any>(`/empresas/${empresa.id}/onboarding/completar`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
       });
-
-      if (response.ok) {
-        await response.json();
-        // Actualizar el estado local de la empresa
-        const empresaActualizada = { ...empresa, onboardingCompleted: true };
-        auth.setSelectedEmpresa(empresaActualizada);
-        navigate("/dashboard");
-      } else {
-        const json = await response.json();
-        setError(json.body.error || "Error al completar el onboarding");
-      }
-    } catch (err) {
-      setError("Error de conexión al finalizar");
+      
+      // Actualizar el estado local de la empresa
+      const empresaActualizada = { ...empresa, onboardingCompleted: true };
+      auth.setSelectedEmpresa(empresaActualizada);
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Error al completar el onboarding");
     }
   }
 
@@ -164,6 +138,7 @@ export default function EstructuraOrganizacional() {
     setNombre(dep.nombreDependencia);
     setPadreId(dep.dependenciaPadreId || "");
     setEsJunta(dep.esJuntaDirectiva);
+    setJefeId(dep.jefeDependenciaId || "");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -174,6 +149,7 @@ export default function EstructuraOrganizacional() {
     setNombre("");
     setPadreId("");
     setEsJunta(false);
+    setJefeId("");
     setError("");
   }
 
@@ -181,6 +157,12 @@ export default function EstructuraOrganizacional() {
     if (!id) return "Nivel Superior";
     const padre = dependencias.find(d => d.id === id);
     return padre ? padre.nombreDependencia : "Desconocido";
+  };
+
+  const getNombreJefe = (jefeId?: string) => {
+    if (!jefeId) return "";
+    const u = usuarios.find(usr => usr.id === jefeId);
+    return u ? u.name : "";
   };
 
   // Función recursiva para renderizar el árbol
@@ -194,6 +176,11 @@ export default function EstructuraOrganizacional() {
             <div className="tree-node-card">
               <span className="tree-node-code">{dep.codigoDependencia}</span>
               <span className="tree-node-name">{dep.nombreDependencia}</span>
+              {dep.jefeDependenciaId && (
+                <span className="tree-node-jefe" style={{ display: 'block', fontSize: '0.75rem', color: '#666', fontStyle: 'italic', marginTop: '3px' }}>
+                  Jefe: {getNombreJefe(dep.jefeDependenciaId)}
+                </span>
+              )}
               <div className="tree-node-actions">
                 <button onClick={() => handleEdit(dep)}><MdEdit size={12} /></button>
                 <button onClick={() => handleDelete(dep.id)} className="danger"><MdDelete size={12} /></button>
@@ -290,6 +277,21 @@ export default function EstructuraOrganizacional() {
                 </select>
               </div>
 
+              <div>
+                <label>Jefe de Dependencia / Responsable (Opcional)</label>
+                <select 
+                  className="edit-input" 
+                  style={{ width: '100%' }}
+                  value={jefeId}
+                  onChange={(e) => setJefeId(e.target.value)}
+                >
+                  <option value="">Ninguno asignado</option>
+                  {usuarios.map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.username})</option>
+                  ))}
+                </select>
+              </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input 
                   type="checkbox" 
@@ -337,6 +339,7 @@ export default function EstructuraOrganizacional() {
                     <th style={{ textAlign: 'left', padding: '10px' }}>Código</th>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Nombre</th>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Superior</th>
+                    <th style={{ textAlign: 'left', padding: '10px' }}>Jefe de Dependencia</th>
                     <th style={{ textAlign: 'center', padding: '10px' }}>Acciones</th>
                   </tr>
                 </thead>
@@ -346,6 +349,11 @@ export default function EstructuraOrganizacional() {
                       <td style={{ padding: '10px' }}><strong>{dep.codigoDependencia}</strong></td>
                       <td style={{ padding: '10px' }}>{dep.nombreDependencia}</td>
                       <td style={{ padding: '10px' }} className="text-muted">{getNombrePadre(dep.dependenciaPadreId)}</td>
+                      <td style={{ padding: '10px' }}>
+                        {getNombreJefe(dep.jefeDependenciaId) || (
+                          <span className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.85rem' }}>No asignado</span>
+                        )}
+                      </td>
                       <td style={{ padding: '10px', textAlign: 'center' }}>
                         <button className="btn btn-icon" onClick={() => handleEdit(dep)} title="Editar">
                           <MdEdit />

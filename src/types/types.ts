@@ -65,6 +65,7 @@ export interface Dependencia {
   dependenciaPadreId?: string;
   esJuntaDirectiva: boolean;
   estado: 'activo' | 'inactivo';
+  jefeDependenciaId?: string;
 }
 
 export interface SerieDocumental {
@@ -108,6 +109,14 @@ export interface Expediente {
   fechaCierre?: string;
   indiceXml?: string;
   responsableId?: string;
+  ubicacionFisica?: {
+    seccion?: string;
+    bloque?: string;
+    estante?: string;
+    peldano?: string;
+    caja?: string;
+    carpeta?: string;
+  };
 }
 
 export interface Transferencia {

@@ -17,7 +17,7 @@ export default function AsistenteOnboarding() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Form State for current step
+  // Estado del formulario para el paso actual
   const [respuestasPaso, setRespuestasPaso] = useState<any>({});
 
   useEffect(() => {
@@ -46,6 +46,7 @@ export default function AsistenteOnboarding() {
       case 'DIAGNOSTICO_MGDA': return 'comite';
       case 'COMITE_ARCHIVO': return 'politica';
       case 'POLITICA_DOCUMENTAL': return 'pgd';
+      case 'PGD': return 'fondos';
       default: return '';
     }
   }
@@ -57,7 +58,8 @@ export default function AsistenteOnboarding() {
       'INICIO': 'DIAGNOSTICO',
       'DIAGNOSTICO_MGDA': 'COMITE',
       'COMITE_ARCHIVO': 'POLITICA',
-      'POLITICA_DOCUMENTAL': 'PGD'
+      'POLITICA_DOCUMENTAL': 'PGD',
+      'PGD': 'FONDOS'
     };
 
     const pasoNombre = pasoMapping[wizard!.estadoActual];
@@ -81,25 +83,19 @@ export default function AsistenteOnboarding() {
 
   async function handleDownloadDoc(tipo: string) {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/onboarding/generar/${tipo}`, {
+      const blob = await auth.request<Blob>(`/onboarding/generar/${tipo}`, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${auth.getAccessToken()}`,
-          "X-Empresa-ID": auth.getSelectedEmpresa()?.id || "",
-        }
+        responseType: "blob"
       });
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `SISTEMA_${tipo}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }
-    } catch (error) {
-      alert("Error al descargar documento");
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `SISTEMA_${tipo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error: any) {
+      alert(error.message || "Error al descargar documento");
     }
   }
 
@@ -209,7 +205,57 @@ export default function AsistenteOnboarding() {
                   <input type="text" className="edit-input" style={{ width: '100%' }} placeholder="Ej: Implementar el SGDEA y eliminar el papel en un 80%" onChange={e => setRespuestasPaso({...respuestasPaso, objetivo: e.target.value})} />
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ marginTop: '20px' }} disabled={submitting}>
-                  Finalizar Implementación <MdCheckCircle />
+                  Generar PGD y Continuar <MdNavigateNext />
+                </button>
+              </form>
+            </div>
+          )}
+
+          {wizard?.estadoActual === 'PGD' && (
+            <div className="step-content">
+              <h2>5. Gestión de Fondos Acumulados</h2>
+              <p className="text-muted">¿Tu empresa cuenta con documentación histórica previa que deba ser valorada y ordenada?</p>
+              <form onSubmit={handleResponder} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div>
+                  <label>¿Tienen archivos o carpetas acumuladas sin clasificar?</label>
+                  <select 
+                    className="edit-input" 
+                    style={{ width: '100%' }} 
+                    onChange={e => setRespuestasPaso({...respuestasPaso, tieneFondos: e.target.value})}
+                    required
+                  >
+                    <option value="">Seleccione...</option>
+                    <option value="si">Sí, tenemos fondos acumulados</option>
+                    <option value="no">No, toda la documentación está al día</option>
+                  </select>
+                </div>
+                {respuestasPaso.tieneFondos === 'si' && (
+                  <>
+                    <div>
+                      <label>Volumen aproximado (en metros lineales o cajas/carpetas)</label>
+                      <input 
+                        type="text" 
+                        className="edit-input" 
+                        style={{ width: '100%' }} 
+                        placeholder="Ej: 15 cajas, 50 carpetas o 5 metros lineales"
+                        onChange={e => setRespuestasPaso({...respuestasPaso, volumen: e.target.value})} 
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label>Plan de Ordenación y Valoración Documental (Breve descripción)</label>
+                      <textarea 
+                        className="edit-input" 
+                        style={{ width: '100%', minHeight: '80px' }} 
+                        placeholder="Ej: Se realizará inventario preliminar FUID y valoración histórica para definir Tabla de Valoración Documental..."
+                        onChange={e => setRespuestasPaso({...respuestasPaso, planOrdenacion: e.target.value})}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+                <button type="submit" className="btn btn-primary" style={{ marginTop: '20px' }} disabled={submitting}>
+                  Guardar y Finalizar Implementación <MdCheckCircle />
                 </button>
               </form>
             </div>

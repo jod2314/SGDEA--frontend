@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import PortalLayout from "../layout/PortalLayout";
@@ -26,6 +26,13 @@ const MdFormatAlignCenter = (IconsMd as any).MdFormatAlignCenter;
 const MdFormatAlignRight = (IconsMd as any).MdFormatAlignRight;
 const MdGridOn = (IconsMd as any).MdGridOn;
 const MdHighlighter = (IconsMd as any).MdHighlighter || (IconsMd as any).MdFormatColorFill;
+const MdFormatListBulleted = (IconsMd as any).MdFormatListBulleted;
+const MdFormatListNumbered = (IconsMd as any).MdFormatListNumbered;
+const MdFormatQuote = (IconsMd as any).MdFormatQuote;
+const MdHorizontalRule = (IconsMd as any).MdHorizontalRule || (IconsMd as any).MdRemove;
+const MdUndo = (IconsMd as any).MdUndo;
+const MdRedo = (IconsMd as any).MdRedo;
+const MdImage = (IconsMd as any).MdImage;
 
 export default function CrearEditarPlantilla() {
   const { id } = useParams();
@@ -38,6 +45,41 @@ export default function CrearEditarPlantilla() {
   const [trds, setTrds] = useState<TRD[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Solo se permiten archivos de imagen");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("El tamaño de la imagen no debe superar los 5MB");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("imagen", file);
+
+    try {
+      setSaving(true);
+      const json = await auth.request<any>("/documentos/upload-imagen", {
+        method: "POST",
+        body: formData,
+      });
+
+      const url = json.body.url;
+      editor?.chain().focus().setImage({ src: url }).run();
+    } catch (error: any) {
+      alert(error.message || "Error al subir la imagen");
+    } finally {
+      setSaving(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const editor = useEditor({
     extensions: [
@@ -205,9 +247,22 @@ export default function CrearEditarPlantilla() {
           <div className="main-editor-area">
             {/* Toolbar */}
             <div className="editor-toolbar card" style={{ padding: '5px', marginBottom: '10px', display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+              <button className="icon-btn" onClick={() => editor?.chain().focus().undo().run()} disabled={!editor?.can().undo()} title="Deshacer"><MdUndo /></button>
+              <button className="icon-btn" onClick={() => editor?.chain().focus().redo().run()} disabled={!editor?.can().redo()} title="Rehacer"><MdRedo /></button>
+              <span className="separator">|</span>
+              <button className={`icon-btn ${editor?.isActive('heading', { level: 1 }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()} title="Título 1" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>H1</button>
+              <button className={`icon-btn ${editor?.isActive('heading', { level: 2 }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} title="Título 2" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>H2</button>
+              <button className={`icon-btn ${editor?.isActive('heading', { level: 3 }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()} title="Título 3" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>H3</button>
+              <button className={`icon-btn ${editor?.isActive('paragraph') ? 'active' : ''}`} onClick={() => editor?.chain().focus().setParagraph().run()} title="Texto Normal" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>P</button>
+              <span className="separator">|</span>
               <button className={`icon-btn ${editor?.isActive('bold') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleBold().run()} title="Negrita"><MdFormatBold /></button>
               <button className={`icon-btn ${editor?.isActive('italic') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleItalic().run()} title="Cursiva"><MdFormatItalic /></button>
               <button className={`icon-btn ${editor?.isActive('highlight') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHighlight().run()} title="Resaltar"><MdHighlighter /></button>
+              <span className="separator">|</span>
+              <button className={`icon-btn ${editor?.isActive('bulletList') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleBulletList().run()} title="Lista con Viñetas"><MdFormatListBulleted /></button>
+              <button className={`icon-btn ${editor?.isActive('orderedList') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleOrderedList().run()} title="Lista Numerada"><MdFormatListNumbered /></button>
+              <button className={`icon-btn ${editor?.isActive('blockquote') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleBlockquote().run()} title="Cita"><MdFormatQuote /></button>
+              <button className="icon-btn" onClick={() => editor?.chain().focus().setHorizontalRule().run()} title="Línea Horizontal"><MdHorizontalRule /></button>
               <span className="separator">|</span>
               <button className={`icon-btn ${editor?.isActive({ textAlign: 'left' }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().setTextAlign('left').run()} title="Alinear Izquierda"><MdFormatAlignLeft /></button>
               <button className={`icon-btn ${editor?.isActive({ textAlign: 'center' }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().setTextAlign('center').run()} title="Centrar"><MdFormatAlignCenter /></button>
@@ -215,9 +270,30 @@ export default function CrearEditarPlantilla() {
               <button className={`icon-btn ${editor?.isActive({ textAlign: 'justify' }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().setTextAlign('justify').run()} title="Justificar"><MdFormatAlignJustify /></button>
               <span className="separator">|</span>
               <button className="icon-btn" onClick={() => editor?.chain().focus().insertTable({ rows: 3, cols: 3 }).run()} title="Insertar Tabla"><MdGridOn /></button>
+              <button className="icon-btn" onClick={() => fileInputRef.current?.click()} title="Insertar Imagen"><MdImage /></button>
+              <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleImageUpload} />
             </div>
 
-            {/* Editable Area (A4 Simulation) */}
+            {/* Controles avanzados de tablas (Solo visible si hay una tabla activa) */}
+            {editor?.isActive('table') && (
+              <div className="editor-toolbar card table-controls" style={{ padding: '5px', marginBottom: '10px', display: 'flex', flexWrap: 'wrap', gap: '5px', background: '#eaf4fe', borderColor: '#b3d7ff' }}>
+                <span className="small" style={{ alignSelf: 'center', marginRight: '10px', fontWeight: 'bold', color: '#0056b3', fontSize: '0.8rem' }}>Opciones de Tabla:</span>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().addColumnBefore().run()}>+ Col Izq</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().addColumnAfter().run()}>+ Col Der</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().deleteColumn().run()}>Borrar Col</button>
+                <span className="separator">|</span>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().addRowBefore().run()}>+ Fila Arriba</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().addRowAfter().run()}>+ Fila Abajo</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().deleteRow().run()}>Borrar Fila</button>
+                <span className="separator">|</span>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().mergeCells().run()}>Combinar Celdas</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => editor.chain().focus().splitCell().run()}>Dividir Celda</button>
+                <span className="separator">|</span>
+                <button className="btn btn-ghost btn-sm text-danger" onClick={() => editor.chain().focus().deleteTable().run()} style={{ color: '#c0392b' }}>Eliminar Tabla</button>
+              </div>
+            )}
+
+            {/* Área Editable (Simulación A4) */}
             <div className="tiptap-a4-container" style={{ 
               background: '#f0f0f0', 
               padding: '20px 0', 

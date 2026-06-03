@@ -19,16 +19,25 @@ export default function Expedientes() {
   const [trds, setTrds] = useState<TRD[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // State for Create Form
+  // Estado para el formulario de creación
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [nombreExpediente, setNombreExpediente] = useState("");
   const [subserieId, setSubserieId] = useState("");
   const [descripcion, setDescripcion] = useState("");
 
-  // State for Details View
+  // Estado para la vista de detalle
   const [selectedExpediente, setSelectedExpediente] = useState<Expediente | null>(null);
   const [documentos, setDocumentos] = useState<HistorialDocumento[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
+
+  // Estado del formulario de ubicación física
+  const [seccion, setSeccion] = useState("");
+  const [bloque, setBloque] = useState("");
+  const [estante, setEstante] = useState("");
+  const [peldano, setPeldano] = useState("");
+  const [caja, setCaja] = useState("");
+  const [carpeta, setCarpeta] = useState("");
+  const [savingUbicacion, setSavingUbicacion] = useState(false);
 
   useEffect(() => {
     if (auth.isAuthenticated) {
@@ -81,6 +90,12 @@ export default function Expedientes() {
   async function handleViewDetails(exp: Expediente) {
     setSelectedExpediente(exp);
     setLoadingDetails(true);
+    setSeccion(exp.ubicacionFisica?.seccion || "");
+    setBloque(exp.ubicacionFisica?.bloque || "");
+    setEstante(exp.ubicacionFisica?.estante || "");
+    setPeldano(exp.ubicacionFisica?.peldano || "");
+    setCaja(exp.ubicacionFisica?.caja || "");
+    setCarpeta(exp.ubicacionFisica?.carpeta || "");
     try {
       const json = await auth.request<any>(`/expedientes/${exp.id}`);
       setDocumentos(json.body.documentos);
@@ -88,6 +103,30 @@ export default function Expedientes() {
       console.error(error);
     } finally {
       setLoadingDetails(false);
+    }
+  }
+
+  async function handleSaveUbicacion(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedExpediente) return;
+    setSavingUbicacion(true);
+    try {
+      const response = await auth.request<any>(`/expedientes/${selectedExpediente.id}/ubicacion`, {
+        method: "PUT",
+        body: JSON.stringify({ seccion, bloque, estante, peldano, caja, carpeta })
+      });
+      alert(response.body.message || "Ubicación física guardada");
+      
+      // Actualizar expediente seleccionado con los datos actualizados
+      const expActualizado = { ...selectedExpediente, ubicacionFisica: { seccion, bloque, estante, peldano, caja, carpeta } };
+      setSelectedExpediente(expActualizado);
+
+      // Actualizar en el listado local de expedientes
+      setExpedientes(prev => prev.map(e => e.id === selectedExpediente.id ? expActualizado : e));
+    } catch (error: any) {
+      alert(error.message || "Error al actualizar la ubicación física");
+    } finally {
+      setSavingUbicacion(false);
     }
   }
 
@@ -288,6 +327,42 @@ export default function Expedientes() {
                       </table>
                     )}
                   </div>
+                </div>
+
+                <div style={{ marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+                  <h3>Custodia y Ubicación Física</h3>
+                  <p className="text-muted small">Registra la ubicación exacta de este expediente en el archivo físico central o de gestión.</p>
+                  <form onSubmit={handleSaveUbicacion} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginTop: '15px' }}>
+                    <div>
+                      <label className="small" style={{ fontWeight: 'bold' }}>Sección</label>
+                      <input type="text" className="edit-input" style={{ width: '100%' }} value={seccion} onChange={e => setSeccion(e.target.value)} placeholder="Ej: Histórico" />
+                    </div>
+                    <div>
+                      <label className="small" style={{ fontWeight: 'bold' }}>Bloque</label>
+                      <input type="text" className="edit-input" style={{ width: '100%' }} value={bloque} onChange={e => setBloque(e.target.value)} placeholder="Ej: A" />
+                    </div>
+                    <div>
+                      <label className="small" style={{ fontWeight: 'bold' }}>Estante</label>
+                      <input type="text" className="edit-input" style={{ width: '100%' }} value={estante} onChange={e => setEstante(e.target.value)} placeholder="Ej: 3" />
+                    </div>
+                    <div>
+                      <label className="small" style={{ fontWeight: 'bold' }}>Peldaño / Nivel</label>
+                      <input type="text" className="edit-input" style={{ width: '100%' }} value={peldano} onChange={e => setPeldano(e.target.value)} placeholder="Ej: B" />
+                    </div>
+                    <div>
+                      <label className="small" style={{ fontWeight: 'bold' }}>Caja</label>
+                      <input type="text" className="edit-input" style={{ width: '100%' }} value={caja} onChange={e => setCaja(e.target.value)} placeholder="Ej: C-12" />
+                    </div>
+                    <div>
+                      <label className="small" style={{ fontWeight: 'bold' }}>Carpeta</label>
+                      <input type="text" className="edit-input" style={{ width: '100%' }} value={carpeta} onChange={e => setCarpeta(e.target.value)} placeholder="Ej: Carpeta 1" />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                      <button type="submit" className="btn btn-primary btn-sm" disabled={savingUbicacion}>
+                        {savingUbicacion ? "Guardando..." : "Guardar Ubicación"}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </>
             ) : (

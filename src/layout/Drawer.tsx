@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom';
 import * as IconsMd from 'react-icons/md';
 import { useAuth } from '../auth/AuthProvider';
 
-const MdDashboard = IconsMd.MdDashboard as any;
-const MdPerson = IconsMd.MdPerson as any;
-const MdLogout = IconsMd.MdLogout as any;
+const MdDashboard = (IconsMd as any).MdDashboard;
+const MdPerson = (IconsMd as any).MdPerson;
+const MdLogout = (IconsMd as any).MdLogout;
 const MdDescription = (IconsMd as any).MdDescription || (IconsMd as any).MdInsertDriveFile;
 const MdPeople = (IconsMd as any).MdPeople;
 const MdSettings = (IconsMd as any).MdSettings;
@@ -184,6 +184,20 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
               <NavLink to="/entidades">
                 <MdPeople />
                 <span>Terceros (Entidades)</span>
+              </NavLink>
+            )}
+          </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdHistory />
+                <span>Fondos Acumulados</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/fondos-acumulados">
+                <MdHistory />
+                <span>Fondos Acumulados</span>
               </NavLink>
             )}
           </li>

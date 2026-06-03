@@ -3,14 +3,17 @@ import { API_URL } from "../auth/authConstants";
 interface RequestOptions extends RequestInit {
   accessToken?: string;
   empresaId?: string;
+  responseType?: 'json' | 'blob' | 'text';
 }
 
 export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
-  const { accessToken, empresaId, ...fetchOptions } = options;
+  const { accessToken, empresaId, responseType = 'json', ...fetchOptions } = options;
 
   const headers = new Headers(fetchOptions.headers || {});
   
-  if (!headers.has("Content-Type")) {
+  if (fetchOptions.body instanceof FormData) {
+    headers.delete("Content-Type");
+  } else if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -25,7 +28,7 @@ export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...fetchOptions,
     headers,
-    credentials: "include", // Asegura que las cookies se envíen/reciban en todas las peticiones
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -36,5 +39,11 @@ export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
     };
   }
 
+  if (responseType === 'blob') {
+    return response.blob();
+  }
+  if (responseType === 'text') {
+    return response.text();
+  }
   return response.json();
 }
