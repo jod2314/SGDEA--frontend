@@ -18,21 +18,32 @@ const MdFactCheck = (IconsMd as any).MdFactCheck;
 const MdFolderSpecial = (IconsMd as any).MdFolderSpecial;
 const MdSwapHoriz = (IconsMd as any).MdSwapHoriz;
 const MdDeleteSweep = (IconsMd as any).MdDeleteSweep;
+const MdPushPin = (IconsMd as any).MdPushPin;
 
 interface DrawerProps {
   isOpen: boolean;
+  isPinned: boolean;
+  onPinToggle: () => void;
   onLogout: () => void;
 }
 
-const Drawer: React.FC<DrawerProps> = ({ isOpen, onLogout }) => {
+const Drawer: React.FC<DrawerProps> = ({ isOpen, isPinned, onPinToggle, onLogout }) => {
   const auth = useAuth();
   const selectedEmpresa = auth.getSelectedEmpresa();
   const isOnboardingCompleted = selectedEmpresa?.onboardingCompleted || selectedEmpresa?.isPersonal;
 
   return (
-    <aside className={`drawer ${isOpen ? 'open' : ''}`}>
-      <div className="drawer-header">
-        <h3>Maestro</h3>
+    <aside className={`drawer ${isOpen ? 'open' : ''} ${isPinned ? 'pinned' : 'unpinned'}`}>
+      <div className="drawer-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '5px' }}>
+        <h3>SGDEA</h3>
+        <button 
+          className="icon-btn pin-btn" 
+          onClick={onPinToggle} 
+          title={isPinned ? "Desfijar barra lateral" : "Fijar barra lateral"}
+          style={{ color: isPinned ? 'var(--primary)' : 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+        >
+          <MdPushPin style={{ transform: isPinned ? 'rotate(0deg)' : 'rotate(45deg)', transition: 'transform 0.2s', fontSize: '1.1rem' }} />
+        </button>
       </div>
       <nav>
         <ul className="drawer-menu">

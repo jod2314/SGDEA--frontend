@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
-import { API_URL } from "../auth/authConstants";
 import AppBar from "./AppBar";
 import Drawer from "./Drawer";
 
@@ -10,28 +9,38 @@ interface PortalLayoutProps {
 
 export default function PortalLayout({ children }: PortalLayoutProps) {
   const auth = useAuth();
-  const [isDrawerOpen, setDrawerOpen] = useState(true); // Drawer is open by default
+  const [isDrawerOpen, setDrawerOpen] = useState(true);
+  const [isPinned, setIsPinned] = useState(() => {
+    const saved = localStorage.getItem("drawerPinned");
+    return saved !== "false"; // Activo por defecto
+  });
 
   async function handleSignOut() {
     try {
-      const response = await fetch(`${API_URL}/signout`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getRefreshToken()}`,
-        },
+      await auth.request<any>("/signout", {
+        method: "DELETE"
       });
-      if (response.ok) {
-        auth.signout();
-      }
+      auth.signout();
     } catch (error) {
       console.log(error);
+      auth.signout();
     }
   }
 
+  const togglePin = () => {
+    const nextVal = !isPinned;
+    setIsPinned(nextVal);
+    localStorage.setItem("drawerPinned", String(nextVal));
+  };
+
   return (
-    <div className="app-layout">
-      <Drawer isOpen={isDrawerOpen} onLogout={handleSignOut} />
+    <div className={`app-layout ${isPinned ? "drawer-pinned" : "drawer-unpinned"}`}>
+      <Drawer 
+        isOpen={isDrawerOpen} 
+        isPinned={isPinned} 
+        onPinToggle={togglePin} 
+        onLogout={handleSignOut} 
+      />
       <div className="app-main-content">
         <AppBar onMenuClick={() => setDrawerOpen(!isDrawerOpen)} />
         <main className="app-content">{children}</main>
