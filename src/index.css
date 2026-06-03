@@ -393,7 +393,7 @@ a:focus {
   width: 72px; /* Ancho compacto para iconos */
 }
 
-.drawer-unpinned .drawer:hover {
+.drawer-unpinned .drawer:not(.hover-disabled):hover {
   width: 256px;
   box-shadow: 4px 0 24px rgba(60,64,67,0.15);
 }
@@ -413,13 +413,17 @@ a:focus {
 }
 
 .drawer-unpinned .drawer:not(:hover) nav a span,
+.drawer-unpinned .drawer.hover-disabled nav a span,
 .drawer-unpinned .drawer:not(:hover) .drawer-menu-title,
-.drawer-unpinned .drawer:not(:hover) .drawer-header h3 {
+.drawer-unpinned .drawer.hover-disabled .drawer-menu-title,
+.drawer-unpinned .drawer:not(:hover) .drawer-header h3,
+.drawer-unpinned .drawer.hover-disabled .drawer-header h3 {
   opacity: 0;
   pointer-events: none;
 }
 
-.drawer-unpinned .drawer:not(:hover) nav a {
+.drawer-unpinned .drawer:not(:hover) nav a,
+.drawer-unpinned .drawer.hover-disabled nav a {
   padding-left: 16px; /* Centrar los iconos en la barra delgada */
 }
 

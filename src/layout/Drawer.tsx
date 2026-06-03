@@ -31,9 +31,24 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, isPinned, onPinToggle, onLogout
   const auth = useAuth();
   const selectedEmpresa = auth.getSelectedEmpresa();
   const isOnboardingCompleted = selectedEmpresa?.onboardingCompleted || selectedEmpresa?.isPersonal;
+  const [isHoverDisabled, setIsHoverDisabled] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isPinned) {
+      // Deshabilitar temporalmente el hover al desfijar
+      setIsHoverDisabled(true);
+      const timer = setTimeout(() => {
+        setIsHoverDisabled(false);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isPinned]);
 
   return (
-    <aside className={`drawer ${isOpen ? 'open' : ''} ${isPinned ? 'pinned' : 'unpinned'}`}>
+    <aside 
+      className={`drawer ${isOpen ? 'open' : ''} ${isPinned ? 'pinned' : 'unpinned'} ${isHoverDisabled ? 'hover-disabled' : ''}`}
+      onMouseLeave={() => setIsHoverDisabled(false)}
+    >
       <div className="drawer-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '5px' }}>
         <h3>SGDEA</h3>
         <button 
