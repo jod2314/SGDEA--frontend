@@ -19,4 +19,6 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-06-02 22:13 | [FALLO] Gate de testing | Gate fallido - commit bloqueado | - |
 | 2026-06-03 10:35 | ✅ Botón de Cerrar Sesión | Botón de cerrar sesión agregado en la barra superior (AppBar) | b36df46 |
 | 2026-06-03 12:51 | ✅ Optimización Sidebar Unpinned | Se evitó que el contenido del espacio de trabajo se meta debajo del menú al desfijar | 4f510e5 |
+| 2026-06-03 16:21 | ✅ Registro Vista de Terceros | Vista Entidades.tsx creada y registrada en las rutas del frontend | 351eec1 |
+
 
