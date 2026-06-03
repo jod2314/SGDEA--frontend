@@ -8,6 +8,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Añadido
+- Soporte para fijar y desfijar la barra lateral (`isPinned` y botón de pin en `Drawer.tsx`) con un ancho compacto de 72px e interactividad fluida al hacer hover.
+- Habilitación de scroll vertical interno y estilizado para el listado de opciones de la barra lateral.
 - Nuevo módulo e inventario de **Fondos Acumulados** (`src/routes/FondosAcumulados.tsx`) que permite listar, registrar fondos históricos y exportar el FUID en formato CSV.
 - Soporte para asignación de Jefes en la vista de `EstructuraOrganizacional.tsx`.
 - Formulario interactivo en el detalle del expediente (`src/routes/Expedientes.tsx`) para la custodia física (Sección, Bloque, Estante, Peldaño, Caja, Carpeta).
@@ -22,6 +24,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
   - `docs/HITOS.md` — registro continuo de hitos
   - `docs/CHANGELOG.md` — este archivo
 - `.env.example` — plantilla de variables de entorno sin valores sensibles
+
+### Modificado
+- Migrado el llamado de signout en `PortalLayout.tsx` para usar `auth.request` de forma segura.
 
 ---
 
