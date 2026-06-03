@@ -27,6 +27,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 - `.env.example` — plantilla de variables de entorno sin valores sensibles
 
 ### Modificado
+- Optimización del comportamiento del menú lateral cuando está desfijado (`unpinned`): deshabilitación temporal del hover al hacer clic en desfijar para evitar que el contenido se meta debajo del menú de manera inmediata.
 - Migrado el llamado de signout en `PortalLayout.tsx` para usar `auth.request` de forma segura.
 
 ---
