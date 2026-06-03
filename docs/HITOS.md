@@ -17,3 +17,4 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 > - 🧪 Resultado del gate de testing
 | 2026-05-20 22:28 | ADVERTENCIA Gate de testing | Sin tests configurados - commit permitido con advertencia | - |
 | 2026-06-02 22:13 | [FALLO] Gate de testing | Gate fallido - commit bloqueado | - |
+| 2026-06-03 10:35 | ✅ Botón de Cerrar Sesión | Botón de cerrar sesión agregado en la barra superior (AppBar) | b36df46 |

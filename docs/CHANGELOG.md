@@ -8,6 +8,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Añadido
+- Botón de **Cerrar Sesión** persistente y destacado con icono en el extremo derecho de la barra superior (`AppBar.tsx`), utilizando la llamada segura a API `auth.request()`.
 - Soporte para fijar y desfijar la barra lateral (`isPinned` y botón de pin en `Drawer.tsx`) con un ancho compacto de 72px e interactividad fluida al hacer hover.
 - Habilitación de scroll vertical interno y estilizado para el listado de opciones de la barra lateral.
 - Nuevo módulo e inventario de **Fondos Acumulados** (`src/routes/FondosAcumulados.tsx`) que permite listar, registrar fondos históricos y exportar el FUID en formato CSV.
