@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import AppBar from "./AppBar";
 import Drawer from "./Drawer";
@@ -9,11 +10,24 @@ interface PortalLayoutProps {
 
 export default function PortalLayout({ children }: PortalLayoutProps) {
   const auth = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [isDrawerOpen, setDrawerOpen] = useState(true);
   const [isPinned, setIsPinned] = useState(() => {
     const saved = localStorage.getItem("drawerPinned");
     return saved !== "false"; // Activo por defecto
   });
+
+  const selectedEmpresa = auth.getSelectedEmpresa();
+
+  useEffect(() => {
+    if (selectedEmpresa && !selectedEmpresa.onboardingCompleted && !selectedEmpresa.isPersonal) {
+      if (location.pathname !== "/onboarding") {
+        navigate("/onboarding");
+      }
+    }
+  }, [selectedEmpresa, location.pathname, navigate]);
 
   async function handleSignOut() {
     try {
