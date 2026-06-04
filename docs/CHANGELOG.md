@@ -8,6 +8,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Añadido
+- Plan de Trabajo Guiado (`src/routes/AsistenteOnboarding.tsx`) con un árbol de decisión metodológico (Pasos 0 a 7) para la implementación asistida del SGD, checklists de tareas generadas dinámicamente y botones de acción integrados.
 - Nueva vista e interfaz de **Terceros y Entidades** (`src/routes/Entidades.tsx`) para la administración y registro interactivo de terceros en el ecosistema (persona natural o jurídica).
 - Botón de **Cerrar Sesión** persistente y destacado con icono en el extremo derecho de la barra superior (`AppBar.tsx`), utilizando la llamada segura a API `auth.request()`.
 - Soporte para fijar y desfijar la barra lateral (`isPinned` y botón de pin en `Drawer.tsx`) con un ancho compacto de 72px e interactividad fluida al hacer hover.
@@ -28,6 +29,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 - `.env.example` — plantilla de variables de entorno sin valores sensibles
 
 ### Modificado
+- Integrado bloqueo dinámico de navegación en `PortalLayout.tsx` para redirección automática al asistente si el onboarding del tenant no se ha finalizado.
 - Optimización del comportamiento del menú lateral cuando está desfijado (`unpinned`): deshabilitación temporal del hover al hacer clic en desfijar para evitar que el contenido se meta debajo del menú de manera inmediata.
 - Migrado el llamado de signout en `PortalLayout.tsx` para usar `auth.request` de forma segura.
 
