@@ -9,6 +9,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 
 ### Añadido
 - Plan de Trabajo Guiado (`src/routes/AsistenteOnboarding.tsx`) con un árbol de decisión metodológico (Pasos 0 a 7) para la implementación asistida del SGD, checklists de tareas generadas dinámicamente y botones de acción integrados.
+- Modal integrado con editor de texto **Tiptap** en `AsistenteOnboarding.tsx` para la edición interactiva y oficialización a PDF/A inmutable de manuales normativos (Manual de Gestión y PGD).
+- Funcionalidad de **Carga Masiva de Fondos Acumulados (FUID)** mediante Excel/CSV en `FondosAcumulados.tsx` con Drag & Drop y visor detallado de incidencias y errores por fila.
+- Recomendador inteligente de series TRD/TVD en `ConfiguracionTRD.tsx` basado en el catálogo nacional BANTER por sector comercial, con importación en lote.
 - Nueva vista e interfaz de **Terceros y Entidades** (`src/routes/Entidades.tsx`) para la administración y registro interactivo de terceros en el ecosistema (persona natural o jurídica).
 - Botón de **Cerrar Sesión** persistente y destacado con icono en el extremo derecho de la barra superior (`AppBar.tsx`), utilizando la llamada segura a API `auth.request()`.
 - Soporte para fijar y desfijar la barra lateral (`isPinned` y botón de pin en `Drawer.tsx`) con un ancho compacto de 72px e interactividad fluida al hacer hover.
