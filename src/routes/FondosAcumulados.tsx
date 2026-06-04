@@ -7,6 +7,10 @@ const MdAdd = (IconsMd as any).MdAdd;
 const MdDelete = (IconsMd as any).MdDelete;
 const MdFileDownload = (IconsMd as any).MdFileDownload;
 const MdHistory = (IconsMd as any).MdHistory;
+const MdCloudUpload = (IconsMd as any).MdCloudUpload;
+const MdCheckCircle = (IconsMd as any).MdCheckCircle;
+const MdErrorOutline = (IconsMd as any).MdErrorOutline;
+
 
 interface FondoAcumulado {
   _id: string;
@@ -35,8 +39,73 @@ export default function FondosAcumulados() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Carga masiva
+  const [dragActive, setDragActive] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{
+    message: string;
+    totalProcesados: number;
+    totalGuardados: number;
+    errores: { fila: number; codigo: string; mensajes: string[] }[];
+  } | null>(null);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+
   // Estado del formulario
   const [showForm, setShowForm] = useState(false);
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleBulkUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) return;
+    setBulkUploading(true);
+    setError("");
+    setBulkResult(null);
+
+    const formData = new FormData();
+    formData.append("archivo", file);
+
+    try {
+      const json = await auth.request<any>("/fondos-acumulados/importar-masivo", {
+        method: "POST",
+        body: formData,
+      });
+      
+      setBulkResult(json.body);
+      setFile(null);
+      fetchFondos();
+    } catch (err: any) {
+      setError(err.message || "Error al procesar el archivo");
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
   const [codigoInventario, setCodigoInventario] = useState("");
   const [seccion, setSeccion] = useState("");
   const [subseccion, setSubseccion] = useState("");
@@ -161,7 +230,10 @@ export default function FondosAcumulados() {
             <button className="btn btn-secondary" onClick={handleExportarFuid} disabled={fondos.length === 0}>
               <MdFileDownload /> Exportar FUID (CSV)
             </button>
-            <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+            <button className="btn btn-secondary" onClick={() => { setShowBulkUpload(!showBulkUpload); setShowForm(false); }}>
+              <MdCloudUpload /> Carga Masiva (Excel/CSV)
+            </button>
+            <button className="btn btn-primary" onClick={() => { setShowForm(!showForm); setShowBulkUpload(false); }}>
               <MdAdd /> {showForm ? "Cerrar Formulario" : "Registrar Fondo Histórico"}
             </button>
           </div>
@@ -169,10 +241,106 @@ export default function FondosAcumulados() {
 
         {error && <div className="errorMessage" style={{ marginBottom: "20px" }}>{error}</div>}
 
+        {showBulkUpload && (
+          <section className="card" style={{ padding: "25px", marginBottom: "30px", borderLeft: "4px solid #0288d1" }}>
+            <h2>Carga Masiva de Fondos Acumulados (FUID)</h2>
+            <p className="text-muted small" style={{ marginBottom: "15px" }}>
+              Arrastra un archivo Excel (.xlsx, .xls) o CSV con el formato oficial del FUID para importar múltiples registros en lote.
+            </p>
+            
+            <form onSubmit={handleBulkUpload} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+              <div 
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                style={{
+                  border: dragActive ? "2px dashed var(--primary-color)" : "2px dashed var(--border-color)",
+                  borderRadius: "12px",
+                  padding: "30px",
+                  textAlign: "center",
+                  backgroundColor: dragActive ? "rgba(26, 115, 232, 0.05)" : "rgba(0, 0, 0, 0.01)",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => document.getElementById("file-upload-input")?.click()}
+              >
+                <input 
+                  id="file-upload-input"
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleChangeFile}
+                  style={{ display: "none" }}
+                />
+                <MdCloudUpload size={40} style={{ color: "var(--text-muted)", marginBottom: "10px" }} />
+                {file ? (
+                  <div>
+                    <p style={{ margin: "0 0 5px 0" }}><strong>Archivo seleccionado:</strong> {file.name}</p>
+                    <p className="small text-muted" style={{ margin: 0 }}>({(file.size / 1024).toFixed(1)} KB)</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p style={{ margin: "0 0 5px 0" }}>Arrastra y suelta tu archivo aquí, o haz clic para buscar.</p>
+                    <p className="small text-muted" style={{ margin: 0 }}>Extensiones soportadas: .xlsx, .xls, .csv</p>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <button type="button" className="btn btn-ghost" onClick={() => { setShowBulkUpload(false); setFile(null); setBulkResult(null); }}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={!file || bulkUploading}>
+                  {bulkUploading ? "Procesando Archivo..." : "Iniciar Carga Masiva"}
+                </button>
+              </div>
+            </form>
+
+            {bulkResult && (
+              <div style={{ marginTop: "20px", borderTop: "1px solid var(--border-color)", paddingTop: "20px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "15px" }}>
+                  {bulkResult.totalGuardados > 0 ? (
+                    <MdCheckCircle size={24} style={{ color: "#137333" }} />
+                  ) : (
+                    <MdErrorOutline size={24} style={{ color: "#c5221f" }} />
+                  )}
+                  <div>
+                    <h4 style={{ margin: 0 }}>Carga Masiva Completa</h4>
+                    <p className="small text-muted" style={{ margin: 0 }}>
+                      Se procesaron {bulkResult.totalProcesados} filas: <strong>{bulkResult.totalGuardados} importadas con éxito</strong> y {bulkResult.errores.length} con incidencias.
+                    </p>
+                  </div>
+                </div>
+
+                {bulkResult.errores.length > 0 && (
+                  <div style={{ backgroundColor: "#fce8e6", border: "1px solid #f8bbd0", borderRadius: "8px", padding: "15px" }}>
+                    <h5 style={{ margin: "0 0 10px 0", color: "#c5221f", display: "flex", alignItems: "center", gap: "5px" }}>
+                      <MdErrorOutline /> Reporte de Incidencias/Errores ({bulkResult.errores.length})
+                    </h5>
+                    <div style={{ maxHeight: "200px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
+                      {bulkResult.errores.map((err, i) => (
+                        <div key={i} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", paddingBottom: "8px" }} className="small">
+                          <strong>Fila {err.fila} (Código: {err.codigo}):</strong>
+                          <ul style={{ margin: "5px 0 0 0", paddingLeft: "20px", color: "#c5221f" }}>
+                            {err.mensajes.map((m, j) => (
+                              <li key={j}>{m}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        )}
+
         {showForm && (
           <section className="card" style={{ padding: "20px", marginBottom: "30px", borderLeft: "4px solid var(--primary-color)" }}>
             <h2>Registrar Inventario Histórico (FUID)</h2>
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "15px" }}>
+
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px" }}>
                 <div>
                   <label>Código Inventario (Consecutivo)</label>

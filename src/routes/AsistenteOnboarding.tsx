@@ -2,6 +2,15 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import PortalLayout from "../layout/PortalLayout";
 import * as IconsMd from "react-icons/md";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TextAlign } from "@tiptap/extension-text-align";
+import Highlight from "@tiptap/extension-highlight";
+
 
 // Iconos siguiendo el patrón del proyecto
 const MdAutoAwesome = (IconsMd as any).MdAutoAwesome;
@@ -17,6 +26,15 @@ const MdDescription = (IconsMd as any).MdDescription;
 const MdTrendingUp = (IconsMd as any).MdTrendingUp;
 const MdDeleteSweep = (IconsMd as any).MdDeleteSweep;
 const MdHistory = (IconsMd as any).MdHistory;
+const MdUndo = (IconsMd as any).MdUndo;
+const MdRedo = (IconsMd as any).MdRedo;
+const MdFormatBold = (IconsMd as any).MdFormatBold;
+const MdFormatItalic = (IconsMd as any).MdFormatItalic;
+const MdHighlighter = (IconsMd as any).MdHighlighter || (IconsMd as any).MdFormatColorFill;
+const MdFormatListBulleted = (IconsMd as any).MdFormatListBulleted;
+const MdFormatListNumbered = (IconsMd as any).MdFormatListNumbered;
+const MdClose = (IconsMd as any).MdClose;
+
 
 export default function AsistenteOnboarding() {
   const auth = useAuth();
@@ -27,6 +45,28 @@ export default function AsistenteOnboarding() {
   
   // Estado local para capturar el valor de las preguntas del paso actual
   const [respuestasPaso, setRespuestasPaso] = useState<any>({});
+
+  // Estados locales para el modal y editor de Tiptap
+  const [showEditorModal, setShowEditorModal] = useState(false);
+  const [tipoManualActivo, setTipoManualActivo] = useState<"manual-gestion" | "pgd" | null>(null);
+  const [cargandoPlantilla, setCargandoPlantilla] = useState(false);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      (Table as any).configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      (TextAlign as any).configure({
+        types: ["heading", "paragraph"],
+        alignments: ["left", "center", "right", "justify"],
+      }),
+      Highlight,
+    ],
+    content: "",
+  });
+
 
   // Cargar estado inicial del wizard
   async function fetchWizardState() {
@@ -104,6 +144,60 @@ export default function AsistenteOnboarding() {
       alert(error.message || "Error al descargar el documento");
     }
   }
+
+  // Carga el borrador del manual y abre el editor Tiptap en un modal
+  async function handleOpenEditor(tipo: "manual-gestion" | "pgd") {
+    setCargandoPlantilla(true);
+    setErrorText("");
+    try {
+      const response = await auth.request<any>(`/onboarding/plantilla-manual/${tipo}`);
+      if (response.statusCode === 200) {
+        setTipoManualActivo(tipo);
+        editor?.commands.setContent(response.body.html || "");
+        setShowEditorModal(true);
+      } else {
+        setErrorText(response.body.error || "Error al cargar la plantilla del manual.");
+      }
+    } catch (err: any) {
+      setErrorText(err.message || "Error al conectar con el servidor para obtener la plantilla.");
+    } finally {
+      setCargandoPlantilla(false);
+    }
+  }
+
+  // Envía el HTML editado en Tiptap para su oficialización e inmutabilidad
+  async function handleOficializarManual() {
+    if (!tipoManualActivo || !editor) return;
+    setSubmitting(true);
+    setErrorText("");
+    try {
+      const response = await auth.request<any>("/onboarding/oficializar-manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: tipoManualActivo,
+          htmlContent: editor.getHTML()
+        })
+      });
+
+      if (response.statusCode === 200) {
+        setWizard(response.body.wizard);
+        // Actualizar respuestas del paso 5 locales
+        const mapaRespuestas = response.body.wizard.respuestas || {};
+        const paso5Respuestas = mapaRespuestas["5"] || {};
+        setRespuestasPaso(paso5Respuestas);
+        setShowEditorModal(false);
+        setTipoManualActivo(null);
+      } else {
+        setErrorText(response.body.error || "Error al oficializar el manual.");
+      }
+    } catch (err: any) {
+      setErrorText(err.message || "Error al oficializar el manual.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
 
   if (loading) {
     return (
@@ -559,23 +653,61 @@ export default function AsistenteOnboarding() {
                         guiaOrganizacion: respuestasPaso.guiaOrganizacion || false,
                         tablaControlAcceso: respuestasPaso.tablaControlAcceso || false,
                         politicaConservacion: respuestasPaso.politicaConservacion || false,
+                        pgd: respuestasPaso.pgd || false
                       });
                     }}
                     style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}
                   >
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '8px', cursor: 'pointer' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={respuestasPaso.manualGestion || false}
-                        onChange={e => setRespuestasPaso({...respuestasPaso, manualGestion: e.target.checked})}
-                      />
-                      <div>
-                        <strong>Manual de Gestión Documental</strong>
-                        <div className="small text-muted" style={{ fontSize: '0.8rem' }}>Directrices operativas para producción, radicación y archivo.</div>
-                      </div>
-                    </label>
+                    {/* Manual de Gestión Documental */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#f8f9fa', borderRadius: '12px', gap: '15px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flex: 1, margin: 0 }}>
+                        <input 
+                          type="checkbox" 
+                          checked={respuestasPaso.manualGestion || false}
+                          onChange={e => setRespuestasPaso({...respuestasPaso, manualGestion: e.target.checked})}
+                        />
+                        <div>
+                          <strong>Manual de Gestión Documental</strong>
+                          <div className="small text-muted" style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>Directrices operativas para producción, radicación y archivo.</div>
+                        </div>
+                      </label>
+                      <button 
+                        type="button" 
+                        className="btn btn-secondary small" 
+                        style={{ fontSize: '0.8rem', padding: '6px 12px', height: 'auto', borderRadius: '22px' }}
+                        onClick={() => handleOpenEditor('manual-gestion')}
+                        disabled={cargandoPlantilla || submitting}
+                      >
+                        {cargandoPlantilla && tipoManualActivo === 'manual-gestion' ? "Cargando..." : (respuestasPaso.manualGestion ? "Editar Oficializado" : "Generar Borrador")}
+                      </button>
+                    </div>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '8px', cursor: 'pointer' }}>
+                    {/* Programa de Gestión Documental (PGD) */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#f8f9fa', borderRadius: '12px', gap: '15px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flex: 1, margin: 0 }}>
+                        <input 
+                          type="checkbox" 
+                          checked={respuestasPaso.pgd || false}
+                          onChange={e => setRespuestasPaso({...respuestasPaso, pgd: e.target.checked})}
+                        />
+                        <div>
+                          <strong>Programa de Gestión Documental (PGD)</strong>
+                          <div className="small text-muted" style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>Planificación estratégica de procesos de archivo a mediano/largo plazo.</div>
+                        </div>
+                      </label>
+                      <button 
+                        type="button" 
+                        className="btn btn-secondary small" 
+                        style={{ fontSize: '0.8rem', padding: '6px 12px', height: 'auto', borderRadius: '22px' }}
+                        onClick={() => handleOpenEditor('pgd')}
+                        disabled={cargandoPlantilla || submitting}
+                      >
+                        {cargandoPlantilla && tipoManualActivo === 'pgd' ? "Cargando..." : (respuestasPaso.pgd ? "Editar Oficializado" : "Generar Borrador")}
+                      </button>
+                    </div>
+
+                    {/* Guía de Organización */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: '#f8f9fa', borderRadius: '12px', cursor: 'pointer' }}>
                       <input 
                         type="checkbox" 
                         checked={respuestasPaso.guiaOrganizacion || false}
@@ -583,11 +715,12 @@ export default function AsistenteOnboarding() {
                       />
                       <div>
                         <strong>Guía para la Organización de Archivos de Gestión</strong>
-                        <div className="small text-muted" style={{ fontSize: '0.8rem' }}>Instrucciones prácticas de foliación, rotulación de carpetas y ordenación.</div>
+                        <div className="small text-muted" style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>Instrucciones prácticas de foliación, rotulación de carpetas y ordenación.</div>
                       </div>
                     </label>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '8px', cursor: 'pointer' }}>
+                    {/* Tabla de Control de Acceso */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: '#f8f9fa', borderRadius: '12px', cursor: 'pointer' }}>
                       <input 
                         type="checkbox" 
                         checked={respuestasPaso.tablaControlAcceso || false}
@@ -595,11 +728,12 @@ export default function AsistenteOnboarding() {
                       />
                       <div>
                         <strong>Tabla de Control de Acceso y Seguridad</strong>
-                        <div className="small text-muted" style={{ fontSize: '0.8rem' }}>Roles y permisos para la consulta y custodia de expedientes sensibles.</div>
+                        <div className="small text-muted" style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>Roles y permisos para la consulta y custodia de expedientes sensibles.</div>
                       </div>
                     </label>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '8px', cursor: 'pointer' }}>
+                    {/* Política de Conservación */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: '#f8f9fa', borderRadius: '12px', cursor: 'pointer' }}>
                       <input 
                         type="checkbox" 
                         checked={respuestasPaso.politicaConservacion || false}
@@ -607,7 +741,7 @@ export default function AsistenteOnboarding() {
                       />
                       <div>
                         <strong>Política de Conservación y Disposición Final</strong>
-                        <div className="small text-muted" style={{ fontSize: '0.8rem' }}>Lineamientos de preservación a largo plazo y actas de eliminación.</div>
+                        <div className="small text-muted" style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>Lineamientos de preservación a largo plazo y actas de eliminación.</div>
                       </div>
                     </label>
 
@@ -623,7 +757,7 @@ export default function AsistenteOnboarding() {
                           handleDownloadDoc('POLITICA');
                         }}
                       >
-                        <MdFileDownload /> Generar Borrador de Política SGD
+                        <MdFileDownload /> Generar Política Documental
                       </button>
                       <button type="submit" className="btn btn-primary" style={{ borderRadius: '22px' }} disabled={submitting}>
                         Continuar <MdNavigateNext />
@@ -826,6 +960,194 @@ export default function AsistenteOnboarding() {
         </div>
 
       </div>
+
+      {/* Modal del Editor Tiptap para manuales y guías */}
+      {showEditorModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '20px',
+          boxSizing: 'border-box'
+        }}>
+          <div className="card" style={{
+            width: '95%',
+            maxWidth: '1100px',
+            height: '90%',
+            background: 'var(--surface)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            borderRadius: '16px',
+            boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
+            border: '1px solid rgba(0,0,0,0.1)'
+          }}>
+            {/* Cabecera del Modal */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px 24px',
+              borderBottom: '1px solid rgba(0,0,0,0.08)',
+              background: 'var(--surface)'
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-primary)' }}>
+                  Borrador Oficial: {tipoManualActivo === 'manual-gestion' ? 'Manual de Gestión Documental' : 'Programa de Gestión Documental (PGD)'}
+                </h3>
+                <p className="text-muted" style={{ margin: '4px 0 0 0', fontSize: '0.85rem' }}>
+                  Edite las cláusulas y presione "Oficializar y Firmar" para generar el PDF/A inmutable.
+                </p>
+              </div>
+              <button 
+                type="button"
+                className="btn btn-ghost" 
+                style={{ padding: '8px', minWidth: 'auto', borderRadius: '50%' }}
+                onClick={() => {
+                  setShowEditorModal(false);
+                  setTipoManualActivo(null);
+                }}
+              >
+                <MdClose size={24} />
+              </button>
+            </div>
+
+            {/* Barra de herramientas de Tiptap */}
+            <div className="editor-toolbar" style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px',
+              padding: '12px 24px',
+              background: '#f8f9fa',
+              borderBottom: '1px solid rgba(0,0,0,0.08)'
+            }}>
+              <button type="button" className="icon-btn" onClick={() => editor?.chain().focus().undo().run()} disabled={!editor?.can().undo()} title="Deshacer"><MdUndo /></button>
+              <button type="button" className="icon-btn" onClick={() => editor?.chain().focus().redo().run()} disabled={!editor?.can().redo()} title="Rehacer"><MdRedo /></button>
+              <span className="separator">|</span>
+              <button type="button" className={`icon-btn ${editor?.isActive('heading', { level: 1 }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}>H1</button>
+              <button type="button" className={`icon-btn ${editor?.isActive('heading', { level: 2 }) ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button>
+              <button type="button" className={`icon-btn ${editor?.isActive('paragraph') ? 'active' : ''}`} onClick={() => editor?.chain().focus().setParagraph().run()}>P</button>
+              <span className="separator">|</span>
+              <button type="button" className={`icon-btn ${editor?.isActive('bold') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleBold().run()}><MdFormatBold /></button>
+              <button type="button" className={`icon-btn ${editor?.isActive('italic') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleItalic().run()}><MdFormatItalic /></button>
+              <button type="button" className={`icon-btn ${editor?.isActive('highlight') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleHighlight().run()}><MdHighlighter /></button>
+              <span className="separator">|</span>
+              <button type="button" className={`icon-btn ${editor?.isActive('bulletList') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleBulletList().run()}><MdFormatListBulleted /></button>
+              <button type="button" className={`icon-btn ${editor?.isActive('orderedList') ? 'active' : ''}`} onClick={() => editor?.chain().focus().toggleOrderedList().run()}><MdFormatListNumbered /></button>
+            </div>
+
+            {/* Área editable (Simulando hoja A4) */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              background: '#f0f0f0',
+              padding: '20px',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              <div className="tiptap-paper" style={{
+                width: '100%',
+                maxWidth: '800px',
+                minHeight: '29.7cm',
+                background: 'white',
+                padding: '40px',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}>
+                <EditorContent editor={editor} />
+              </div>
+            </div>
+
+            {/* Pie de Modal */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px',
+              padding: '16px 24px',
+              borderTop: '1px solid rgba(0,0,0,0.08)',
+              background: 'var(--surface)'
+            }}>
+              <button 
+                type="button" 
+                className="btn btn-ghost" 
+                style={{ borderRadius: '22px' }}
+                onClick={() => {
+                  setShowEditorModal(false);
+                  setTipoManualActivo(null);
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                style={{ borderRadius: '22px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                onClick={handleOficializarManual}
+                disabled={submitting}
+              >
+                <MdCheckCircle /> Oficializar y Firmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        .icon-btn {
+          background: transparent;
+          border: 1px solid rgba(0,0,0,0.08);
+          border-radius: 4px;
+          padding: 6px 10px;
+          font-weight: 500;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 32px;
+          height: 32px;
+          transition: background-color 150ms;
+        }
+        .icon-btn:hover {
+          background: rgba(0,0,0,0.04);
+        }
+        .icon-btn.active {
+          background: var(--primary) !important;
+          color: white !important;
+          border-color: var(--primary);
+        }
+        .separator {
+          color: rgba(0,0,0,0.2);
+          align-self: center;
+          margin: 0 4px;
+        }
+        .tiptap-paper *:focus {
+          outline: none;
+        }
+        .tiptap-paper table {
+          border-collapse: collapse;
+          table-layout: fixed;
+          width: 100%;
+          margin: 0;
+          overflow: hidden;
+        }
+        .tiptap-paper td, .tiptap-paper th {
+          min-width: 1em;
+          border: 1px solid #ced4da;
+          padding: 3px 5px;
+          vertical-align: top;
+          box-sizing: border-box;
+          position: relative;
+        }
+      `}</style>
     </PortalLayout>
   );
 }

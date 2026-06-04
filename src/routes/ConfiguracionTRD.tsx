@@ -7,6 +7,8 @@ import { Dependencia, SerieDocumental, SubserieDocumental, TRD } from "../types/
 const MdAdd = (IconsMd as any).MdAdd;
 const MdAssignment = (IconsMd as any).MdAssignment;
 const MdDelete = (IconsMd as any).MdDelete;
+const MdLightbulb = (IconsMd as any).MdLightbulb;
+
 
 export default function ConfiguracionTRD() {
   const auth = useAuth();
@@ -18,6 +20,79 @@ export default function ConfiguracionTRD() {
   const [selectedDep, setSelectedDep] = useState("");
   const [selectedSerie, setSelectedSerie] = useState("");
   const [selectedSub, setSelectedSub] = useState("");
+
+  // Sugeridor de TRD por Sector
+  const [selectedSector, setSelectedSector] = useState("");
+  const [sugerencias, setSugerencias] = useState<any[]>([]);
+  const [loadingSugerencias, setLoadingSugerencias] = useState(false);
+  const [sugerenciasSeleccionadas, setSugerenciasSeleccionadas] = useState<Record<string, boolean>>({});
+  const [importandoSugerencias, setImportandoSugerencias] = useState(false);
+  const [mensajeImportacion, setMensajeImportacion] = useState("");
+
+  const handleCargarSugerencias = async (sector: string) => {
+    if (!sector) {
+      setSugerencias([]);
+      return;
+    }
+    setLoadingSugerencias(true);
+    setMensajeImportacion("");
+    try {
+      const json = await auth.request<any>(`/archivistica/banter/sugerencias-sector?sector=${sector}`);
+      const listado = json.body.sugerencias || [];
+      setSugerencias(listado);
+      
+      // Auto-seleccionar todas las sugerencias por defecto
+      const iniciales: Record<string, boolean> = {};
+      listado.forEach((item: any) => {
+        iniciales[item._id] = true;
+      });
+      setSugerenciasSeleccionadas(iniciales);
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || "Error al cargar sugerencias");
+    } finally {
+      setLoadingSugerencias(false);
+    }
+  };
+
+  const toggleSugerencia = (id: string) => {
+    setSugerenciasSeleccionadas(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const handleImportarSugeridas = async () => {
+    const idsAImportar = Object.keys(sugerenciasSeleccionadas).filter(id => sugerenciasSeleccionadas[id]);
+    if (idsAImportar.length === 0) return;
+
+    setImportandoSugerencias(true);
+    setMensajeImportacion("");
+    let importadasCount = 0;
+
+    try {
+      for (const id of idsAImportar) {
+        await auth.request<any>("/archivistica/banter/importar", {
+          method: "POST",
+          body: JSON.stringify({
+            banterId: id,
+            incluirSubseries: true
+          })
+        });
+        importadasCount++;
+      }
+      setMensajeImportacion(`¡Se importaron ${importadasCount} series con sus subseries exitosamente!`);
+      setSugerencias([]);
+      setSelectedSector("");
+      fetchSeries();
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || "Error al importar algunas sugerencias");
+    } finally {
+      setImportandoSugerencias(false);
+    }
+  };
+
 
   useEffect(() => {
     if (auth.isAuthenticated) {
@@ -93,7 +168,71 @@ export default function ConfiguracionTRD() {
         <h1>Configuración Archivística (TRD)</h1>
         <p className="text-muted">Asigna series y subseries documentales a las dependencias de tu organización.</p>
 
+        {/* Recomendador Inteligente BANTER por Sector */}
+        <section className="card" style={{ padding: '20px', marginBottom: '25px', borderLeft: '4px solid var(--primary-color)' }}>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MdLightbulb style={{ color: '#fbc02d' }} /> Constructor Asistido de TRD (Recomendador BANTER)
+          </h2>
+          <p className="text-muted small">
+            Selecciona el sector económico de tu empresa para recibir recomendaciones automáticas de series y subseries según el Banco Terminológico Nacional (BANTER) y las transversales de ley.
+          </p>
+          
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginTop: '15px', flexWrap: 'wrap' }}>
+            <div style={{ minWidth: '250px' }}>
+              <label className="small" style={{ fontWeight: 'bold' }}>Sector Comercial / Industrial</label>
+              <select 
+                className="edit-input" 
+                style={{ width: '100%', marginTop: '5px' }} 
+                value={selectedSector} 
+                onChange={(e) => {
+                  setSelectedSector(e.target.value);
+                  handleCargarSugerencias(e.target.value);
+                }}
+              >
+                <option value="">Seleccione un sector...</option>
+                <option value="SALUD">Salud y Servicios Médicos</option>
+                <option value="EDUCACION">Educación y Academia</option>
+                <option value="CONSTRUCCION">Construcción e Ingeniería</option>
+                <option value="FINANCIERO">Financiero y Contable</option>
+                <option value="TECNOLOGIA">Tecnología y Servicios Digitales</option>
+              </select>
+            </div>
+
+            {loadingSugerencias && <span className="small text-muted" style={{ marginTop: '18px' }}>Buscando en catálogo BANTER...</span>}
+            {mensajeImportacion && <span className="small text-success" style={{ marginTop: '18px', color: '#137333', fontWeight: 'bold' }}>{mensajeImportacion}</span>}
+          </div>
+
+          {sugerencias.length > 0 && (
+            <div style={{ marginTop: '20px', backgroundColor: 'rgba(0,0,0,0.01)', padding: '15px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+              <h4 className="small" style={{ marginBottom: '10px' }}>Series recomendadas para el sector {selectedSector}:</h4>
+              <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '5px' }}>
+                {sugerencias.map(s => (
+                  <label key={s._id} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={!!sugerenciasSeleccionadas[s._id]} 
+                      onChange={() => toggleSugerencia(s._id)} 
+                    />
+                    <span><strong>{s.codigo}</strong> - {s.nombre} {s.transversal && <span style={{ fontSize: '0.75rem', backgroundColor: '#e8f0fe', padding: '2px 5px', borderRadius: '4px', color: '#1a73e8', marginLeft: '5px' }}>Transversal</span>}</span>
+                  </label>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '15px' }}>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={handleImportarSugeridas} 
+                  disabled={importandoSugerencias || Object.values(sugerenciasSeleccionadas).filter(Boolean).length === 0}
+                >
+                  {importandoSugerencias ? "Importando a tu CCD..." : "Importar en Lote"}
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
         <div className="trd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '30px', marginTop: '30px' }}>
+
           
           <section className="card" style={{ padding: '20px', height: 'fit-content' }}>
             <h2><MdAdd /> Nueva Asignación</h2>
