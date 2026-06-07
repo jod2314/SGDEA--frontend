@@ -13,8 +13,11 @@ export interface AuthResponseError {
 
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   username: string;
+  nombre?: string;
+  email?: string;
 }
 
 export interface Empresa {
@@ -235,5 +238,86 @@ export interface IntervencionFondo {
     fecha: string;
   }>;
   progreso: number;
+}
+
+export interface MiembroComite {
+  id?: string;
+  usuarioId: string | { id: string; nombre: string; email: string; _id?: string };
+  cargo: string;
+  rolComite: 'Presidente' | 'Secretario Técnico' | 'Miembro Vocal' | 'Invitado';
+}
+
+export interface ComiteArchivo {
+  id?: string;
+  nombre: string;
+  descripcion?: string;
+  miembros: MiembroComite[];
+  fechaCreacion?: string;
+  estado: 'activo' | 'inactivo';
+}
+
+export interface CompromisoActa {
+  descripcion: string;
+  responsableId?: string | { id: string; nombre: string; email: string; _id?: string };
+  fechaLimite?: string;
+}
+
+export interface ActaComite {
+  id?: string;
+  _id?: string;
+  comiteId: string | ComiteArchivo;
+  numeroActa: string;
+  fechaReunion: string;
+  temasTratados: string[];
+  desarrollo: string;
+  compromisos?: CompromisoActa[];
+  anexo?: {
+    docRefId?: string;
+    url?: string;
+  };
+  tipo: 'CONSTITUCION' | 'ORDINARIA' | 'EXTRAORDINARIA';
+  estado: 'borrador' | 'aprobada' | 'anulada';
+  createdAt?: string;
+}
+
+export interface SerieTVD {
+  codigo: string;
+  nombre: string;
+  retencionCentral: number;
+  disposicionFinal: 'CT' | 'E' | 'M' | 'S'; // CT: Conservación Total, E: Eliminación, M: Microfilmación/Digitalización, S: Selección
+  procedimiento: string;
+}
+
+export interface TablaValoracionDocumental {
+  id?: string;
+  _id?: string;
+  version: string;
+  nombre: string;
+  descripcion?: string;
+  series: SerieTVD[];
+  actaAprobacionId?: string | null;
+  estado: 'borrador' | 'en_revision' | 'aprobada' | 'obsoleta';
+  createdAt?: string;
+}
+
+export interface RiesgoDeposito {
+  id?: string;
+  _id?: string;
+  codigoRiesgo: string;
+  descripcion: string;
+  probabilidad: number;
+  impacto: number;
+  nivelRiesgo?: number;
+  controles?: string;
+  estado: 'activo' | 'mitigado' | 'materializado';
+}
+
+export interface MatrizRiesgosDeposito {
+  id?: string;
+  _id?: string;
+  nombre: string;
+  descripcion?: string;
+  riesgos: RiesgoDeposito[];
+  createdAt?: string;
 }
 

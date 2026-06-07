@@ -22,6 +22,9 @@ import Expedientes from "./routes/Expedientes.tsx";
 import Transferencias from "./routes/Transferencias.tsx";
 import FondosAcumulados from "./routes/FondosAcumulados.tsx";
 import Entidades from "./routes/Entidades.tsx";
+import ComiteArchivo from "./routes/ComiteArchivo.tsx";
+import TablaValoracion from "./routes/TablaValoracion.tsx";
+import MatrizRiesgos from "./routes/MatrizRiesgos.tsx";
 
 import "./index.css";
 
@@ -117,6 +120,18 @@ const router = createBrowserRouter([
       {
         path: "/entidades",
         element: <Entidades />,
+      },
+      {
+        path: "/comite-archivo",
+        element: <ComiteArchivo />,
+      },
+      {
+        path: "/tabla-valoracion",
+        element: <TablaValoracion />,
+      },
+      {
+        path: "/matriz-riesgos",
+        element: <MatrizRiesgos />,
       },
       {
         path: "/disposicion",

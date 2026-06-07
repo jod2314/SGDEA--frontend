@@ -11,12 +11,12 @@ const AuthContext = createContext({
   setAccessTokenAndRefreshToken: (
     _accessToken: string,
     _refreshToken: string
-  ) => {},
+  ) => { return; },
   getRefreshToken: () => null as string | null,
-  saveUser: (_userData: AuthResponse) => {},
+  saveUser: (_userData: AuthResponse) => { return; },
   getUser: () => ({} as User | undefined),
-  signout: () => {},
-  setSelectedEmpresa: (_empresa: Empresa) => {},
+  signout: () => { return; },
+  setSelectedEmpresa: (_empresa: Empresa) => { return; },
   getSelectedEmpresa: () => ({} as Empresa | undefined),
   request: async function <T>(endpoint: string, options?: any): Promise<T> {
     console.log(endpoint, options);
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setSelectedEmpresaState(JSON.parse(storedEmpresa));
       }
 
-      if (!!accessToken) {
+      if (accessToken) {
         const userInfo = await retrieveUserInfo(accessToken);
         setUser(userInfo);
         setIsAuthenticated(true);

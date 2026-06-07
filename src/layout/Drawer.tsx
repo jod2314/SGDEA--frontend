@@ -19,6 +19,7 @@ const MdFolderSpecial = (IconsMd as any).MdFolderSpecial;
 const MdSwapHoriz = (IconsMd as any).MdSwapHoriz;
 const MdDeleteSweep = (IconsMd as any).MdDeleteSweep;
 const MdPushPin = (IconsMd as any).MdPushPin;
+const MdSecurity = (IconsMd as any).MdSecurity || (IconsMd as any).MdLock;
 
 interface DrawerProps {
   isOpen: boolean;
@@ -224,6 +225,48 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, isPinned, onPinToggle, onLogout
               <NavLink to="/fondos-acumulados">
                 <MdHistory />
                 <span>Fondos Acumulados</span>
+              </NavLink>
+            )}
+          </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdPeople />
+                <span>Comité de Archivo</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/comite-archivo">
+                <MdPeople />
+                <span>Comité de Archivo</span>
+              </NavLink>
+            )}
+          </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdFactCheck />
+                <span>Tablas Valoración (TVD)</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/tabla-valoracion">
+                <MdFactCheck />
+                <span>Tablas Valoración (TVD)</span>
+              </NavLink>
+            )}
+          </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdSecurity />
+                <span>Matriz de Riesgos</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/matriz-riesgos">
+                <MdSecurity />
+                <span>Matriz de Riesgos</span>
               </NavLink>
             )}
           </li>
