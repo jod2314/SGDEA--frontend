@@ -31,4 +31,5 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-06-07 10:49 | [FALLO] Gate frontend v2.0 | Gate fallido - commit bloqueado. Ejecutar rollback.ps1 | - |
 | 2026-06-07 10:50 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Tests: omitidos manualmente con -SkipTests | 6929111 |
 | 2026-06-07 10:51 | ✅ Paso 5: Vistas e interfaces | Gestion de comites de archivo, TVD interactiva y matriz de riesgos de depositos | 6929111 |
-| 2026-06-07 10:57 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Tests: omitidos manualmente con -SkipTests | - |
+| 2026-06-07 15:58 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Tests: omitidos manualmente con -SkipTests | e2ff028 |
+| 2026-06-07 15:59 | ✅ Paso 6: Refactorización interactiva | Refactorización interactiva del asistente de onboarding bloqueante | e2ff028 |
