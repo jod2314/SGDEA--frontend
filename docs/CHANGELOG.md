@@ -8,6 +8,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Añadido
+- Asistente de intervención de fondos acumulados interactivo con acordeón de 7 fases, visualización de progreso dinámico, ramas de decisión para contingencias biológicas/plagas y modal Tiptap integrado para oficializar actas de comité y desinfección.
 - Plan de Trabajo Guiado (`src/routes/AsistenteOnboarding.tsx`) con un árbol de decisión metodológico (Pasos 0 a 7) para la implementación asistida del SGD, checklists de tareas generadas dinámicamente y botones de acción integrados.
 - Modal integrado con editor de texto **Tiptap** en `AsistenteOnboarding.tsx` para la edición interactiva y oficialización a PDF/A inmutable de manuales normativos (Manual de Gestión y PGD).
 - Funcionalidad de **Carga Masiva de Fondos Acumulados (FUID)** mediante Excel/CSV en `FondosAcumulados.tsx` con Drag & Drop y visor detallado de incidencias y errores por fila.

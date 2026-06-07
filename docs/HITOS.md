@@ -23,6 +23,8 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-06-04 01:21 | ✅ Backend Asistente Metodológico | Esquemas, servicios de madurez y endpoints para el plan guiado | e296618 |
 | 2026-06-04 01:43 | ✅ Frontend Asistente Metodológico | Interfaz central de 8 pasos y bloqueo en PortalLayout de onboarding | 888e35d |
 | 2026-06-04 12:36 | ✅ Integración Editor Tiptap y FUID | Modal de Tiptap, recomendador y masiva de FUID completado | e516367 |
+| 2026-06-06 21:10 | ✅ Asistente Intervención Fondos | Asistente de 7 fases de intervención con Tiptap integrado para actas | c7eda22 |
+
 
 
 
