@@ -21,7 +21,14 @@ Este archivo registra causa raíz de fallos, patrones descubiertos y decisiones 
 
 ## Registro
 
-*(Este archivo se poblará automáticamente a partir del primer hito donde ocurra un fallo o se descubra un patrón relevante.)*
+### [2026-06-07] — Tipado estricto del retorno de la API en el frontend
+**Contexto:** Refactorización e interactividad del Asistente de Onboarding bloqueante (`AsistenteOnboarding.tsx`) y los nuevos subcomponentes.
+**Qué falló / Qué se descubrió:** Durante el build del frontend (`tsc`), se detectaron errores de tipo `Property 'statusCode' does not exist on type...` y `Property 'body' does not exist on type...` al procesar los retornos de `auth.request<T>()`.
+**Causa raíz:** En la versión previa, `auth.request<T>()` devolvía directamente el tipo de la respuesta serializada. Al intentar estructurar las respuestas como wrappers estandarizados con `{ statusCode, body }` desde el backend, TypeScript arrojaba errores por incompatibilidad estructural.
+**Solución aplicada:** Se definió la interfaz genérica `ApiResponse<T>` en `src/types/types.ts` con la firma `{ statusCode: number; body: T & { error?: string } }` y se inyectó en los llamados de `auth.request<ApiResponse<T>>`.
+**Patrón / Regla derivada:** Todas las peticiones API del frontend que esperen un envoltorio estructurado de respuesta del backend deben tipar explícitamente el llamado usando la interfaz `ApiResponse<T>` para no violar la compilación estricta.
+**Agente involucrado:** `frontend-dev`
+
 
 ---
 
