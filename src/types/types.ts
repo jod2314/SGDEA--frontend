@@ -150,20 +150,23 @@ export interface ActaEliminacion {
   createdAt: string;
 }
 
+export interface TareaChecklist {
+  titulo: string;
+  moduloDestino: string;
+  completada: boolean;
+}
+
 export interface OnboardingWizard {
   id: string;
   estadoActual: 'INICIO' | 'DIAGNOSTICO_MGDA' | 'COMITE_ARCHIVO' | 'POLITICA_DOCUMENTAL' | 'PGD' | 'COMPLETO';
-  respuestas: {
-    diagnostico?: any;
-    comite?: any;
-    politica?: any;
-    pgd?: any;
-  };
+  pasoActual: number;
+  respuestas: Record<string, any>;
   documentosGenerados: Array<{
     tipo: string;
     documentoId: string;
     fechaGeneracion: string;
   }>;
+  tareasChecklist: TareaChecklist[];
   progreso: number;
 }
 
@@ -319,5 +322,10 @@ export interface MatrizRiesgosDeposito {
   descripcion?: string;
   riesgos: RiesgoDeposito[];
   createdAt?: string;
+}
+
+export interface ApiResponse<T> {
+  statusCode: number;
+  body: T & { error?: string };
 }
 
