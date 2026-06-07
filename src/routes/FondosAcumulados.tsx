@@ -65,6 +65,122 @@ export default function FondosAcumulados() {
   const [intervencion, setIntervencion] = useState<any | null>(null);
   const [cargandoIntervencion, setCargandoIntervencion] = useState(true);
   const [faseAcordeonOpen, setFaseAcordeonOpen] = useState<number>(1);
+  const [tareaExpandida, setTareaExpandida] = useState<string | null>(null);
+
+  // Estados locales para Apéndices Técnicos de Tareas
+  // Tarea 1.1
+  const [medidaLargo, setMedidaLargo] = useState("");
+  const [medidaAncho, setMedidaAncho] = useState("");
+  const [medidaAlto, setMedidaAlto] = useState("");
+  const [medidaEstanterias, setMedidaEstanterias] = useState("");
+  const [medidaEntrepanios, setMedidaEntrepanios] = useState("");
+  const [medidaLongitud, setMedidaLongitud] = useState("");
+
+  // Tarea 1.2
+  const [tempAmb, setTempAmb] = useState("");
+  const [humAmb, setHumAmb] = useState("");
+  const [luxAmb, setLuxAmb] = useState("");
+
+  // Tarea 1.3
+  const [pregunta1, setPregunta1] = useState("");
+  const [pregunta2, setPregunta2] = useState("");
+  const [pregunta3, setPregunta3] = useState("");
+  const [pregunta4, setPregunta4] = useState("");
+
+  // Tarea 1.5
+  const [escenario, setEscenario] = useState("");
+
+  // Tarea 4.1
+  const [epp1, setEpp1] = useState(false);
+  const [epp2, setEpp2] = useState(false);
+  const [epp3, setEpp3] = useState(false);
+  const [epp4, setEpp4] = useState(false);
+  const [epp5, setEpp5] = useState(false);
+
+  // Tarea 5.5
+  const [rotuloCaja, setRotuloCaja] = useState("");
+  const [rotuloCarpeta, setRotuloCarpeta] = useState("");
+  const [rotuloDependencia, setRotuloDependencia] = useState("");
+  const [rotuloSerie, setRotuloSerie] = useState("");
+  const [rotuloFechas, setRotuloFechas] = useState("");
+  const [rotuloFolios, setRotuloFolios] = useState("");
+
+  // Sincronizar contingencias cargadas de base de datos a estados locales
+  useEffect(() => {
+    if (intervencion?.contingencias) {
+      const c = typeof intervencion.contingencias.get === 'function' 
+        ? Object.fromEntries(intervencion.contingencias)
+        : intervencion.contingencias;
+      
+      // Tarea 1.1
+      if (c.apendice_1_1) {
+        setMedidaLargo(c.apendice_1_1.largo || "");
+        setMedidaAncho(c.apendice_1_1.ancho || "");
+        setMedidaAlto(c.apendice_1_1.alto || "");
+        setMedidaEstanterias(c.apendice_1_1.estanterias || "");
+        setMedidaEntrepanios(c.apendice_1_1.entrepanios || "");
+        setMedidaLongitud(c.apendice_1_1.longitudEntrepanio || "");
+      }
+      // Tarea 1.2
+      if (c.apendice_1_2) {
+        setTempAmb(c.apendice_1_2.temperatura || "");
+        setHumAmb(c.apendice_1_2.humedad || "");
+        setLuxAmb(c.apendice_1_2.iluminacion || "");
+      }
+      // Tarea 1.3
+      if (c.apendice_1_3) {
+        setPregunta1(c.apendice_1_3.pregunta1 || "");
+        setPregunta2(c.apendice_1_3.pregunta2 || "");
+        setPregunta3(c.apendice_1_3.pregunta3 || "");
+        setPregunta4(c.apendice_1_3.pregunta4 || "");
+      }
+      // Tarea 1.5
+      if (c.apendice_1_5) {
+        setEscenario(c.apendice_1_5.escenario || "");
+      }
+      // Tarea 4.1
+      if (c.apendice_4_1) {
+        setEpp1(c.apendice_4_1.epp1 || false);
+        setEpp2(c.apendice_4_1.epp2 || false);
+        setEpp3(c.apendice_4_1.epp3 || false);
+        setEpp4(c.apendice_4_1.epp4 || false);
+        setEpp5(c.apendice_4_1.epp5 || false);
+      }
+    }
+  }, [intervencion]);
+
+  // Guardar datos del apéndice y marcar la tarea en base de datos
+  const guardarDatosApendice = async (tareaId: string, claveApendice: string, datos: any) => {
+    try {
+      const responseContingencia = await auth.request<any>("/intervencion-fondo/contingencia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contingenciaId: claveApendice,
+          detalles: datos
+        })
+      });
+
+      if (responseContingencia.statusCode === 200) {
+        const responseTarea = await auth.request<any>("/intervencion-fondo/tarea", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tareaId: tareaId,
+            completado: true
+          })
+        });
+
+        if (responseTarea.statusCode === 200) {
+          setIntervencion(responseTarea.body.wizard);
+          alert("Datos técnicos del apéndice guardados y tarea completada con éxito.");
+          setTareaExpandida(null);
+        }
+      }
+    } catch (err: any) {
+      alert(err.message || "Error al registrar la información del apéndice");
+    }
+  };
 
   // Estados del modal y generación de actas
   const [showEditorModal, setShowEditorModal] = useState(false);
@@ -940,18 +1056,417 @@ export default function FondosAcumulados() {
                                 <p className="small text-muted" style={{ margin: "4px 0 0 0" }}>{tarea.descripcion}</p>
                               </div>
                               
-                              {/* Si la tarea requiere generar un acta oficial */}
-                              {tarea.requiereActa && (
-                                <button
-                                  type="button"
-                                  className="btn btn-secondary small"
-                                  style={{ fontSize: "0.8rem", padding: "6px 12px", height: "auto", borderRadius: "22px", display: "flex", alignItems: "center", gap: "6px" }}
-                                  onClick={() => handleOpenActaEditor(tarea.requiereActa)}
-                                >
-                                  <MdFileDownload /> {completada ? "Ver / Editar Acta" : "Generar y Firmar Acta"}
-                                </button>
-                              )}
+                              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                {["1.1", "1.2", "1.3", "1.5", "4.1", "5.5", "7.1"].includes(tarea.id) && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-ghost small"
+                                    style={{ fontSize: "0.8rem", padding: "6px 12px", height: "auto", borderRadius: "22px", color: "var(--primary)", border: "1px solid rgba(26,115,232,0.15)" }}
+                                    onClick={() => setTareaExpandida(tareaExpandida === tarea.id ? null : tarea.id)}
+                                  >
+                                    {tareaExpandida === tarea.id ? "Ocultar Ficha Técnica" : "📂 Abrir Apéndice Técnico"}
+                                  </button>
+                                )}
+
+                                {/* Si la tarea requiere generar un acta oficial */}
+                                {tarea.requiereActa && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-secondary small"
+                                    style={{ fontSize: "0.8rem", padding: "6px 12px", height: "auto", borderRadius: "22px", display: "flex", alignItems: "center", gap: "6px" }}
+                                    onClick={() => handleOpenActaEditor(tarea.requiereActa)}
+                                  >
+                                    <MdFileDownload /> {completada ? "Ver / Editar Acta" : "Generar y Firmar Acta"}
+                                  </button>
+                                )}
+                              </div>
                             </div>
+
+                            {/* Apéndice 1.1 (Inspección física y del depósito) */}
+                            {tarea.id === "1.1" && tareaExpandida === "1.1" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 📐 Apéndice A: Medición del Depósito y Estimación de Metros Lineales</h4>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Largo del depósito (m)</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={medidaLargo} onChange={e => setMedidaLargo(e.target.value)} placeholder="0.0" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Ancho del depósito (m)</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={medidaAncho} onChange={e => setMedidaAncho(e.target.value)} placeholder="0.0" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Alto del depósito (m)</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={medidaAlto} onChange={e => setMedidaAlto(e.target.value)} placeholder="0.0" />
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Número de Estanterías</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={medidaEstanterias} onChange={e => setMedidaEstanterias(e.target.value)} placeholder="0" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Entrepaños por Estantería</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={medidaEntrepanios} onChange={e => setMedidaEntrepanios(e.target.value)} placeholder="0" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Longitud de Entrepaño (m)</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={medidaLongitud} onChange={e => setMedidaLongitud(e.target.value)} placeholder="0.0" />
+                                  </div>
+                                </div>
+                                {medidaEstanterias && medidaEntrepanios && medidaLongitud && (
+                                  <div style={{ background: "#e8f0fe", padding: "10px 14px", borderRadius: "6px", display: "flex", justifyContent: "space-between", alignItems: "center" }} className="small">
+                                    <strong>Volumen Total Estimado:</strong>
+                                    <span style={{ fontWeight: "bold", color: "var(--primary)", fontSize: "1rem" }}>
+                                      {(Number(medidaEstanterias) * Number(medidaEntrepanios) * Number(medidaLongitud)).toFixed(2)} Metros Lineales (ML)
+                                    </span>
+                                  </div>
+                                )}
+                                <button 
+                                  type="button" 
+                                  className="btn btn-primary small" 
+                                  style={{ alignSelf: "flex-end", padding: "6px 16px", height: "auto" }}
+                                  onClick={() => guardarDatosApendice("1.1", "apendice_1_1", {
+                                    largo: medidaLargo,
+                                    ancho: medidaAncho,
+                                    alto: medidaAlto,
+                                    estanterias: medidaEstanterias,
+                                    entrepanios: medidaEntrepanios,
+                                    longitudEntrepanio: medidaLongitud,
+                                    metrosLinealesCalculados: (Number(medidaEstanterias) * Number(medidaEntrepanios) * Number(medidaLongitud)).toFixed(2)
+                                  })}
+                                >
+                                  💾 Guardar e Inspeccionar
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Apéndice 1.2 (Evaluación ambiental y estructural) */}
+                            {tarea.id === "1.2" && tareaExpandida === "1.2" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 🌡️ Apéndice B: Ficha de Monitoreo Ambiental (ISO 11799)</h4>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Temperatura (°C)</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={tempAmb} onChange={e => setTempAmb(e.target.value)} placeholder="0.0" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Humedad Relativa (%)</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={humAmb} onChange={e => setHumAmb(e.target.value)} placeholder="0.0" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Iluminación (Lux)</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={luxAmb} onChange={e => setLuxAmb(e.target.value)} placeholder="0" />
+                                  </div>
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", background: "#f8f9fa", padding: "12px", borderRadius: "6px" }} className="small">
+                                  {tempAmb && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <span>Temperatura (16-20°C ideal):</span>
+                                      <span style={{ 
+                                        fontWeight: "bold", 
+                                        color: Number(tempAmb) >= 16 && Number(tempAmb) <= 20 ? "#137333" : Number(tempAmb) <= 24 ? "#b06000" : "#c5221f" 
+                                      }}>
+                                        {Number(tempAmb) >= 16 && Number(tempAmb) <= 20 ? "🟢 ÓPTIMA" : Number(tempAmb) <= 24 ? "🟡 ALERTA - FUERA DE RANGO" : "🔴 CRÍTICA - ALTO RIESGO"}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {humAmb && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <span>Humedad Relativa (40-55% ideal):</span>
+                                      <span style={{ 
+                                        fontWeight: "bold", 
+                                        color: Number(humAmb) >= 40 && Number(humAmb) <= 55 ? "#137333" : Number(humAmb) <= 65 && Number(humAmb) >= 30 ? "#b06000" : "#c5221f" 
+                                      }}>
+                                        {Number(humAmb) >= 40 && Number(humAmb) <= 55 ? "🟢 ÓPTIMA" : (Number(humAmb) <= 65 && Number(humAmb) >= 30) ? "🟡 ALERTA - FUERA DE RANGO" : "🔴 CRÍTICA - ALTO RIESGO"}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {luxAmb && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <span>Iluminación (máx 50 lux ideal):</span>
+                                      <span style={{ 
+                                        fontWeight: "bold", 
+                                        color: Number(luxAmb) <= 50 ? "#137333" : Number(luxAmb) <= 150 ? "#b06000" : "#c5221f" 
+                                      }}>
+                                        {Number(luxAmb) <= 50 ? "🟢 ÓPTIMA" : Number(luxAmb) <= 150 ? "🟡 ALERTA - FUERA DE RANGO" : "🔴 CRÍTICA - ALTO RIESGO"}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                <button 
+                                  type="button" 
+                                  className="btn btn-primary small" 
+                                  style={{ alignSelf: "flex-end", padding: "6px 16px", height: "auto" }}
+                                  onClick={() => guardarDatosApendice("1.2", "apendice_1_2", {
+                                    temperatura: tempAmb,
+                                    humedad: humAmb,
+                                    iluminacion: luxAmb
+                                  })}
+                                >
+                                  💾 Guardar Mediciones
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Apéndice 1.3 (Cuestionario institucional) */}
+                            {tarea.id === "1.3" && tareaExpandida === "1.3" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "14px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 💬 Apéndice C: Ficha de Reconstrucción Histórica del Fondo</h4>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>1. ¿En qué año se estiman las primeras transferencias o acumulaciones en el depósito?</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%", marginTop: "4px" }} value={pregunta1} onChange={e => setPregunta1(e.target.value)} placeholder="Ej: Hacia 1998 con la creación de la sede" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>2. ¿Ha sufrido la organización reestructuraciones orgánicas, fusiones o cierres de departamentos?</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%", marginTop: "4px" }} value={pregunta2} onChange={e => setPregunta2(e.target.value)} placeholder="Ej: Fusión con la Sigla XYZ en 2012" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>3. ¿Existen listados, bases de datos o inventarios preliminares de este archivo?</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%", marginTop: "4px" }} value={pregunta3} onChange={e => setPregunta3(e.target.value)} placeholder="Ej: Un archivo de Excel antiguo del 2018" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>4. ¿Se ha asignado algún funcionario o responsable formal de la custodia y administración del depósito?</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%", marginTop: "4px" }} value={pregunta4} onChange={e => setPregunta4(e.target.value)} placeholder="Ej: El auxiliar de contabilidad a tiempo parcial" />
+                                  </div>
+                                </div>
+                                <button 
+                                  type="button" 
+                                  className="btn btn-primary small" 
+                                  style={{ alignSelf: "flex-end", padding: "6px 16px", height: "auto" }}
+                                  onClick={() => guardarDatosApendice("1.3", "apendice_1_3", {
+                                    pregunta1,
+                                    pregunta2,
+                                    pregunta3,
+                                    pregunta4
+                                  })}
+                                >
+                                  💾 Guardar Cuestionario
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Apéndice 1.5 (Selector de escenario inicial) */}
+                            {tarea.id === "1.5" && tareaExpandida === "1.5" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 🛤️ Ficha de Definición del Escenario Metodológico Inicial</h4>
+                                <p className="small text-muted" style={{ margin: 0 }}>De acuerdo con la inspección y el inventario preliminar, seleccione el escenario de procedencia en el que se encuentra su organización:</p>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px" }}>
+                                  <label style={{ display: "flex", alignItems: "start", gap: "10px", padding: "10px", background: "#f8f9fa", borderRadius: "6px", cursor: "pointer" }} className="small">
+                                    <input type="radio" name="escenario_radio" checked={escenario === "A"} onChange={() => setEscenario("A")} style={{ marginTop: "2px" }} />
+                                    <div>
+                                      <strong>Escenario A: Sin Tabla de Retención Documental (TRD)</strong>
+                                      <div className="text-muted" style={{ fontSize: "0.75rem" }}>Se parte de cero absoluto en gestión documental. Se debe estructurar la Tabla de Valoración Documental (TVD) para todos los fondos acumulados históricos.</div>
+                                    </div>
+                                  </label>
+                                  <label style={{ display: "flex", alignItems: "start", gap: "10px", padding: "10px", background: "#f8f9fa", borderRadius: "6px", cursor: "pointer" }} className="small">
+                                    <input type="radio" name="escenario_radio" checked={escenario === "B"} onChange={() => setEscenario("B")} style={{ marginTop: "2px" }} />
+                                    <div>
+                                      <strong>Escenario B: Con TRD Parciales / Históricas</strong>
+                                      <div className="text-muted" style={{ fontSize: "0.75rem" }}>Existen versiones pasadas de TRD, pero no cubren la totalidad de los años acumulados ni el organigrama actual. Se requiere empalme.</div>
+                                    </div>
+                                  </label>
+                                  <label style={{ display: "flex", alignItems: "start", gap: "10px", padding: "10px", background: "#f8f9fa", borderRadius: "6px", cursor: "pointer" }} className="small">
+                                    <input type="radio" name="escenario_radio" checked={escenario === "C"} onChange={() => setEscenario("C")} style={{ marginTop: "2px" }} />
+                                    <div>
+                                      <strong>Escenario C: SGD con TRD desactualizadas</strong>
+                                      <div className="text-muted" style={{ fontSize: "0.75rem" }}>La empresa cuenta con instrumentos de retención pero no se aplican por desfase administrativo y cambios estructurales frecuentes.</div>
+                                    </div>
+                                  </label>
+                                </div>
+                                <button 
+                                  type="button" 
+                                  className="btn btn-primary small" 
+                                  style={{ alignSelf: "flex-end", padding: "6px 16px", height: "auto", marginTop: "5px" }}
+                                  onClick={() => guardarDatosApendice("1.5", "apendice_1_5", { escenario })}
+                                  disabled={!escenario}
+                                >
+                                  💾 Definir Escenario
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Apéndice 4.1 (Dotación de EPP) */}
+                            {tarea.id === "4.1" && tareaExpandida === "4.1" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 🛡️ Lista de Chequeo de Insumos Bioseguros (NTC 5713)</h4>
+                                <p className="small text-muted" style={{ margin: 0 }}>Por normas de salud ocupacional (SST) y directrices del AGN para la conservación preventiva, confirme la adquisición y entrega de los siguientes EPP antes de manipular papel con polvo o moho:</p>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "5px" }} className="small">
+                                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                                    <input type="checkbox" checked={epp1} onChange={e => setEpp1(e.target.checked)} />
+                                    <span>Mascarillas con filtro HEPA / N95 (Evitar inhalación de esporas de hongos)</span>
+                                  </label>
+                                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                                    <input type="checkbox" checked={epp2} onChange={e => setEpp2(e.target.checked)} />
+                                    <span>Batas de algodón 100% de manga larga (Protección de la piel y ropa)</span>
+                                  </label>
+                                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                                    <input type="checkbox" checked={epp3} onChange={e => setEpp3(e.target.checked)} />
+                                    <span>Guantes de nitrilo o neopreno (Evitar contacto dérmico directo con microorganismos)</span>
+                                  </label>
+                                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                                    <input type="checkbox" checked={epp4} onChange={e => setEpp4(e.target.checked)} />
+                                    <span>Gafas de seguridad de policarbonato (Protección ocular contra partículas suspendidas)</span>
+                                  </label>
+                                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                                    <input type="checkbox" checked={epp5} onChange={e => setEpp5(e.target.checked)} />
+                                    <span>Aspiradora con filtro HEPA o brochas de cerda suave (Material de remoción física)</span>
+                                  </label>
+                                </div>
+                                <button 
+                                  type="button" 
+                                  className="btn btn-primary small" 
+                                  style={{ alignSelf: "flex-end", padding: "6px 16px", height: "auto", marginTop: "5px" }}
+                                  onClick={() => guardarDatosApendice("4.1", "apendice_4_1", { epp1, epp2, epp3, epp4, epp5 })}
+                                  disabled={!(epp1 && epp2 && epp3 && epp4 && epp5)}
+                                >
+                                  💾 Confirmar Dotación EPP
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Apéndice 5.5 (Generador e Impresor de Rótulos) */}
+                            {tarea.id === "5.5" && tareaExpandida === "5.5" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 🏷️ Generador de Rótulos de Cajas y Carpetas (Norma AGN)</h4>
+                                <p className="small text-muted" style={{ margin: 0 }}>Rellena los campos y haz clic en "Generar Rótulo" para abrir la carátula oficial en formato para imprimir.</p>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Código de Caja</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%" }} value={rotuloCaja} onChange={e => setRotuloCaja(e.target.value)} placeholder="Ej: C-001" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Código de Carpeta</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%" }} value={rotuloCarpeta} onChange={e => setRotuloCarpeta(e.target.value)} placeholder="Ej: Carp-012" />
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Sección / Dependencia</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%" }} value={rotuloDependencia} onChange={e => setRotuloDependencia(e.target.value)} placeholder="Ej: Gerencia General" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Asunto / Serie Documental</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%" }} value={rotuloSerie} onChange={e => setRotuloSerie(e.target.value)} placeholder="Ej: Actas de Junta Directiva" />
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Fechas Extremas (Rango)</label>
+                                    <input type="text" className="edit-input" style={{ width: "100%" }} value={rotuloFechas} onChange={e => setRotuloFechas(e.target.value)} placeholder="Ej: 2015-2018" />
+                                  </div>
+                                  <div>
+                                    <label className="small" style={{ fontWeight: 500 }}>Número de Folios</label>
+                                    <input type="number" className="edit-input" style={{ width: "100%" }} value={rotuloFolios} onChange={e => setRotuloFolios(e.target.value)} placeholder="150" />
+                                  </div>
+                                </div>
+                                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "5px" }}>
+                                  <button 
+                                    type="button" 
+                                    className="btn btn-secondary small" 
+                                    style={{ padding: "6px 12px", height: "auto" }}
+                                    disabled={!rotuloCaja || !rotuloCarpeta || !rotuloDependencia || !rotuloSerie}
+                                    onClick={() => {
+                                      const printWindow = window.open("", "_blank");
+                                      if (printWindow) {
+                                        printWindow.document.write(`
+                                          <html>
+                                            <head>
+                                              <title>RÓTULO OFICIAL DE ARCHIVO</title>
+                                              <style>
+                                                body { font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+                                                .rotulo-container { border: 4px double black; width: 14cm; height: 9cm; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; }
+                                                .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 8px; font-weight: bold; font-size: 1.1rem; }
+                                                .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-size: 0.9rem; }
+                                                .footer { text-align: center; font-size: 0.75rem; border-top: 1px solid black; padding-top: 8px; margin-top: 10px; text-transform: uppercase; }
+                                              </style>
+                                            </head>
+                                            <body>
+                                              <div class="rotulo-container">
+                                                <div class="header">
+                                                  \${selectedEmpresa?.razonSocial || 'EMPRESA REGISTRADA'}<br/>
+                                                  SISTEMA DE GESTIÓN DOCUMENTAL
+                                                </div>
+                                                <div class="content-grid">
+                                                  <div><strong>DEP. PRODUCTORA:</strong> \${rotuloDependencia}</div>
+                                                  <div><strong>N° CAJA:</strong> \${rotuloCaja}</div>
+                                                  <div><strong>SERIE DOCUMENTAL:</strong> \${rotuloSerie}</div>
+                                                  <div><strong>N° CARPETA:</strong> \${rotuloCarpeta}</div>
+                                                  <div><strong>FECHAS EXTREMAS:</strong> \${rotuloFechas}</div>
+                                                  <div><strong>CANT. FOLIOS:</strong> \${rotuloFolios}</div>
+                                                </div>
+                                                <div class="footer">
+                                                  Ley 594 de 2000 — Control y Custodia de Archivos Centrales
+                                                </div>
+                                              </div>
+                                              <script>window.print();</script>
+                                            </body>
+                                          </html>
+                                        `);
+                                        printWindow.document.close();
+                                      }
+                                    }}
+                                  >
+                                    🖨️ Generar y Descargar Rótulo
+                                  </button>
+                                  <button 
+                                    type="button" 
+                                    className="btn btn-primary small" 
+                                    style={{ padding: "6px 16px", height: "auto" }}
+                                    onClick={() => guardarDatosApendice("5.5", "apendice_5_5", {
+                                      caja: rotuloCaja,
+                                      carpeta: rotuloCarpeta,
+                                      dependencia: rotuloDependencia,
+                                      serie: rotuloSerie,
+                                      fechas: rotuloFechas,
+                                      folios: rotuloFolios
+                                    })}
+                                  >
+                                    💾 Guardar Tarea
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Apéndice 7.1 (KPIs de Cierre) */}
+                            {tarea.id === "7.1" && tareaExpandida === "7.1" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 📊 Apéndice Técnico: KPIs Consolidados y Cierre Técnico del Proyecto</h4>
+                                <p className="small text-muted" style={{ margin: 0 }}>Indicadores de desempeño derivados de los registros cargados en el FUID del tenant:</p>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "5px" }} className="small">
+                                  <div style={{ background: "#f8f9fa", padding: "12px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.04)" }}>
+                                    <strong>Volumen Físico Consolidado:</strong>
+                                    <div style={{ fontSize: "1.2rem", fontWeight: "bold", color: "var(--primary)", marginTop: "4px" }}>
+                                      {fondos.reduce((acc, curr) => acc + (curr.volumen?.cajas || 0), 0)} Cajas Organizadas
+                                    </div>
+                                    <div className="text-muted" style={{ fontSize: "0.75rem", marginTop: "2px" }}>
+                                      {(fondos.reduce((acc, curr) => acc + (curr.volumen?.cajas || 0), 0) * 0.2).toFixed(2)} Metros Lineales Totales
+                                    </div>
+                                  </div>
+                                  <div style={{ background: "#f8f9fa", padding: "12px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.04)" }}>
+                                    <strong>Estado de Custodia:</strong>
+                                    <div style={{ fontSize: "1.2rem", fontWeight: "bold", color: "#137333", marginTop: "4px" }}>
+                                      100% Rotulado
+                                    </div>
+                                    <div className="text-muted" style={{ fontSize: "0.75rem", marginTop: "2px" }}>
+                                      Foliación sistemática a lápiz aplicada.
+                                    </div>
+                                  </div>
+                                </div>
+                                <button 
+                                  type="button" 
+                                  className="btn btn-primary small" 
+                                  style={{ alignSelf: "flex-end", padding: "6px 16px", height: "auto", marginTop: "5px" }}
+                                  onClick={() => guardarDatosApendice("7.1", "apendice_7_1", {
+                                    cajasOrganizadas: fondos.reduce((acc, curr) => acc + (curr.volumen?.cajas || 0), 0),
+                                    metrosLineales: (fondos.reduce((acc, curr) => acc + (curr.volumen?.cajas || 0), 0) * 0.2).toFixed(2)
+                                  })}
+                                >
+                                  💾 Guardar e Iniciar Cierre de Fondo
+                                </button>
+                              </div>
+                            )}
 
                             {/* Rama de Contingencia de Plagas (Fase 4, Tarea 4.3) */}
                             {tarea.id === "4.3" && (
