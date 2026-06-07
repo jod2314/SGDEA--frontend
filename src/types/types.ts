@@ -203,3 +203,37 @@ export interface Entidad {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface FondoAcumulado {
+  _id: string;
+  codigoInventario: string;
+  seccion: string;
+  subseccion?: string;
+  asunto: string;
+  fechasExtremas?: {
+    inicial?: string;
+    final?: string;
+  };
+  soporte: "FISICO" | "DIGITAL" | "AMBOS";
+  volumen?: {
+    cajas?: number;
+    carpetas?: number;
+    folios?: number;
+  };
+  estadoConservacion: "BUENO" | "REGULAR" | "MALO";
+  createdAt: string;
+}
+
+export interface IntervencionFondo {
+  empresaId: string;
+  faseActual: number;
+  checklist: Record<string, boolean>;
+  contingencias: Record<string, any>;
+  documentosGenerados: Array<{
+    tipo: string;
+    documentoId: string;
+    fecha: string;
+  }>;
+  progreso: number;
+}
+
