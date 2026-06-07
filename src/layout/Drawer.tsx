@@ -125,18 +125,10 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, isPinned, onPinToggle, onLogout
             )}
           </li>
           <li className="drawer-menu-item">
-            {!isOnboardingCompleted ? (
-              <div className="menu-link-locked">
-                <MdSettings />
-                <span>Configuración TRD</span>
-                <MdLock className="lock-icon" />
-              </div>
-            ) : (
-              <NavLink to="/configuracion-trd">
-                <MdSettings />
-                <span>Configuración TRD</span>
-              </NavLink>
-            )}
+            <NavLink to="/configuracion-trd">
+              <MdSettings />
+              <span>Configuración TRD</span>
+            </NavLink>
           </li>
           <li className="drawer-menu-item">
             <NavLink to="/estructura-organizacional">
@@ -215,60 +207,28 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, isPinned, onPinToggle, onLogout
             )}
           </li>
           <li className="drawer-menu-item">
-            {!isOnboardingCompleted ? (
-              <div className="menu-link-locked">
-                <MdHistory />
-                <span>Fondos Acumulados</span>
-                <MdLock className="lock-icon" />
-              </div>
-            ) : (
-              <NavLink to="/fondos-acumulados">
-                <MdHistory />
-                <span>Fondos Acumulados</span>
-              </NavLink>
-            )}
+            <NavLink to="/fondos-acumulados">
+              <MdHistory />
+              <span>Fondos Acumulados</span>
+            </NavLink>
           </li>
           <li className="drawer-menu-item">
-            {!isOnboardingCompleted ? (
-              <div className="menu-link-locked">
-                <MdPeople />
-                <span>Comité de Archivo</span>
-                <MdLock className="lock-icon" />
-              </div>
-            ) : (
-              <NavLink to="/comite-archivo">
-                <MdPeople />
-                <span>Comité de Archivo</span>
-              </NavLink>
-            )}
+            <NavLink to="/comite-archivo">
+              <MdPeople />
+              <span>Comité de Archivo</span>
+            </NavLink>
           </li>
           <li className="drawer-menu-item">
-            {!isOnboardingCompleted ? (
-              <div className="menu-link-locked">
-                <MdFactCheck />
-                <span>Tablas Valoración (TVD)</span>
-                <MdLock className="lock-icon" />
-              </div>
-            ) : (
-              <NavLink to="/tabla-valoracion">
-                <MdFactCheck />
-                <span>Tablas Valoración (TVD)</span>
-              </NavLink>
-            )}
+            <NavLink to="/tabla-valoracion">
+              <MdFactCheck />
+              <span>Tablas Valoración (TVD)</span>
+            </NavLink>
           </li>
           <li className="drawer-menu-item">
-            {!isOnboardingCompleted ? (
-              <div className="menu-link-locked">
-                <MdSecurity />
-                <span>Matriz de Riesgos</span>
-                <MdLock className="lock-icon" />
-              </div>
-            ) : (
-              <NavLink to="/matriz-riesgos">
-                <MdSecurity />
-                <span>Matriz de Riesgos</span>
-              </NavLink>
-            )}
+            <NavLink to="/matriz-riesgos">
+              <MdSecurity />
+              <span>Matriz de Riesgos</span>
+            </NavLink>
           </li>
         </ul>
         <div className="drawer-divider"></div>

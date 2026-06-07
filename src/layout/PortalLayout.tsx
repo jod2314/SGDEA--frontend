@@ -23,7 +23,16 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
 
   useEffect(() => {
     if (selectedEmpresa && !selectedEmpresa.onboardingCompleted && !selectedEmpresa.isPersonal) {
-      if (location.pathname !== "/onboarding") {
+      const allowedPaths = [
+        "/onboarding",
+        "/comite-archivo",
+        "/tabla-valoracion",
+        "/matriz-riesgos",
+        "/fondos-acumulados",
+        "/configuracion-trd",
+        "/estructura-organizacional"
+      ];
+      if (!allowedPaths.includes(location.pathname)) {
         navigate("/onboarding");
       }
     }
