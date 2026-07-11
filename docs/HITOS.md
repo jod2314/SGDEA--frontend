@@ -35,4 +35,4 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-06-07 15:59 | ✅ Paso 6: Refactorización interactiva | Refactorización interactiva del asistente de onboarding bloqueante | e2ff028 |
 | 2026-06-07 12:35 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Tests: omitidos manualmente con -SkipTests | - |
 | 2026-06-07 12:41 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Tests: omitidos manualmente con -SkipTests | - |
-| 2026-07-11 18:45 | ✅ Intervención y Proyección FDA | Análisis y proyección documental e institucional completa para la Gestión Integral de Fondos Acumulados (6 pasos finalizados en c:\web\docs\fondos acumulados\) | — |
+| 2026-07-11 18:45 | ✅ Intervención y Proyección FDA | Análisis y proyección documental e institucional completa para la Gestión Integral de Fondos Acumulados (6 pasos finalizados en c:\web\docs\fondos acumulados\) | 0241053 |
