@@ -49,6 +49,26 @@ Este archivo registra causa raíz de fallos, patrones descubiertos y decisiones 
 **Patrón / Regla derivada:** Para animaciones de alto rendimiento en interfaces web de uso intensivo, nunca transicionar `width`, `height`, `margin` ni `padding`. El movimiento debe ser instantáneo o basarse puramente en transformaciones aceleradas por GPU.
 **Agente involucrado:** `code-review-frontend`
 
+---
+
+### [2026-07-13] — Evitar parpadeo de estilos (FOUC) en carga inicial de temas en SPAs
+**Contexto:** Carga del tema guardado en `localStorage` al recargar la página.
+**Qué falló / Qué se descubrió:** El navegador cargaba primero los estilos por defecto (modo claro) y aplicaba las transiciones de fondo del body, y milisegundos después React inyectaba la clase `.dark-mode` tras cargar el script de JS, causando un parpadeo visual molesto ("theme flash").
+**Causa raíz:** Asincronía en la inicialización del tema en React, que ocurre después del parsing inicial del DOM y del primer pintado (paint) del navegador.
+**Solución aplicada:** Se inyectó un script síncrono inline al inicio del `<head>` en `index.html` para aplicar inmediatamente la clase `.dark-mode` y configurar la variable `--font-size-base` de forma síncrona, interceptando el primer pintado del navegador.
+**Patrón / Regla derivada:** Para sistemas de temas en aplicaciones SPA de alto rendimiento, la inicialización del tema y tamaño de fuente de `localStorage` debe realizarse mediante un script síncrono bloqueante en el `<head>`, bloqueando el pintado inicial hasta que el tema correcto sea inyectado en la etiqueta `html`.
+**Agente involucrado:** `frontend-dev`
+
+---
+
+### [2026-07-13] — Transiciones fluidas en Flexbox reemplazando display: none por visibility: hidden
+**Contexto:** Colapso físico de textos en el menú lateral para centrar iconos.
+**Qué falló / Qué se descubrió:** El uso de `display: none` para colapsar los textos anulaba la transición suave de opacidad del texto (`150ms`), causando que el texto desapareciera de golpe en lugar de desvanecerse progresivamente.
+**Causa raíz:** La propiedad `display` no es animable o transicionable en CSS nativo y destruye de inmediato la renderización en el flujo geométrico.
+**Solución aplicada:** Se reemplazó el `display: none` por una regla coordinada de transiciones de ancho y opacidad (`opacity: 0`, `width: 0`), combinada con `visibility: hidden` y `pointer-events: none` para ocultar físicamente el texto del flujo sin interrumpir la animación.
+**Patrón / Regla derivada:** Para colapsar elementos en Flexbox manteniendo transiciones suaves, transicionar de manera asimétrica `width` y `opacity` a cero y aplicar `visibility: hidden` al final de la transición para anular la interactividad y lectura por accesibilidad.
+**Agente involucrado:** `code-review-frontend`
+
 
 ---
 

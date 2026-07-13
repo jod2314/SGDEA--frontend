@@ -18,6 +18,12 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 - Implementación de **Escalado Tipográfico Dinámico** proporcional mediante `calc()` basado en la variable raíz `--font-size-base`.
 - Incorporación de **Botones de Accesibilidad** en la barra superior (`AppBar.tsx`) para alternar tema y escalar el tamaño de fuente (Normal, Mediano, Grande) con persistencia en `localStorage`.
 - Creación de **`EmpresaDropdown.tsx`** extrayendo el selector de empresas de `AppBar.tsx` para cumplir el límite de 150 líneas por componente.
+- Prevención de **Theme Flash (FOUC)** mediante la inyección de un script inline síncrono en `<head>` de `index.html`.
+- Refinamiento ergonómico de la paleta de colores desaturada para Sleek Slate (Oscuro) y Warm Cream (Claro).
+- Implementación de **transición de tema selectiva** usando la clase temporal `.theme-transitioning` por 300ms en el `body`.
+- Corrección del colapso del Drawer en `.drawer nav a span` eliminando el `display: none` asíncrono y reemplazándolo por colapso de `width`, `opacity` y `visibility: hidden;` para lograr el centrado geométrico absoluto del icono sin parpadeos.
+- Optimización de animaciones con curva de desaceleración `cubic-bezier(0.16, 1, 0.3, 1)` y dropdowns interactivos escalando con `transform-origin` definido.
+- Gating de hovers en dispositivos móviles táctiles mediante consulta `@media (hover: hover) and (pointer: fine)` y reconfiguración de la accesibilidad en `@media (prefers-reduced-motion: reduce)`.
 
 ### [1.1.0] — 2026-06-07
 

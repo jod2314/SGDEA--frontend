@@ -79,3 +79,29 @@ Este documento resume los cambios, interfaces y validaciones implementadas en el
 * Compilación de producción con `npm run build` completada con éxito en 10.60 segundos, sin advertencias.
 * Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`), validando la media query `prefers-reduced-motion` y la optimización de GPU (remoción de transiciones de ancho y márgenes para evitar reflows de layout).
 * Hito registrado y subido a GitHub con el hash final `63c54c7`.
+
+---
+
+## 📍 Refinamiento Estético, Físicas de Transición y Cero Parpadeos (13 de Julio de 2026)
+
+### 💻 Cambios e Interfaces Creadas/Modificadas
+
+1. **Carga Síncrona de Temas sin Parpadeo (`index.html`):**
+   * Se inyectó un script síncrono al inicio de `<head>` que lee el tema y la escala tipográfica de `localStorage` y aplica la clase `.dark-mode` y la variable `--font-size-base` de forma síncrona. Esto anula por completo el flash de carga (FOUC).
+
+2. **Refinamiento de Paletas Ergonómicas (`src/index.css`):**
+   * **Tema Oscuro (Sleek Slate Enriquecido):** Fondo general de la app `--bg-app: #0f172a` (azul slate, sin negros puros) y tarjetas `--surface: #1e293b` (gris azulado medio), reduciendo significativamente la fatiga por contraste.
+   * **Tema Claro (Warm Cream Enriquecido):** Fondo general `--bg-app: #f8fafc` (blanco crema suave) y tarjetas `--surface: #ffffff`.
+   * **Físicas de Transición Selectivas:** Se eliminó la transición global de colores del `body` en la carga del DOM y se confinó a la clase temporal `.theme-transitioning` (añadida dinámicamente por 300ms al alternar el tema).
+
+3. **Correcciones de Animaciones e Inclusividad:**
+   * **Colapso del Drawer:** Se reemplazó el `display: none` de los textos por una transición suave combinando `opacity`, `width` y `visibility: hidden;` para que los textos descriptivos se desvanezcan fluidamente y permitan que los iconos se centren de forma matemática.
+   * **Curva de Drawer:** Se aplicó la curva de desaceleración `cubic-bezier(0.16, 1, 0.3, 1)` para un movimiento de expansión suave y realista.
+   * **Gating de Hover:** Se encapsularon los hovers bajo `@media (hover: hover) and (pointer: fine)` previniendo hovers pegajosos en dispositivos táctiles.
+   * **reduced-motion:** Se reconfiguró la media query para desactivar desplazamientos cinéticos espaciales pero preservar las transiciones de opacidad y color suaves de 200ms.
+   * **Dropdowns:** Se programó animación de escala desde `scale(0.95)` y origen de transformación (`transform-origin: top left`) en menús de contexto.
+
+### 🧪 Verificación y Compilación
+* Compilación de producción con `npm run build` completada con éxito en 10.54 segundos, sin errores de tipado de TypeScript.
+* Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
+* Hito registrado y subido a GitHub con el hash final `31670e4`.
