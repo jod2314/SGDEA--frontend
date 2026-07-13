@@ -38,3 +38,5 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-07-11 18:45 | ✅ Intervención y Proyección FDA | Análisis y proyección documental e institucional completa para la Gestión Integral de Fondos Acumulados (6 pasos finalizados en c:\web\docs\fondos acumulados\) | 0241053 |
 | 2026-07-13 15:45 | [OK] Gate frontend v2.0 | TS + Lint + Build OK | - | - |
 | 2026-07-13 15:46 | ✅ Reestructuración Visual de Barra Lateral | Se ocultó visualmente la sección Gestión Documental en Drawer.tsx, conservando Análisis, Cuenta y el AppBar intactos | 2fdbd0a |
+| 2026-07-13 16:15 | [OK] Gate frontend v2.0 | TS + Lint + Build OK (Ergonomía) | - | - |
+| 2026-07-13 16:16 | ✅ Ergonomía Visual, Temas y Letras | Soporte dinámico de Claro/Oscuro y tamaño de letra global con persistencia en localStorage, y refactor de dropdown | — |

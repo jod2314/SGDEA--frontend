@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as IconsMd from 'react-icons/md';
 import { useAuth } from '../auth/AuthProvider';
-import { Empresa } from '../types/types';
 import { useNavigate } from 'react-router-dom';
+import { EmpresaDropdown } from './EmpresaDropdown';
+import { ApiResponse, SignOutResponse } from '../types/types';
 
 const MdMenu = (IconsMd as any).MdMenu;
-const MdBusiness = (IconsMd as any).MdBusiness;
-const MdPerson = (IconsMd as any).MdPerson;
-const MdKeyboardArrowDown = (IconsMd as any).MdKeyboardArrowDown;
-const MdAdd = (IconsMd as any).MdAdd;
 const MdAutoAwesome = (IconsMd as any).MdAutoAwesome;
 const MdLogout = (IconsMd as any).MdLogout;
+const MdSunny = (IconsMd as any).MdSunny;
+const MdDarkMode = (IconsMd as any).MdDarkMode;
+const MdFormatSize = (IconsMd as any).MdFormatSize;
 
 interface AppBarProps {
   onMenuClick: () => void;
@@ -20,60 +20,65 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
   const auth = useAuth();
   const navigate = useNavigate();
   const selectedEmpresa = auth.getSelectedEmpresa();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [empresas, setEmpresas] = useState<Empresa[]>([]);
-  const menuRef = useRef<HTMLDivElement>(null);
+
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [fontSize, setFontSize] = useState<16 | 18 | 20>(16);
 
   const isOnboardingPending = selectedEmpresa && !selectedEmpresa.onboardingCompleted && !selectedEmpresa.isPersonal;
 
+  // Cargar configuración de tema y tamaño de letra al montar el componente
   useEffect(() => {
-    async function fetchEmpresas() {
-      try {
-        const json = await auth.request<any>("/empresas/mis-empresas");
-        setEmpresas(json.body.empresas || []);
-      } catch (error) {
-        console.error("Error al cargar empresas:", error);
-      }
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.classList.toggle('dark-mode', savedTheme === 'dark');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const defaultTheme = prefersDark ? 'dark' : 'light';
+      setTheme(defaultTheme);
+      document.documentElement.classList.toggle('dark-mode', defaultTheme === 'dark');
     }
 
-    if (auth.isAuthenticated) {
-      fetchEmpresas();
+    const savedFontSize = Number(localStorage.getItem('fontSize')) as 16 | 18 | 20 | null;
+    if (savedFontSize && [16, 18, 20].includes(savedFontSize)) {
+      setFontSize(savedFontSize);
+      document.documentElement.style.setProperty('--font-size-base', `${savedFontSize}px`);
     }
-  }, [auth.isAuthenticated, auth]);
+  }, []);
 
+  // Cambiar entre tema claro y oscuro
+  function handleToggleTheme() {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    document.documentElement.classList.toggle('dark-mode', nextTheme === 'dark');
+  }
+
+  // Cambiar secuencialmente el tamaño de la letra entre 16px, 18px y 20px
+  function handleToggleFontSize() {
+    let nextFontSize: 16 | 18 | 20 = 16;
+    if (fontSize === 16) nextFontSize = 18;
+    else if (fontSize === 18) nextFontSize = 20;
+    else nextFontSize = 16;
+
+    setFontSize(nextFontSize);
+    localStorage.setItem('fontSize', String(nextFontSize));
+    document.documentElement.style.setProperty('--font-size-base', `${nextFontSize}px`);
+  }
+
+  // Cerrar la sesión del usuario
   async function handleSignOut() {
     if (!confirm("¿Deseas cerrar la sesión en SGDEA?")) return;
     try {
-      await auth.request<any>("/signout", {
+      await auth.request<ApiResponse<SignOutResponse>>("/signout", {
         method: "DELETE"
       });
       auth.signout();
     } catch (error) {
-      console.log(error);
+      // Cierre de sesión silencioso ante errores de red o servidor
       auth.signout();
     }
   }
-
-  // Cerrar menú al hacer clic fuera
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  function handleSwitch(empresa: Empresa) {
-    auth.setSelectedEmpresa(empresa);
-    setIsMenuOpen(false);
-    // Forzar recarga de datos o redirigir
-    navigate("/dashboard");
-  }
-
-  const personalSpace = empresas.find(e => e.isPersonal);
-  const corporateEmpresas = empresas.filter(e => !e.isPersonal);
 
   return (
     <div className="app-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
@@ -82,7 +87,7 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
           <MdMenu size={24} />
         </button>
         
-        <div className="app-bar-content" ref={menuRef}>
+        <div className="app-bar-content">
           <div className="app-bar-title" onClick={() => navigate("/dashboard")} style={{cursor: 'pointer'}}>
             SGDEA
           </div>
@@ -97,68 +102,30 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
             </button>
           )}
 
-          {selectedEmpresa && (
-            <div className="context-indicator" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              <span className="separator">|</span>
-              {selectedEmpresa.isPersonal ? (
-                <MdPerson className="context-icon" />
-              ) : (
-                <MdBusiness className="context-icon" />
-              )}
-              <span className="context-name">{selectedEmpresa.razonSocial}</span>
-              <MdKeyboardArrowDown className={`dropdown-arrow ${isMenuOpen ? 'open' : ''}`} />
-
-              {isMenuOpen && (
-                <div className="context-menu">
-                  <div className="menu-section-title">Tu Espacio</div>
-                  {personalSpace && (
-                    <div 
-                      className={`menu-item ${selectedEmpresa.id === personalSpace.id ? 'active' : ''}`}
-                      onClick={() => handleSwitch(personalSpace)}
-                    >
-                      <div className="item-icon"><MdPerson /></div>
-                      <div className="item-info">
-                        <span className="item-name">Mi Área Personal</span>
-                        <span className="item-detail">Persona Natural</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {corporateEmpresas.length > 0 && (
-                    <>
-                      <div className="menu-divider"></div>
-                      <div className="menu-section-title">Organizaciones</div>
-                      {corporateEmpresas.map(emp => (
-                        <div 
-                          key={emp.id}
-                          className={`menu-item ${selectedEmpresa.id === emp.id ? 'active' : ''}`}
-                          onClick={() => handleSwitch(emp)}
-                        >
-                          <div className="item-icon"><MdBusiness /></div>
-                          <div className="item-info">
-                            <span className="item-name">{emp.razonSocial}</span>
-                            <span className="item-detail">NIT: {emp.nit} • {emp.rol}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </>
-                  )}
-
-                  <div className="menu-divider"></div>
-                  <div className="menu-item" onClick={() => { setIsMenuOpen(false); navigate("/crear-empresa"); }}>
-                    <div className="item-icon"><MdAdd /></div>
-                    <div className="item-info">
-                      <span className="item-name">Registrar nueva empresa</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          <EmpresaDropdown />
         </div>
       </div>
 
       <div className="app-bar-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <button
+          className="icon-btn"
+          onClick={handleToggleTheme}
+          title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
+          style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(60,64,67,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          {theme === 'light' ? <MdDarkMode size={20} /> : <MdSunny size={20} />}
+        </button>
+
+        <button
+          className="icon-btn"
+          onClick={handleToggleFontSize}
+          title={`Cambiar tamaño de fuente (actual: ${fontSize}px)`}
+          style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(60,64,67,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}
+        >
+          <MdFormatSize size={20} />
+          <span style={{ fontSize: '10px', fontWeight: 'bold' }}>{fontSize}</span>
+        </button>
+
         <button 
           className="btn btn-ghost" 
           onClick={handleSignOut} 

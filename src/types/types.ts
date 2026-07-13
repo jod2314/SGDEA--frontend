@@ -329,3 +329,12 @@ export interface ApiResponse<T> {
   body: T & { error?: string };
 }
 
+export interface SignOutResponse {
+  success: boolean;
+}
+
+export interface MisEmpresasResponse {
+  empresas: Empresa[];
+}
+
+

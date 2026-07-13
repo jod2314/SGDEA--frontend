@@ -8,29 +8,54 @@
 :root{
   /* Typography */
   --font-base: 'Roboto', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --fs-body: 16px;
-  --fs-h1: 34px;
-  --fs-h2: 24px;
-  --fs-h3: 18px;
+  --font-size-base: 16px;
+  --fs-body: var(--font-size-base);
+  --fs-h1: calc(var(--font-size-base) * 2.125);
+  --fs-h2: calc(var(--font-size-base) * 1.5);
+  --fs-h3: calc(var(--font-size-base) * 1.125);
   --line-body: 1.45;
   /* Spacing scale (8px) */
   --space: 8px;
   /* Widths */
   --container-max: 1100px;
-  /* Colors (Drive-like minimal) */
-  --bg-app: #f1f3f4;      /* light neutral background */
-  --surface: #ffffff;     /* card surfaces */
-  --text-primary: #202124;/* main text */
-  --text-secondary: #5f6368;
-  --muted: #80868b;
-  --primary: #1a73e8;     /* Google blue-ish accent */
-  --danger: #d93025;
+  /* Colors (Tema claro suave) */
+  --bg-app: #f4f6f8;
+  --surface: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --muted: #64748b;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --danger: #ef4444;
+  /* Additional glass and light helper variables */
+  --bg-app-glass: rgba(244, 246, 248, 0.8);
+  --primary-light-1: rgba(79, 70, 229, 0.05);
+  --primary-light-2: rgba(79, 70, 229, 0.1);
+  --primary-light-3: rgba(79, 70, 229, 0.15);
+  --primary-light-4: rgba(79, 70, 229, 0.2);
   /* Elevation / radius */
   --shadow-1: 0 1px 2px rgba(60,64,67,0.08);
   --shadow-2: 0 4px 8px rgba(60,64,67,0.08);
   --radius: 10px;
   --control-height: 48px;
   --focus-ring: 3px;
+}
+
+html.dark-mode {
+  --bg-app: #0b0f19;
+  --surface: #131b2e;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --muted: #64748b;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --danger: #f87171;
+  /* Additional glass and light helper variables in dark mode */
+  --bg-app-glass: rgba(11, 15, 25, 0.8);
+  --primary-light-1: rgba(99, 102, 241, 0.05);
+  --primary-light-2: rgba(99, 102, 241, 0.1);
+  --primary-light-3: rgba(99, 102, 241, 0.15);
+  --primary-light-4: rgba(99, 102, 241, 0.2);
 }
 
 /* Reset / global */
@@ -40,6 +65,16 @@
 
 html, body, #root {
   height: 100%;
+}
+
+body,
+.drawer,
+.app-bar,
+.card,
+.form,
+.info-card,
+.todo-card {
+  transition: background-color 0.2s, color 0.2s;
 }
 
 body {
@@ -98,7 +133,7 @@ header nav a {
 
 header nav a:hover,
 header nav a:focus {
-  background: rgba(26,115,232,0.06);
+  background: var(--primary-light-1);
   outline: none;
   transform: translateY(-1px);
 }
@@ -163,7 +198,7 @@ main {
 .form textarea:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 var(--focus-ring) rgba(26,115,232,0.12);
+  box-shadow: 0 0 0 var(--focus-ring) var(--primary-light-3);
 }
 
 /* Buttons */
@@ -186,7 +221,7 @@ main {
 .btn-primary {
   background: var(--primary);
   color: white;
-  box-shadow: 0 1px 2px rgba(26,115,232,0.18);
+  box-shadow: 0 1px 2px var(--primary-light-4);
 }
 
 .btn-primary:hover {
@@ -239,7 +274,7 @@ main {
 }
 
 a:focus {
-  box-shadow: 0 0 0 var(--focus-ring) rgba(26,115,232,0.12);
+  box-shadow: 0 0 0 var(--focus-ring) var(--primary-light-3);
   border-radius: 6px;
 }
 
@@ -269,7 +304,7 @@ a:focus {
 .create-todo-form input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 var(--focus-ring) rgba(26,115,232,0.12);
+  box-shadow: 0 0 0 var(--focus-ring) var(--primary-light-3);
 }
 
 .todo-item-title {
@@ -334,7 +369,7 @@ a:focus {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1), transform 220ms ease-in-out, box-shadow 220ms ease;
+  transition: transform 220ms ease-in-out, box-shadow 220ms ease;
 }
 
 /* Scrollbar estética para el drawer */
@@ -366,7 +401,7 @@ a:focus {
   border-radius: var(--radius);
   font-weight: 500;
   font-size: 1rem;
-  transition: background-color 150ms, color 150ms, padding 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 150ms, color 150ms;
   width: 100%;
 }
 
@@ -375,7 +410,7 @@ a:focus {
 }
 
 .drawer nav a.active {
-  background-color: rgba(26,115,232,0.1);
+  background-color: var(--primary-light-2);
   color: var(--primary);
 }
 
@@ -386,7 +421,6 @@ a:focus {
 
 .drawer-pinned .app-main-content {
   margin-left: 256px;
-  transition: margin-left 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .drawer-unpinned .drawer {
@@ -400,7 +434,6 @@ a:focus {
 
 .drawer-unpinned .app-main-content {
   margin-left: 72px;
-  transition: margin-left 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Ocultar textos cuando el drawer está desfijado y no hay hover */
@@ -439,7 +472,7 @@ a:focus {
   align-items: center;
   padding: 0 calc(var(--space) * 2);
   border-bottom: 1px solid rgba(60,64,67,0.12);
-  background: rgba(241,243,244,0.8);
+  background: var(--bg-app-glass);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
@@ -544,11 +577,11 @@ a:focus {
 }
 
 .menu-item:hover {
-  background-color: rgba(26,115,232,0.05);
+  background-color: var(--primary-light-1);
 }
 
 .menu-item.active {
-  background-color: rgba(26,115,232,0.1);
+  background-color: var(--primary-light-2);
   color: var(--primary);
 }
 
@@ -627,9 +660,9 @@ a:focus {
 }
 
 .alert-info {
-  background: rgba(26,115,232,0.08);
+  background: var(--primary-light-2);
   color: var(--primary);
-  border: 1px solid rgba(26,115,232,0.15);
+  border: 1px solid var(--primary-light-3);
 }
 
 .profile-header {
@@ -738,3 +771,14 @@ a:focus {
 /* Final note: contrast checks
    - Ensure any custom brand color passed as --primary meets contrast requirements
 */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-delay: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
