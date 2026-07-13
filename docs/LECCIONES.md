@@ -39,6 +39,16 @@ Este archivo registra causa raíz de fallos, patrones descubiertos y decisiones 
 **Patrón / Regla derivada:** Cada vez que se remueva JSX o enlaces en el menú lateral, se debe limpiar de forma inmediata y sistemática todas las importaciones y constantes asociadas a fin de mantener el componente libre de código muerto y bajo el límite de tamaño.
 **Agente involucrado:** `frontend-dev`
 
+---
+
+### [2026-07-13] — Prevención de Layout Reflows en Transiciones de Ancho y Márgenes (index.css)
+**Contexto:** Transición de expansión/colapso de la barra lateral (Drawer) y márgenes de contenido.
+**Qué falló / Qué se descubrió:** El validador de la skill `review-animations` bloqueó las transiciones en propiedades CSS no aceleradas por hardware como `width`, `padding` y `margin-left` por obligar al navegador a recalcular el flujo geométrico completo del layout (Reflow) a 60 FPS, degradando el rendimiento.
+**Causa raíz:** Programación de animaciones en propiedades físicas de caja (box model) en lugar de usar transformaciones 2D (`transform: translate`) o transiciones instantáneas para redistribuciones mayores de pantalla.
+**Solución aplicada:** Se desactivó el retraso/duración de las transiciones sobre `width` y `margin-left`, haciendo que el redimensionamiento del menú lateral y el margen del área principal sea instantáneo. Las animaciones restantes se limitaron estrictamente a opacidad (`opacity`) y transformaciones (`transform`).
+**Patrón / Regla derivada:** Para animaciones de alto rendimiento en interfaces web de uso intensivo, nunca transicionar `width`, `height`, `margin` ni `padding`. El movimiento debe ser instantáneo o basarse puramente en transformaciones aceleradas por GPU.
+**Agente involucrado:** `code-review-frontend`
+
 
 ---
 

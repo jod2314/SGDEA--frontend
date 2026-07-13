@@ -53,3 +53,29 @@ Este documento resume los cambios, interfaces y validaciones implementadas en el
 * Compilación de producción con `npm run build` (`tsc && vite build`) completada con éxito en 10.71 segundos, sin errores de tipado de TypeScript ni fallas de empaquetado del bundler.
 * Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
 * Hito registrado y commiteado en Git con hash `74c177f`.
+
+---
+
+## 📍 Ergonomía Visual, Temas y Letras (13 de Julio de 2026)
+
+### 💻 Cambios e Interfaces Creadas/Modificadas
+
+1. **Esquema de Colores ergonómico en `src/index.css`:**
+   * **Tema Oscuro (Sleek Slate):** Fondo en azul slate profundo (`#0b0f19`) y tipografías en blanco/gris suave (`#f1f5f9`) para evitar fatiga ocular.
+   * **Tema Claro (Warm Cream):** Fondo crema suave (`#f4f6f8`) y tipografías en gris slate profundo (`#1e293b`).
+   * Eliminados contrastes duros y agregada transición suave de 200ms en el color y fondo del body y cards.
+   
+2. **Escalado Tipográfico Dinámico:**
+   * Las variables tipográficas del sistema en `index.css` se modificaron para calcularse dinámicamente mediante `calc()` basadas en una variable raíz `--font-size-base` (16px base).
+
+3. **Controles en la Barra Superior (`src/layout/AppBar.tsx`):**
+   * Integración de botones interactivos para alternar entre Tema Claro/Oscuro y escalar cíclicamente el tamaño de fuente global (Normal `16px` -> Mediano `18px` -> Grande `20px` -> Normal).
+   * Persistencia automática de las configuraciones en `localStorage`.
+
+4. **Modularidad (`src/layout/EmpresaDropdown.tsx`):**
+   * Se extrajo el selector de empresas de `AppBar.tsx` a un nuevo subcomponente `EmpresaDropdown.tsx` para mantener el tamaño del archivo AppBar por debajo del límite de 150 líneas.
+
+### 🧪 Verificación y Compilación
+* Compilación de producción con `npm run build` completada con éxito en 10.60 segundos, sin advertencias.
+* Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`), validando la media query `prefers-reduced-motion` y la optimización de GPU (remoción de transiciones de ancho y márgenes para evitar reflows de layout).
+* Hito registrado y subido a GitHub con el hash final `63c54c7`.

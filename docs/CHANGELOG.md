@@ -14,6 +14,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ### Modificado
 - Reestructuración visual de la barra lateral (`Drawer.tsx`) para ocultar el bloque completo del menú de "Gestión Documental" y conservar solo "Análisis" (Dashboard) y "Cuenta" (Profile, Auditoría, Logout).
 - Remoción de importaciones de iconos en desuso en `Drawer.tsx`, optimizando y reduciendo el tamaño del archivo a 115 líneas.
+- Soporte dinámico para **Tema Claro (Warm Cream)** y **Tema Oscuro (Sleek Slate)** de descanso visual con variables HSL y transiciones CSS de 0.2s.
+- Implementación de **Escalado Tipográfico Dinámico** proporcional mediante `calc()` basado en la variable raíz `--font-size-base`.
+- Incorporación de **Botones de Accesibilidad** en la barra superior (`AppBar.tsx`) para alternar tema y escalar el tamaño de fuente (Normal, Mediano, Grande) con persistencia en `localStorage`.
+- Creación de **`EmpresaDropdown.tsx`** extrayendo el selector de empresas de `AppBar.tsx` para cumplir el límite de 150 líneas por componente.
 
 ### [1.1.0] — 2026-06-07
 
