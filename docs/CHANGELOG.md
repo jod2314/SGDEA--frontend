@@ -18,6 +18,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 - Implementación de **Escalado Tipográfico Dinámico** proporcional mediante `calc()` basado en la variable raíz `--font-size-base`.
 - Incorporación de **Botones de Accesibilidad** en la barra superior (`AppBar.tsx`) para alternar tema y escalar el tamaño de fuente (Normal, Mediano, Grande) con persistencia en `localStorage`.
 - Creación de **`EmpresaDropdown.tsx`** extrayendo el selector de empresas de `AppBar.tsx` para cumplir el límite de 150 líneas por componente.
+- Corrección de contraste en el módulo de **Jerarquía Organizacional** (`EstructuraOrganizacional.tsx`), reemplazando colores fijos y variables obsoletas en las tarjetas del árbol y tablas de dependencias por variables semánticas del tema.
+- Tipado estricto y centralizado de la API de dependencias y usuarios mediante `User` y `ApiResponse` globales en `EstructuraOrganizacional.tsx`.
+- Registro formal de las directrices e investigación para evitar regresiones de contraste visual en `LECCIONES.md`.
 - Prevención de **Theme Flash (FOUC)** mediante la inyección de un script inline síncrono en `<head>` de `index.html`.
 - Refinamiento ergonómico de la paleta de colores desaturada para Sleek Slate (Oscuro) y Warm Cream (Claro).
 - Implementación de **transición de tema selectiva** usando la clase temporal `.theme-transitioning` por 300ms en el `body`.

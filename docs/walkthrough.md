@@ -130,3 +130,29 @@ Este documento resume los cambios, interfaces y validaciones implementadas en el
 * Compilación de producción con `npm run build` completada con éxito en 10.49 segundos.
 * Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
 * Hito registrado y subido a GitHub con el hash final `1c78002`.
+
+---
+
+## 📍 Corrección de Contraste en Jerarquía Organizacional e Investigación Preventiva (13 de Julio de 2026)
+
+### 💻 Cambios e Interfaces Creadas/Modificadas
+
+1. **Ajuste de Estilos de Tarjetas en Organigrama (`src/routes/EstructuraOrganizacional.tsx`):**
+   * Reemplazo del color de fondo blanco fijo (`background: white`) en las tarjetas de dependencias del árbol (`.tree-node-card`) por `background: var(--surface)`, `color: var(--text-primary)` y `box-shadow: var(--shadow-1)`.
+   * Reemplazo de variables de estilos de color obsoletas o inexistentes (`var(--primary-color)` por `var(--primary)`, `var(--text-muted)` por `var(--muted)` y `var(--border-color)` por `var(--glass-border)`) para adecuar la jerarquía organizativa a la paleta ergonómica global del proyecto.
+
+2. **Tipado Estricto de Estructura Organizativa:**
+   * Importación y utilización formal de la interfaz global `User` de `types.ts` en el estado local de usuarios (`usuarios`).
+   * Tipado estricto de todas las peticiones asíncronas de la API mediante `auth.request<ApiResponse<T>>` en las funciones `fetchUsuarios`, `fetchDependencias`, `handleSubmit`, `handleDelete` y `handleFinalizarOnboarding`, removiendo los genéricos `<any>` residuales.
+   * Traducción de comentarios de JSX a español.
+
+3. **Investigación Preventiva de Accesibilidad y Contraste (`docs/LECCIONES.md`):**
+   * Registro formal de la causa raíz de las regresiones visuales y establecimiento de **Tres Mandamientos Técnicos** para evitar que vuelva a suceder durante el escalamiento del software:
+     1. Prohibición absoluta de colores fijos (hardcoded) en estilos inline y CSS local.
+     2. Encapsulamiento/Gating de colores y conectores en componentes de terceros.
+     3. Auditorías periódicas con herramientas de accesibilidad (Lighthouse / WCAG AA).
+
+### 🧪 Verificación y Compilación
+* Compilación de producción con `npm run build` completada con éxito en 10.65 segundos.
+* Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
+* Hito registrado y subido a GitHub con el hash final `29cda8b`.
