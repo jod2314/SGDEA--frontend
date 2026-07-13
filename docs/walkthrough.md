@@ -34,3 +34,22 @@ Este documento resume los cambios, interfaces y validaciones implementadas en el
 
 - Compilación de producción con `npm run build` completada exitosamente sin advertencias ni errores.
 - Gate de pruebas superado en el linter y TypeScript con el script `.agents/scripts/run_tests.ps1 -SkipTests`.
+
+---
+
+## 📍 Reestructuración Visual de Barra Lateral (13 de Julio de 2026)
+
+### 💻 Cambios e Interfaces Modificadas
+
+1. **Optimización y Limpieza de Barra Lateral (`src/layout/Drawer.tsx`)**:
+   * Ocultación visual completa de la sección de menú "Gestión Documental", conservando únicamente "Análisis" (Dashboard) y "Cuenta" (Profile, Auditoría y Logout).
+   * Remoción de todas las importaciones e inicializaciones de iconos en desuso de `react-icons/md`, reduciendo el componente de 278 a 115 líneas (cumpliendo con la regla de diseño de un máximo de 150 líneas por archivo).
+   * Ordenamiento y validación de imports y comentarios en español.
+
+2. **Inmutabilidad Lógica y Enrutamiento**:
+   * Se mantuvieron intactas las declaraciones de rutas y componentes en `src/main.tsx` para evitar la pérdida de funciones o referencias internas en el enrutamiento general del aplicativo.
+
+### 🧪 Verificación y Compilación
+* Compilación de producción con `npm run build` (`tsc && vite build`) completada con éxito en 10.71 segundos, sin errores de tipado de TypeScript ni fallas de empaquetado del bundler.
+* Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
+* Hito registrado y commiteado en Git con hash `74c177f`.

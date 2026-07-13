@@ -29,6 +29,16 @@ Este archivo registra causa raíz de fallos, patrones descubiertos y decisiones 
 **Patrón / Regla derivada:** Todas las peticiones API del frontend que esperen un envoltorio estructurado de respuesta del backend deben tipar explícitamente el llamado usando la interfaz `ApiResponse<T>` para no violar la compilación estricta.
 **Agente involucrado:** `frontend-dev`
 
+---
+
+### [2026-07-13] — Reducción y modularización de componentes principales (Drawer.tsx)
+**Contexto:** Ocultación del menú de "Gestión Documental" en la barra lateral.
+**Qué falló / Qué se descubrió:** Al remover el bloque JSX del menú, el linter de TypeScript detecta múltiples variables declaradas pero no usadas correspondientes a los iconos en desuso de `react-icons/md`, lo que causaría warnings bloqueantes en compilaciones estrictas.
+**Causa raíz:** Variables e importaciones redundantes de la biblioteca de iconos no removidas después de eliminar los NavLinks correspondientes del DOM.
+**Solución aplicada:** Se removieron todas las importaciones y constantes de iconos que quedaron en desuso. Esto limpió las variables muertas y además redujo el tamaño del archivo de 278 a 115 líneas, cumpliendo con la regla de diseño de un máximo de 150 líneas por componente.
+**Patrón / Regla derivada:** Cada vez que se remueva JSX o enlaces en el menú lateral, se debe limpiar de forma inmediata y sistemática todas las importaciones y constantes asociadas a fin de mantener el componente libre de código muerto y bajo el límite de tamaño.
+**Agente involucrado:** `frontend-dev`
+
 
 ---
 

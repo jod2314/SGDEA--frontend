@@ -9,6 +9,12 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 
 ### Añadido
 
+## [1.1.1] — 2026-07-13
+
+### Modificado
+- Reestructuración visual de la barra lateral (`Drawer.tsx`) para ocultar el bloque completo del menú de "Gestión Documental" y conservar solo "Análisis" (Dashboard) y "Cuenta" (Profile, Auditoría, Logout).
+- Remoción de importaciones de iconos en desuso en `Drawer.tsx`, optimizando y reduciendo el tamaño del archivo a 115 líneas.
+
 ### [1.1.0] — 2026-06-07
 
 ### Añadido
