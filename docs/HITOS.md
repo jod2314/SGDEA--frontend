@@ -37,4 +37,4 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-06-07 12:41 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Tests: omitidos manualmente con -SkipTests | - |
 | 2026-07-11 18:45 | ✅ Intervención y Proyección FDA | Análisis y proyección documental e institucional completa para la Gestión Integral de Fondos Acumulados (6 pasos finalizados en c:\web\docs\fondos acumulados\) | 0241053 |
 | 2026-07-13 15:45 | [OK] Gate frontend v2.0 | TS + Lint + Build OK | - | - |
-| 2026-07-13 15:46 | ✅ Reestructuración Visual de Barra Lateral | Se ocultó visualmente la sección Gestión Documental en Drawer.tsx, conservando Análisis, Cuenta y el AppBar intactos | — |
+| 2026-07-13 15:46 | ✅ Reestructuración Visual de Barra Lateral | Se ocultó visualmente la sección Gestión Documental en Drawer.tsx, conservando Análisis, Cuenta y el AppBar intactos | 2fdbd0a |
