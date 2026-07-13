@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthProvider";
-import { API_URL } from "../auth/authConstants";
 import PortalLayout from "../layout/PortalLayout";
 import * as IconsMd from "react-icons/md";
 import { Link } from "react-router-dom";
+import { Empresa, ApiResponse } from "../types/types";
 
 const MdEdit = IconsMd.MdEdit as any;
 const MdSave = IconsMd.MdSave as any;
@@ -75,29 +75,20 @@ export default function Profile() {
     setMessage({ text: "", type: "" });
 
     try {
-      const response = await fetch(`${API_URL}/empresas/${selectedEmpresa.id}`, {
+      await auth.request<ApiResponse<{ empresa: Empresa }>>(`/empresas/${selectedEmpresa.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
         body: JSON.stringify(formData),
       });
 
-      const json = await response.json();
-
-      if (response.ok) {
-        setMessage({ text: "Información actualizada correctamente", type: "success" });
-        setIsEditing(false);
-        auth.setSelectedEmpresa({
-          ...selectedEmpresa,
-          ...formData
-        });
-      } else {
-        setMessage({ text: json.body.error, type: "error" });
-      }
+      setMessage({ text: "Información actualizada correctamente", type: "success" });
+      setIsEditing(false);
+      auth.setSelectedEmpresa({
+        ...selectedEmpresa,
+        ...formData
+      });
     } catch (error) {
-      setMessage({ text: "Error de conexión con el servidor", type: "error" });
+      const err = error as Error;
+      setMessage({ text: err.message || "Error de conexión con el servidor", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -305,9 +296,9 @@ export default function Profile() {
           </div>
 
           <aside className="profile-sidebar">
-            <div className="card hierarchy-card" style={{border: '2px solid var(--primary-color)'}}>
+            <div className="card hierarchy-card" style={{border: '2px solid var(--primary)'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px'}}>
-                <MdAccountTree size={24} color="var(--primary-color)" />
+                <MdAccountTree size={24} color="var(--primary)" />
                 <h3 style={{margin: 0}}>Jerarquía Organizacional</h3>
               </div>
               <p className="small">Define el organigrama, las dependencias y oficinas productoras de esta entidad.</p>
@@ -346,7 +337,7 @@ export default function Profile() {
         }
         .info-row {
           padding: 12px 0;
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid var(--glass-border);
           display: flex;
           align-items: center;
         }
@@ -358,12 +349,12 @@ export default function Profile() {
           display: flex;
           align-items: center;
           gap: 10px;
-          color: #666;
+          color: var(--text-secondary);
           font-weight: 500;
         }
         .row-icon {
           font-size: 1.1rem;
-          color: #999;
+          color: var(--muted);
         }
         .info-value {
           flex: 1;
@@ -379,7 +370,7 @@ export default function Profile() {
           font-size: 2.5rem;
           color: white;
         }
-        .profile-icon-large.corporate { background: var(--primary-color); }
+        .profile-icon-large.corporate { background: var(--primary); }
         .profile-icon-large.personal { background: #2ecc71; }
         
         .status-badge {
@@ -390,12 +381,12 @@ export default function Profile() {
           font-weight: bold;
         }
         .status-badge.active {
-          background: #e8f5e9;
-          color: #2e7d32;
+          background: var(--primary-light-2);
+          color: var(--primary);
         }
         .hierarchy-card {
-          background: #f0f7ff;
-          border-color: #007bff;
+          background: var(--primary-light-1);
+          border-color: var(--primary);
         }
       `}</style>
     </PortalLayout>
