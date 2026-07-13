@@ -24,6 +24,11 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 - Corrección del colapso del Drawer en `.drawer nav a span` eliminando el `display: none` asíncrono y reemplazándolo por colapso de `width`, `opacity` y `visibility: hidden;` para lograr el centrado geométrico absoluto del icono sin parpadeos.
 - Optimización de animaciones con curva de desaceleración `cubic-bezier(0.16, 1, 0.3, 1)` y dropdowns interactivos escalando con `transform-origin` definido.
 - Gating de hovers en dispositivos móviles táctiles mediante consulta `@media (hover: hover) and (pointer: fine)` y reconfiguración de la accesibilidad en `@media (prefers-reduced-motion: reduce)`.
+- Corrección de contraste en el módulo de **Auditoría Forense** (`Auditoria.tsx`), reemplazando colores fijos y claros en tablas, modal de Timeline, badges e iconos por variables del tema.
+- Unificación del color de fondo y textos de inputs de formularios (`.edit-input`) mediante variables semánticas.
+- Declaración de la variable CSS `--glass-border` en `:root` y `html.dark-mode`.
+- Centralización de tipos de auditoría (`AuditLog`, `AuditStats`, `AuditTimelineItem`, etc.) en `src/types/types.ts` y tipado estricto de llamadas de red.
+- Traducción de comentarios de JSX de Auditoría a español.
 
 ### [1.1.0] — 2026-06-07
 

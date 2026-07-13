@@ -105,3 +105,28 @@ Este documento resume los cambios, interfaces y validaciones implementadas en el
 * Compilación de producción con `npm run build` completada con éxito en 10.54 segundos, sin errores de tipado de TypeScript.
 * Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
 * Hito registrado y subido a GitHub con el hash final `31670e4`.
+
+---
+
+## 📍 Corrección de Contraste y Tipado Estricto (13 de Julio de 2026)
+
+### 💻 Cambios e Interfaces Creadas/Modificadas
+
+1. **Variables CSS de Bordes Translucidos (`src/index.css`):**
+   * Declaración de la variable CSS `--glass-border` en `:root` (`rgba(15, 23, 42, 0.08)`) y en `html.dark-mode` (`rgba(255, 255, 255, 0.08)`) para unificar la cuadrícula.
+   * Ajuste global de `.edit-input` para transicionar dinámicamente su color de fondo a `var(--surface)` y texto a `var(--text-primary)`, evitando texto blanco sobre fondo blanco en inputs y selects de filtrado.
+
+2. **Tipado Estricto de Auditoría (`src/types/types.ts`):**
+   * Creación y exportación de las interfaces `AuditLog`, `AuditStats`, `AuditTimelineItem`, `AuditVerifyResponse`, y `AuditLogsResponse` para tipar estrictamente los endpoints de trazabilidad y timeline forense.
+
+3. **Refinamiento de Auditoría Forense (`src/routes/Auditoria.tsx`):**
+   * Reemplazo de todas las interfaces locales y variables `any` por tipos formales.
+   * Modificación de las peticiones a la API para tiparse con `auth.request<ApiResponse<T>>` en lugar del genérico `<any>`.
+   * Reemplazo de fondos hardcodeados en la fila de cabecera de la tabla (`background: 'var(--bg-app)'`) y modales de reconstrucción de línea de tiempo (`background: 'var(--surface)'`).
+   * Reemplazo de los colores fijos de los badges de acciones, iconos (`MdTimeline`, `MdInfo`) y bordes divisorios para utilizar variables dinámicas.
+   * Traducción de comentarios de JSX a español.
+
+### 🧪 Verificación y Compilación
+* Compilación de producción con `npm run build` completada con éxito en 10.49 segundos.
+* Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
+* Hito registrado y subido a GitHub con el hash final `1c78002`.

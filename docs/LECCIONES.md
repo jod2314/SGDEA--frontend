@@ -69,6 +69,26 @@ Este archivo registra causa raíz de fallos, patrones descubiertos y decisiones 
 **Patrón / Regla derivada:** Para colapsar elementos en Flexbox manteniendo transiciones suaves, transicionar de manera asimétrica `width` y `opacity` a cero y aplicar `visibility: hidden` al final de la transición para anular la interactividad y lectura por accesibilidad.
 **Agente involucrado:** `code-review-frontend`
 
+---
+
+### [2026-07-13] — Evitar colores inline fijos (hardcoded) en interfaces con soporte de múltiples temas
+**Contexto:** Corrección de fondos y textos blancos en el cambio de tema del módulo de Auditoría.
+**Qué falló / Qué se descubrió:** Varias tablas, modales y celdas del módulo de Auditoría tenían estilos inline del tipo `background: '#fff'` o `borderBottom: '2px solid #eee'`. Al cambiar a modo oscuro, los textos heredaban el color claro del body pero los fondos y bordes permanecían claros, resultando en texto blanco sobre fondo claro (totalmente ilegible).
+**Causa raíz:** Programación de estilos fijos en línea en JSX en lugar de centralizarlos en CSS o utilizar variables de CSS del tema.
+**Solución aplicada:** Se reemplazaron todas las referencias a colores fijos por variables CSS dinámicas (`var(--surface)`, `var(--bg-app)` y `var(--glass-border)`).
+**Patrón / Regla derivada:** En aplicaciones web con soporte multi-tema, está estrictamente prohibido usar colores hardcodeados de fondo, texto o bordes en estilos inline en JSX. Todo color interactivo debe delegarse a clases CSS o referenciar variables dinámicas del tema de manera explícita.
+**Agente involucrado:** `frontend-dev`
+
+---
+
+### [2026-07-13] — Centralización obligatoria de tipos en types.ts y tipado estricto en auth.request<T>
+**Contexto:** Rechazo de interfaces locales y uso de genéricos `<any>` en la Auditoría.
+**Qué falló / Qué se descubrió:** El desarrollador definió interfaces de auditoría de forma local en la página y utilizó el tipo `<any>` en los llamados del cliente API. Esto viola los estándares de consistencia y genera errores silenciosos en producción por falta de validación del contrato de datos.
+**Causa raíz:** Atajo de programación al tipar respuestas complejas de API con variables genéricas en lugar de declarar el tipo estructurado real.
+**Solución aplicada:** Se extrajeron todas las interfaces locales a `src/types/types.ts` y se tiparon estrictamente las llamadas a la API mediante `auth.request<ApiResponse<T>>` (con interfaces reales de auditoría).
+**Patrón / Regla derivada:** Toda petición API en el frontend de SGDEA debe tiparse estrictamente usando interfaces reales declaradas en `src/types/types.ts`. Se prohíbe el uso de `<any>` y `<unknown>` como genéricos en el cliente API.
+**Agente involucrado:** `code-review-frontend`
+
 
 ---
 
