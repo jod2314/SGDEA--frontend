@@ -12,12 +12,12 @@ Registro del **equipo permanente de 7 agentes** del repo frontend.
 
 | Rol | Nombre | Especialidad | Scope de archivos | Prompt base | Estado |
 |:---:|:-------|:-------------|:------------------|:------------|:------:|
-| 🏛️ Arquitecto | `architect` | Diseño, contratos API, modelo datos | `docs/architecture/*`, `PROXIMA_TAREA.md` | `.agents/prompts/architect.md` | ✅ Activo |
-| 🖥️ Frontend Dev | `frontend-dev` | Componentes, páginas, hooks, estilos | `src/*`, `public/*`, `index.html`, `vite.config.ts`, `package.json` | `.agents/prompts/frontend-dev.md` | ✅ Activo |
+| 🏛️ Arquitecto | `architect` | Cimientos de UI (ui-ux-pro-max), contratos, modelo datos | `docs/architecture/*`, `PROXIMA_TAREA.md` | `.agents/prompts/architect.md` | ✅ Activo |
+| 🖥️ Frontend Dev | `frontend-dev` | Páginas, componentes, estilos, físicas (emil-design-eng) | `src/*`, `public/*`, `index.html`, `vite.config.ts`, `package.json` | `.agents/prompts/frontend-dev.md` | ✅ Activo |
 | 🔒 Seguridad | `security-agent` | Deps scan, secret scan, OWASP, auth | `package.json`, `.env.example`, `src/` (lectura) | `.agents/prompts/security-agent.md` | ✅ Activo |
 | 🧪 QA | `qa-agent` | Tests, cobertura ≥70%, lint | `src/**/*.test.*`, `src/**/*.spec.*` | `.agents/prompts/qa-agent.md` | ✅ Activo |
 | 📦 Performance | `perf-agent` | Bundle size, lazy loading, tree shaking | `vite.config.ts`, `src/*` (lectura), `index.html` | `.agents/prompts/perf-agent.md` | ✅ Activo |
-| 🔍 Code Review | `code-review-frontend` | Revisión React/TS — convenciones SGDEA | `src/` (lectura), `docs/HITOS.md` | `.agents/prompts/code-review-frontend.md` | ✅ Activo |
+| 🔍 Code Review | `code-review-frontend` | Revisión React/TS, QA Animaciones (review-animations) | `src/` (lectura), `docs/HITOS.md` | `.agents/prompts/code-review-frontend.md` | ✅ Activo |
 | 🎯 Product Owner | `product-owner` | Validar requisito vs entrega | `PROXIMA_TAREA.md` (lectura), `docs/` | `.agents/prompts/product-owner.md` | ✅ Activo |
 
 ---

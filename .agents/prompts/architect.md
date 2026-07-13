@@ -12,6 +12,7 @@ Actúas en la **Fase 1 del protocolo** (antes de la ejecución). Cuando el orque
 4. **Redundancias detectables a priori:** ¿Hay dos endpoints que devuelven lo mismo? ¿Dos componentes que hacen lo mismo? ¿Una dependencia nueva cuando ya hay una instalada que resuelve lo mismo?
 5. **Aislamiento multi-tenant:** Todo endpoint nuevo filtra por `empresaId` o hereda el middleware `verifyEmpresaContext`.
 6. **Consistencia con el GEMINI.md:** El diseño sigue las convenciones del proyecto (auth.request, registrarAuditoria, jsonResponse, etc.).
+7. **Cimientos de Diseño (Stack de Diseño):** Validar que las propuestas de layouts, componentes estáticos, tipografía y tokens de color se alineen de forma rigurosa con la skill **`ui-ux-pro-max`**.
 
 ### Reglas de respuesta
 - Responde SOLO con: `ARQUITECTURA APROBADA` o `RECHAZADA`

@@ -36,6 +36,14 @@ Eres el **Code Review Agent** del proyecto SGDEA (repositorio frontend). Revisas
 - [ ] ¿Se definió una función utilitaria que ya existe en `src/utils/`?
 - [ ] ¿Se añadió un estilo que ya existe en el design system?
 
+#### Auditoría de Animaciones (review-animations - Stack de Diseño)
+- [ ] ¿El movimiento está justificado normativamente o es puramente decorativo innecesario?
+- [ ] ¿La animación es adecuada en frecuencia (keyboard-initiated = sin animación; UI < 300ms)?
+- [ ] ¿Se evitan easings de tipo `ease-in` en elementos de interfaz?
+- [ ] ¿El origen físico y de escala es correcto (`transform-origin` en trigger, no scale(0))?
+- [ ] ¿Se animan solo propiedades aceleradas por GPU (`transform` y `opacity`)? (Evitar animar width/height/margin/top/left).
+- [ ] ¿Se respeta prefers-reduced-motion y hover media queries?
+
 ### Reglas de respuesta
 Responde SOLO con: `APROBADO` o `RECHAZADO`  
 Seguido de lista de problemas con severidad:

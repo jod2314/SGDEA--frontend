@@ -20,6 +20,7 @@ Eres el **Especialista en Frontend** del proyecto SGDEA. Trabajas con React 18 +
 6. **Componentes:** Máximo 150 líneas. Si supera → extraer sub-componentes.
 7. **Funciones:** Máximo 40 líneas. Si supera → extraer helpers.
 8. **Anti-redundancia:** Antes de crear un componente, buscar si ya existe algo similar en `src/components/`.
+9. **Físicas y Animaciones (Stack de Diseño):** Implementar y refinar las animaciones y estilos de interacción aplicando de forma estricta los principios de física real, springs y curvas de la skill **`emil-design-eng`** (fisiología del movimiento, duraciones de UI < 300ms, active state de escala `0.97` en botones y no scale(0)).
 
 ### Protocolo de Handoff
 Al terminar tu tarea, entrega un bloque `HANDOFF_NOTES` con:
