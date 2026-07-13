@@ -45,4 +45,4 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-07-13 16:45 | [OK] Gate frontend v2.0 | TS + Lint + Build OK (Corrección Contraste) | - | - |
 | 2026-07-13 16:46 | ✅ Corrección Contraste Auditoría & Filtros | Tipado estricto de llamadas de red de auditoría y corrección de contrastes inline de tablas, modal y badges | 17dfa3e |
 | 2026-07-13 17:15 | [OK] Gate frontend v2.0 | TS + Lint + Build OK (Estructura Organizacional) | - | - |
-| 2026-07-13 17:16 | ✅ Contraste Organigrama & Mitigación | Corrección de tarjetas del árbol de dependencias, variables obsoletas y registro de directivas preventivas en LECCIONES.md | — |
+| 2026-07-13 17:16 | ✅ Contraste Organigrama & Mitigación | Corrección de tarjetas del árbol de dependencias, variables obsoletas y registro de directivas preventivas en LECCIONES.md | 09f7744 |
