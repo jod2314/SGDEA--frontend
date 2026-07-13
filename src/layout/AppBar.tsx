@@ -49,9 +49,17 @@ const AppBar: React.FC<AppBarProps> = ({ onMenuClick }) => {
   // Cambiar entre tema claro y oscuro
   function handleToggleTheme() {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
+    
+    // Añadir clase temporal para animar la transición de forma controlada
+    document.body.classList.add('theme-transitioning');
+    
     setTheme(nextTheme);
     localStorage.setItem('theme', nextTheme);
     document.documentElement.classList.toggle('dark-mode', nextTheme === 'dark');
+
+    setTimeout(() => {
+      document.body.classList.remove('theme-transitioning');
+    }, 300);
   }
 
   // Cambiar secuencialmente el tamaño de la letra entre 16px, 18px y 20px
