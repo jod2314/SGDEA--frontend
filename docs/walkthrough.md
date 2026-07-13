@@ -156,3 +156,26 @@ Este documento resume los cambios, interfaces y validaciones implementadas en el
 * Compilación de producción con `npm run build` completada con éxito en 10.65 segundos.
 * Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
 * Hito registrado y subido a GitHub con el hash final `29cda8b`.
+
+---
+
+## 📍 Corrección de Contraste en Perfil de Entidad y Cliente API (`src/routes/Profile.tsx`) (13 de Julio de 2026)
+
+### 💻 Cambios e Interfaces Creadas/Modificadas
+
+1. **Ajuste de Estilos de Tarjetas en Sidebar de Perfil (`src/routes/Profile.tsx`):**
+   * Reemplazo del fondo azul claro fijo (`background: #f0f7ff`) y borde azul duro (`border-color: #007bff`) de `.hierarchy-card` por variables dinámicas del tema: `background: var(--primary-light-1)` y `border-color: var(--primary)`.
+   * Reemplazo del fondo verde claro fijo (`#e8f5e9`) y texto verde oscuro (`#2e7d32`) en `.status-badge.active` por `background: var(--primary-light-2)` y `color: var(--primary)`.
+   * Reemplazo del borde inferior gris fijo (`border-bottom: 1px solid #eee`) de las filas de información por `var(--glass-border)`.
+   * Reemplazo de los colores de texto fijos `#666` en `.info-label` por `var(--text-secondary)` y `#999` en `.row-icon` por `var(--muted)`.
+   * Corrección de la variable obsoleta `--primary-color` en el JSX y estilos locales por `var(--primary)`.
+
+2. **Refactorización del Cliente API a `auth.request`:**
+   * Eliminación del uso de `fetch` nativo con `API_URL` e headers manuales para el guardado del perfil en la función `handleSave()`.
+   * Sustitución por el cliente de API unificado del contexto de autenticación: `auth.request<ApiResponse<{ empresa: Empresa }>>`, asegurando la inclusión automática de los tokens y del header `X-Empresa-ID` bajo los lineamientos del SGDEA.
+   * Manejo seguro de errores asíncronos tipando el error capturado (`const err = error as Error`).
+
+### 🧪 Verificación y Compilación
+* Compilación de producción con `npm run build` completada con éxito en 10.57 segundos.
+* Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
+* Hito registrado y subido a GitHub con el hash final `1bd0754`.

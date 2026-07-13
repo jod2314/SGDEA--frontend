@@ -21,6 +21,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 - Corrección de contraste en el módulo de **Jerarquía Organizacional** (`EstructuraOrganizacional.tsx`), reemplazando colores fijos y variables obsoletas en las tarjetas del árbol y tablas de dependencias por variables semánticas del tema.
 - Tipado estricto y centralizado de la API de dependencias y usuarios mediante `User` y `ApiResponse` globales en `EstructuraOrganizacional.tsx`.
 - Registro formal de las directrices e investigación para evitar regresiones de contraste visual en `LECCIONES.md`.
+- Corrección de contraste en la vista de **Perfil de Entidad** (`Profile.tsx`), adaptando los colores de fondo y bordes fijos en la barra lateral (tarjeta de jerarquía, badges de estado) e iconos por variables del tema.
+- Refactorización de la función de actualización de perfil en `Profile.tsx` para usar el cliente de API unificado `auth.request` con tipado estricto en lugar de `fetch` nativo crudo.
 - Prevención de **Theme Flash (FOUC)** mediante la inyección de un script inline síncrono en `<head>` de `index.html`.
 - Refinamiento ergonómico de la paleta de colores desaturada para Sleek Slate (Oscuro) y Warm Cream (Claro).
 - Implementación de **transición de tema selectiva** usando la clase temporal `.theme-transitioning` por 300ms en el `body`.
