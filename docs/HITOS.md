@@ -42,3 +42,5 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-07-13 16:16 | ✅ Ergonomía Visual, Temas y Letras | Soporte dinámico de Claro/Oscuro y tamaño de letra global con persistencia en localStorage, y refactor de dropdown | e3ed266 |
 | 2026-07-13 16:35 | [OK] Gate frontend v2.0 | TS + Lint + Build OK (Físicas & Refinamiento) | - | - |
 | 2026-07-13 16:36 | ✅ Físicas, Transiciones y Suavidad Visual | Refinamiento de paleta de colores desaturada, script de bloqueo de flash en index.html, físicas asimétricas en drawer y dropdowns y reduced motion | 635a680 |
+| 2026-07-13 16:45 | [OK] Gate frontend v2.0 | TS + Lint + Build OK (Corrección Contraste) | - | - |
+| 2026-07-13 16:46 | ✅ Corrección Contraste Auditoría & Filtros | Tipado estricto de llamadas de red de auditoría y corrección de contrastes inline de tablas, modal y badges | — |

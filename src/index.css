@@ -28,6 +28,7 @@
   --primary-hover: #4338ca;
   --danger: #ef4444;
   --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(15, 23, 42, 0.08);
   /* Additional glass and light helper variables */
   --bg-app-glass: var(--glass-bg);
   --primary-light-1: rgba(79, 70, 229, 0.05);
@@ -53,6 +54,7 @@ html.dark-mode {
   --primary-hover: #6366f1;
   --danger: #f87171;
   --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
   /* Additional glass and light helper variables in dark mode */
   --bg-app-glass: var(--glass-bg);
   --primary-light-1: rgba(129, 140, 248, 0.05);
@@ -800,9 +802,10 @@ a:focus {
   width: 100%;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid var(--primary);
+  border: 1px solid var(--glass-border);
   font-size: 1rem;
-  background: white;
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .status-badge {

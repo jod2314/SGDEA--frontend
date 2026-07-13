@@ -337,4 +337,45 @@ export interface MisEmpresasResponse {
   empresas: Empresa[];
 }
 
+export interface AuditLog {
+  _id: string;
+  accion: string;
+  tipoRecurso?: string;
+  recursoId?: string;
+  usuario: {
+    name: string;
+    username: string;
+  };
+  detalles: Record<string, unknown>;
+  ip?: string;
+  userAgent?: string;
+  fecha: string;
+}
+
+export interface AuditStats {
+  totalEventos: number;
+  ultimas24h: number;
+  accionesTop: Array<{ _id: string; count: number }>;
+}
+
+export interface AuditTimelineItem {
+  fecha: string;
+  accion: string;
+  numero?: number;
+  usuario: string;
+  ip?: string;
+  comentario?: string;
+  tipo?: string;
+}
+
+export interface AuditVerifyResponse {
+  hashRegistrado: string;
+  fechaEmision: string;
+}
+
+export interface AuditLogsResponse {
+  logs: AuditLog[];
+}
+
+
 
