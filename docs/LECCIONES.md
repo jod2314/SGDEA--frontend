@@ -89,6 +89,18 @@ Este archivo registra causa raíz de fallos, patrones descubiertos y decisiones 
 **Patrón / Regla derivada:** Toda petición API en el frontend de SGDEA debe tiparse estrictamente usando interfaces reales declaradas en `src/types/types.ts`. Se prohíbe el uso de `<any>` y `<unknown>` como genéricos en el cliente API.
 **Agente involucrado:** `code-review-frontend`
 
+---
+
+### [2026-07-13] — Investigación Preventiva de Contraste
+**Contexto:** Corrección de colores de contraste, tipado estricto y ajuste de variables obsoletas de estilo en la Estructura Organizacional.
+**Qué falló / Qué se descubrió:** Algunos elementos del árbol organizacional (`.tree-node-card`) tenían fondos fijos (`background: white`) o variables CSS obsoletas o no estandarizadas (`var(--primary-color)`, `var(--text-muted)`, `var(--border-color)`), lo que comprometía la legibilidad y contraste en entornos de múltiples temas (por ejemplo, modo oscuro).
+**Causa raíz:** Falta de directivas de desarrollo explícitas y auditorías de contraste automatizadas sobre contenedores de componentes de terceros.
+**Solución aplicada:** Se eliminaron los colores fijos y obsoletos, reemplazándolos con variables semánticas modernas (`var(--primary)`, `var(--muted)`, `var(--glass-border)`, `var(--text-secondary)`, `var(--surface)`, `var(--text-primary)`, `var(--shadow-1)`) y se documentaron reglas de mitigación.
+**Patrón / Regla derivada (Tres Reglas para Evitar Regresiones):**
+1. **Prohibición de Valores Fijos (Hardcoded):** Queda estrictamente prohibido definir colores fijos de fondo, texto o bordes. Toda propiedad visual interactiva debe heredar el color del tema a través de variables CSS centralizadas del proyecto.
+2. **Gating de Contenedores de Terceros:** Al usar componentes externos (como gráficos u organigramas), sus propiedades de renderizado gráfico de conectores y contenedores deben inyectarse usando variables dinámicas en lugar de colores planos en JSX.
+3. **Auditorías de Accesibilidad (Lighthouse / WCAG):** Todo cambio visual debe verificarse bajo criterios de contraste de la especificación WCAG AA (mínimo de 4.5:1 para textos normales) simulando una auditoría Lighthouse antes de liberar cambios a producción.
+**Agente involucrado:** `frontend-dev`
 
 ---
 

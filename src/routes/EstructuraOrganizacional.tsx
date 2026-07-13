@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import * as IconsMd from "react-icons/md";
+import { Tree, TreeNode } from "react-organizational-chart";
 import { useAuth } from "../auth/AuthProvider";
 import PortalLayout from "../layout/PortalLayout";
-import * as IconsMd from "react-icons/md";
-import { Dependencia } from "../types/types";
-import { Tree, TreeNode } from "react-organizational-chart";
-import { useNavigate } from "react-router-dom";
+import { Dependencia, User, ApiResponse } from "../types/types";
 
 const MdEdit = (IconsMd as any).MdEdit;
 const MdDelete = (IconsMd as any).MdDelete;
@@ -28,7 +28,7 @@ export default function EstructuraOrganizacional() {
   const [padreId, setPadreId] = useState("");
   const [esJunta, setEsJunta] = useState(false);
   const [jefeId, setJefeId] = useState("");
-  const [usuarios, setUsuarios] = useState<any[]>([]);
+  const [usuarios, setUsuarios] = useState<User[]>([]);
 
   const selectedEmpresa = auth.getSelectedEmpresa();
 
@@ -42,7 +42,7 @@ export default function EstructuraOrganizacional() {
     if (!empresa) return;
 
     try {
-      const json = await auth.request<any>(`/empresas/${empresa.id}/usuarios`);
+      const json = await auth.request<ApiResponse<{ usuarios: User[] }>>(`/empresas/${empresa.id}/usuarios`);
       setUsuarios(json.body.usuarios || []);
     } catch (err) {
       console.error("Error al cargar usuarios de la empresa", err);
@@ -54,7 +54,7 @@ export default function EstructuraOrganizacional() {
     if (!empresa) return;
 
     try {
-      const json = await auth.request<any>("/archivistica/dependencias");
+      const json = await auth.request<ApiResponse<{ dependencias: Dependencia[] }>>("/archivistica/dependencias");
       setDependencias(json.body.dependencias);
     } catch (err) {
       setError("Error de conexión");
@@ -75,7 +75,7 @@ export default function EstructuraOrganizacional() {
     const method = isEditing ? "PUT" : "POST";
 
     try {
-      await auth.request<any>(endpoint, {
+      await auth.request<ApiResponse<{ dependencia: Dependencia }>>(endpoint, {
         method,
         body: JSON.stringify({
           codigoDependencia: codigo,
@@ -88,8 +88,9 @@ export default function EstructuraOrganizacional() {
 
       resetForm();
       fetchDependencias();
-    } catch (err: any) {
-      setError(err.message || "Error al guardar");
+    } catch (err) {
+      const errorMsg = (err as Error).message;
+      setError(errorMsg || "Error al guardar");
     }
   }
 
@@ -97,12 +98,13 @@ export default function EstructuraOrganizacional() {
     if (!confirm("¿Estás seguro de eliminar esta dependencia?")) return;
     
     try {
-      await auth.request<any>(`/archivistica/dependencias/${id}`, {
+      await auth.request<ApiResponse<{ success: boolean }>>(`/archivistica/dependencias/${id}`, {
         method: "DELETE",
       });
       fetchDependencias();
-    } catch (err: any) {
-      alert(err.message || "No se pudo eliminar");
+    } catch (err) {
+      const errorMsg = (err as Error).message;
+      alert(errorMsg || "No se pudo eliminar");
     }
   }
 
@@ -118,7 +120,7 @@ export default function EstructuraOrganizacional() {
     if (!empresa) return;
 
     try {
-      await auth.request<any>(`/empresas/${empresa.id}/onboarding/completar`, {
+      await auth.request<ApiResponse<{ success: boolean }>>(`/empresas/${empresa.id}/onboarding/completar`, {
         method: "POST",
       });
       
@@ -126,8 +128,9 @@ export default function EstructuraOrganizacional() {
       const empresaActualizada = { ...empresa, onboardingCompleted: true };
       auth.setSelectedEmpresa(empresaActualizada);
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Error al completar el onboarding");
+    } catch (err) {
+      const errorMsg = (err as Error).message;
+      setError(errorMsg || "Error al completar el onboarding");
     }
   }
 
@@ -177,7 +180,7 @@ export default function EstructuraOrganizacional() {
               <span className="tree-node-code">{dep.codigoDependencia}</span>
               <span className="tree-node-name">{dep.nombreDependencia}</span>
               {dep.jefeDependenciaId && (
-                <span className="tree-node-jefe" style={{ display: 'block', fontSize: '0.75rem', color: '#666', fontStyle: 'italic', marginTop: '3px' }}>
+                <span className="tree-node-jefe" style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: '3px' }}>
                   Jefe: {getNombreJefe(dep.jefeDependenciaId)}
                 </span>
               )}
@@ -315,7 +318,7 @@ export default function EstructuraOrganizacional() {
             </form>
 
             {!selectedEmpresa?.onboardingCompleted && dependencias.length > 0 && (
-              <div style={{ marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+              <div style={{ marginTop: '30px', borderTop: '1px solid var(--glass-border)', paddingTop: '20px' }}>
                 <button 
                   className="btn btn-success" 
                   style={{ width: '100%', padding: '15px', fontWeight: 'bold' }}
@@ -335,7 +338,7 @@ export default function EstructuraOrganizacional() {
             ) : viewMode === 'lista' ? (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+                  <tr style={{ borderBottom: '2px solid var(--glass-border)' }}>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Código</th>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Nombre</th>
                     <th style={{ textAlign: 'left', padding: '10px' }}>Superior</th>
@@ -345,7 +348,7 @@ export default function EstructuraOrganizacional() {
                 </thead>
                 <tbody>
                   {dependencias.map(dep => (
-                    <tr key={dep.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <tr key={dep.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
                       <td style={{ padding: '10px' }}><strong>{dep.codigoDependencia}</strong></td>
                       <td style={{ padding: '10px' }}>{dep.nombreDependencia}</td>
                       <td style={{ padding: '10px' }} className="text-muted">{getNombrePadre(dep.dependenciaPadreId)}</td>
@@ -369,14 +372,14 @@ export default function EstructuraOrganizacional() {
             ) : (
               <div className="tree-container" style={{ padding: '20px' }}>
                 {dependencias.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '50px' }}>
+                  <div style={{ textAlign: 'center', color: 'var(--muted)', marginTop: '50px' }}>
                     <MdAccountTree size={60} style={{ opacity: 0.3 }} />
                     <p>No hay dependencias registradas aún. Empieza creando la Gerencia o nivel directivo.</p>
                   </div>
                 ) : (
                   <Tree
                     lineWidth={'2px'}
-                    lineColor={'var(--primary-color)'}
+                    lineColor={'var(--primary)'}
                     lineBorderRadius={'10px'}
                     label={
                       <div className="tree-root-label">
@@ -397,10 +400,11 @@ export default function EstructuraOrganizacional() {
         .tree-node-card {
           padding: 10px;
           border-radius: 8px;
-          border: 1px solid var(--border-color);
+          border: 1px solid var(--glass-border);
           display: inline-block;
-          background: white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          background: var(--surface);
+          color: var(--text-primary);
+          box-shadow: var(--shadow-1);
           min-width: 120px;
           position: relative;
         }
@@ -408,7 +412,7 @@ export default function EstructuraOrganizacional() {
           display: block;
           font-size: 0.8rem;
           font-weight: bold;
-          color: var(--primary-color);
+          color: var(--primary);
         }
         .tree-node-name {
           display: block;
@@ -429,18 +433,18 @@ export default function EstructuraOrganizacional() {
           border: none;
           background: none;
           cursor: pointer;
-          color: var(--text-muted);
+          color: var(--muted);
           padding: 2px;
         }
         .tree-node-actions button:hover {
-          color: var(--primary-color);
+          color: var(--primary);
         }
         .tree-node-actions button.danger:hover {
           color: #e74c3c;
         }
         .tree-root-label {
           padding: 15px;
-          background: var(--primary-color);
+          background: var(--primary);
           color: white;
           border-radius: 8px;
           display: inline-block;
