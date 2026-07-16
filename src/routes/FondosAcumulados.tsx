@@ -105,6 +105,12 @@ export default function FondosAcumulados() {
   const [rotuloFechas, setRotuloFechas] = useState("");
   const [rotuloFolios, setRotuloFolios] = useState("");
 
+  // Tarea 3.1 (Jerarquía histórica)
+  const [dependenciasDisponibles, setDependenciasDisponibles] = useState<any[]>([]);
+  const [nuevaDepCodigo, setNuevaDepCodigo] = useState("");
+  const [nuevaDepNombre, setNuevaDepNombre] = useState("");
+  const [nuevaDepPadreId, setNuevaDepPadreId] = useState("");
+
   // Sincronizar contingencias cargadas de base de datos a estados locales
   useEffect(() => {
     if (intervencion?.contingencias) {
@@ -502,9 +508,50 @@ export default function FondosAcumulados() {
     }
   }
 
+  const cargarDependencias = async () => {
+    try {
+      const res = await auth.request<any>("/archivistica/dependencias");
+      if (res.statusCode === 200) {
+        setDependenciasDisponibles(res.body.dependencias || []);
+      }
+    } catch (err) {
+      console.error("Error al cargar dependencias:", err);
+    }
+  };
+
+  const handleCrearDependenciaHistorica = async () => {
+    try {
+      const res = await auth.request<any>("/intervencion-fondo/registrar-jerarquia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: {
+          codigoDependencia: nuevaDepCodigo,
+          nombreDependencia: nuevaDepNombre,
+          dependenciaPadreId: nuevaDepPadreId || null
+        }
+      });
+
+      if (res.statusCode === 200 || (res.body && res.body.dependencia)) {
+        alert("Dependencia histórica creada exitosamente y registrada en el organigrama.");
+        setNuevaDepCodigo("");
+        setNuevaDepNombre("");
+        setNuevaDepPadreId("");
+        await cargarDependencias();
+        if (res.body?.wizard) {
+          setIntervencion(res.body.wizard);
+        } else {
+          await fetchIntervencionState();
+        }
+      }
+    } catch (err: any) {
+      alert(err.message || "Error al crear la dependencia histórica");
+    }
+  };
+
   useEffect(() => {
     if (auth.isAuthenticated && activeTab === "asistente") {
       fetchIntervencionState();
+      cargarDependencias();
     }
   }, [auth.isAuthenticated, activeTab, selectedEmpresa?.id]);
 
@@ -1284,6 +1331,78 @@ export default function FondosAcumulados() {
                                 >
                                   💾 Definir Escenario
                                 </button>
+                              </div>
+                            )}
+
+                            {/* Apéndice 3.1 (Reconstrucción del organigrama histórico) */}
+                            {tarea.id === "3.1" && tareaExpandida === "3.1" && (
+                              <div style={{ marginTop: "15px", background: "white", padding: "20px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "6px" }}><MdInfo style={{ color: "var(--primary)" }} /> 🏛️ Registro de Dependencias del Organigrama Histórico</h4>
+                                <p className="small text-muted" style={{ margin: 0 }}>Registre cada sección, junta o departamento que haya existido durante la historia institucional de la empresa para poder clasificar sus fondos documentales.</p>
+                                
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginTop: "10px" }}>
+                                  <div>
+                                    <label className="small font-semibold">Código Dependencia *</label>
+                                    <input 
+                                      type="text" 
+                                      className="edit-input" 
+                                      style={{ width: "100%", marginTop: "4px" }} 
+                                      value={nuevaDepCodigo} 
+                                      onChange={e => setNuevaDepCodigo(e.target.value)} 
+                                      placeholder="Ej: GER-01" 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="small font-semibold">Nombre Dependencia *</label>
+                                    <input 
+                                      type="text" 
+                                      className="edit-input" 
+                                      style={{ width: "100%", marginTop: "4px" }} 
+                                      value={nuevaDepNombre} 
+                                      onChange={e => setNuevaDepNombre(e.target.value)} 
+                                      placeholder="Ej: Gerencia Administrativa" 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="small font-semibold">Dependencia Padre (Opcional)</label>
+                                    <select
+                                      className="edit-input"
+                                      style={{ width: "100%", marginTop: "4px" }}
+                                      value={nuevaDepPadreId}
+                                      onChange={e => setNuevaDepPadreId(e.target.value)}
+                                    >
+                                      <option value="">Ninguna</option>
+                                      {dependenciasDisponibles.map(d => (
+                                        <option key={d._id} value={d._id}>{d.nombreDependencia} ({d.codigoDependencia})</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  className="btn btn-primary small"
+                                  style={{ alignSelf: "flex-end", padding: "6px 16px", height: "auto", marginTop: "10px" }}
+                                  onClick={handleCrearDependenciaHistorica}
+                                  disabled={!nuevaDepCodigo || !nuevaDepNombre}
+                                >
+                                  💾 Guardar y Registrar en el Organigrama
+                                </button>
+
+                                <div style={{ marginTop: "15px", borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: "10px" }}>
+                                  <h5 className="small font-semibold" style={{ margin: "0 0 10px 0" }}>Dependencias Históricas Registradas</h5>
+                                  {dependenciasDisponibles.length === 0 ? (
+                                    <p className="small text-muted" style={{ margin: 0 }}>No hay dependencias registradas aún en el sistema.</p>
+                                  ) : (
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                                      {dependenciasDisponibles.map(d => (
+                                        <span key={d._id} className="tag tag-blue" style={{ background: "#ebf5ff", color: "#1e40af", padding: "4px 8px", borderRadius: "4px", fontSize: "0.75rem", border: "1px solid #bfdbfe" }}>
+                                          {d.nombreDependencia} ({d.codigoDependencia})
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             )}
 

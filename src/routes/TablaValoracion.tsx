@@ -15,6 +15,7 @@ export default function TablaValoracion() {
   const auth = useAuth();
   const [tvds, setTvds] = useState<TablaValoracionDocumental[]>([]);
   const [actas, setActas] = useState<ActaComite[]>([]);
+  const [dependenciasDisponibles, setDependenciasDisponibles] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [selectedTvd, setSelectedTvd] = useState<TablaValoracionDocumental | null>(null);
@@ -29,6 +30,8 @@ export default function TablaValoracion() {
       setTvds(resTvd.body.tvds);
       const resActas = await auth.request<{ body: { actas: ActaComite[] } }>('/comites/actas');
       setActas((resActas.body.actas || []).filter((a: ActaComite) => a.estado === 'aprobada'));
+      const resDeps = await auth.request<any>('/archivistica/dependencias');
+      setDependenciasDisponibles(resDeps.body.dependencias || []);
     } catch (e) {
       console.error(e);
     }
@@ -128,7 +131,12 @@ export default function TablaValoracion() {
             </div>
           </div>
         ) : isEditing ? (
-          <FormularioTVD tvd={selectedTvd} onGuardar={handleGuardarTVD} onCancelar={() => { setIsEditing(false); setSelectedTvd(null); }} />
+          <FormularioTVD 
+            tvd={selectedTvd} 
+            dependenciasDisponibles={dependenciasDisponibles} 
+            onGuardar={handleGuardarTVD} 
+            onCancelar={() => { setIsEditing(false); setSelectedTvd(null); }} 
+          />
         ) : (
           <AsociarActaTVD actas={actas} onAprobar={handleAprobarTVD} onCancelar={() => { setIsApproving(false); setSelectedTvd(null); }} />
         )}

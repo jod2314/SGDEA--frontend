@@ -8,6 +8,7 @@ const MdOutlineLightbulb = (IconsMd as any).MdOutlineLightbulb;
 
 interface FormularioTVDProps {
   tvd: TablaValoracionDocumental | null;
+  dependenciasDisponibles: any[];
   onGuardar: (data: Partial<TablaValoracionDocumental>) => void;
   onCancelar: () => void;
 }
@@ -26,7 +27,7 @@ const SUGERENCIAS_SECTOR = {
   ]
 };
 
-export default function FormularioTVD({ tvd, onGuardar, onCancelar }: FormularioTVDProps) {
+export default function FormularioTVD({ tvd, dependenciasDisponibles, onGuardar, onCancelar }: FormularioTVDProps) {
   const [version, setVersion] = useState(tvd?.version || '1.0');
   const [nombre, setNombre] = useState(tvd?.nombre || '');
   const [descripcion, setDescripcion] = useState(tvd?.descripcion || '');
@@ -38,17 +39,26 @@ export default function FormularioTVD({ tvd, onGuardar, onCancelar }: Formulario
   const [retCentral, setRetCentral] = useState<number>(5);
   const [dispFinal, setDispFinal] = useState<'CT' | 'E' | 'M' | 'S'>('E');
   const [procedimiento, setProcedimiento] = useState('');
+  const [dependenciaId, setDependenciaId] = useState('');
 
   function handleAgregarSerie() {
     if (!codigo || !nombreSerie || !procedimiento) {
       alert('Por favor complete los campos obligatorios de la serie (Código, Nombre y Procedimiento).');
       return;
     }
-    const nueva: SerieTVD = { codigo, nombre: nombreSerie, retencionCentral: Number(retCentral), disposicionFinal: dispFinal, procedimiento };
+    const nueva: SerieTVD = { 
+      codigo, 
+      nombre: nombreSerie, 
+      retencionCentral: Number(retCentral), 
+      disposicionFinal: dispFinal, 
+      procedimiento,
+      dependenciaId: dependenciaId || undefined
+    };
     setSeries([...series, nueva]);
     setCodigo('');
     setNombreSerie('');
     setProcedimiento('');
+    setDependenciaId('');
   }
 
   function cargarSugerencias(sector: 'publico' | 'privado') {
@@ -90,7 +100,7 @@ export default function FormularioTVD({ tvd, onGuardar, onCancelar }: Formulario
 
       <div style={{ marginTop: '20px' }}>
         <h4 style={{ margin: '0 0 10px 0' }}>Series Documentales de la TVD</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr 1fr 2fr auto', gap: '8px', alignItems: 'flex-end', background: '#f5f5f5', padding: '10px', borderRadius: '4px', marginBottom: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1.5fr 1fr 1fr 2fr auto', gap: '8px', alignItems: 'flex-end', background: '#f5f5f5', padding: '10px', borderRadius: '4px', marginBottom: '10px' }}>
           <div>
             <label style={{ fontSize: '0.75rem' }}>Código *</label>
             <input type="text" value={codigo} onChange={e => setCodigo(e.target.value)} placeholder="100.1" className="edit-input" style={{ width: '100%', padding: '4px' }} />
@@ -100,7 +110,16 @@ export default function FormularioTVD({ tvd, onGuardar, onCancelar }: Formulario
             <input type="text" value={nombreSerie} onChange={e => setNombreSerie(e.target.value)} placeholder="Actas de..." className="edit-input" style={{ width: '100%', padding: '4px' }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem' }}>Ret. Central (Años) *</label>
+            <label style={{ fontSize: '0.75rem' }}>Dependencia Asociada</label>
+            <select value={dependenciaId} onChange={e => setDependenciaId(e.target.value)} className="edit-input" style={{ width: '100%', padding: '4px' }}>
+              <option value="">-- Ninguna --</option>
+              {dependenciasDisponibles.map((d: any) => (
+                <option key={d._id} value={d._id}>{d.nombreDependencia} ({d.codigoDependencia})</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: '0.75rem' }}>Ret. Central *</label>
             <input type="number" value={retCentral} onChange={e => setRetCentral(Number(e.target.value))} className="edit-input" style={{ width: '100%', padding: '4px' }} />
           </div>
           <div>
@@ -108,7 +127,7 @@ export default function FormularioTVD({ tvd, onGuardar, onCancelar }: Formulario
             <select value={dispFinal} onChange={e => setDispFinal(e.target.value as 'CT' | 'E' | 'M' | 'S')} className="edit-input" style={{ width: '100%', padding: '4px' }}>
               <option value="CT">CT (Conservación)</option>
               <option value="E">E (Eliminación)</option>
-              <option value="M">M (Medios Técnicos)</option>
+              <option value="M">M (Medios)</option>
               <option value="S">S (Selección)</option>
             </select>
           </div>
@@ -124,6 +143,7 @@ export default function FormularioTVD({ tvd, onGuardar, onCancelar }: Formulario
             <tr style={{ background: '#eee', borderBottom: '1px solid #ddd' }}>
               <th style={{ padding: '6px', textAlign: 'left' }}>Código</th>
               <th style={{ padding: '6px', textAlign: 'left' }}>Nombre Serie</th>
+              <th style={{ padding: '6px', textAlign: 'left' }}>Dependencia</th>
               <th style={{ padding: '6px', textAlign: 'center' }}>Ret. Central</th>
               <th style={{ padding: '6px', textAlign: 'center' }}>Disp. Final</th>
               <th style={{ padding: '6px', textAlign: 'left' }}>Procedimiento</th>
@@ -131,18 +151,24 @@ export default function FormularioTVD({ tvd, onGuardar, onCancelar }: Formulario
             </tr>
           </thead>
           <tbody>
-            {series.map((s, idx) => (
-              <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '6px', fontWeight: 'bold' }}>{s.codigo}</td>
-                <td style={{ padding: '6px' }}>{s.nombre}</td>
-                <td style={{ padding: '6px', textAlign: 'center' }}>{s.retencionCentral} años</td>
-                <td style={{ padding: '6px', textAlign: 'center' }}><span className="badge" style={{ background: '#e1f5fe', color: '#01579b', padding: '2px 6px', borderRadius: '4px' }}>{s.disposicionFinal}</span></td>
-                <td style={{ padding: '6px', fontSize: '0.8rem', color: '#555' }}>{s.procedimiento}</td>
-                <td style={{ padding: '6px', textAlign: 'center' }}>
-                  <button type="button" className="btn btn-icon" onClick={() => setSeries(series.filter((_, i) => i !== idx))} style={{ color: 'red' }}><MdDelete /></button>
-                </td>
-              </tr>
-            ))}
+            {series.map((s, idx) => {
+              const depObj = dependenciasDisponibles.find((d: any) => d._id === (s.dependenciaId?._id || s.dependenciaId));
+              return (
+                <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                  <td style={{ padding: '6px', fontWeight: 'bold' }}>{s.codigo}</td>
+                  <td style={{ padding: '6px' }}>{s.nombre}</td>
+                  <td style={{ padding: '6px', color: '#1e40af', fontWeight: 500 }}>
+                    {depObj ? `${depObj.nombreDependencia} (${depObj.codigoDependencia})` : '--'}
+                  </td>
+                  <td style={{ padding: '6px', textAlign: 'center' }}>{s.retencionCentral} años</td>
+                  <td style={{ padding: '6px', textAlign: 'center' }}><span className="badge" style={{ background: '#e1f5fe', color: '#01579b', padding: '2px 6px', borderRadius: '4px' }}>{s.disposicionFinal}</span></td>
+                  <td style={{ padding: '6px', fontSize: '0.8rem', color: '#555' }}>{s.procedimiento}</td>
+                  <td style={{ padding: '6px', textAlign: 'center' }}>
+                    <button type="button" className="btn btn-icon" onClick={() => setSeries(series.filter((_, i) => i !== idx))} style={{ color: 'red' }}><MdDelete /></button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

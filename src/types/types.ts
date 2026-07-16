@@ -289,6 +289,7 @@ export interface SerieTVD {
   retencionCentral: number;
   disposicionFinal: 'CT' | 'E' | 'M' | 'S'; // CT: Conservación Total, E: Eliminación, M: Microfilmación/Digitalización, S: Selección
   procedimiento: string;
+  dependenciaId?: any;
 }
 
 export interface TablaValoracionDocumental {
