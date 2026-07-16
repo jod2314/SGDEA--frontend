@@ -9,6 +9,7 @@ const MdLogout = (IconsMd as any).MdLogout;
 const MdLock = (IconsMd as any).MdLock;
 const MdHistory = (IconsMd as any).MdHistory;
 const MdPushPin = (IconsMd as any).MdPushPin;
+const MdFolderSpecial = (IconsMd as any).MdFolderSpecial;
 
 interface DrawerProps {
   isOpen: boolean;
@@ -64,6 +65,20 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, isPinned, onPinToggle, onLogout
               <NavLink to="/dashboard">
                 <MdDashboard />
                 <span>Dashboard</span>
+              </NavLink>
+            )}
+          </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdFolderSpecial />
+                <span>Gestión Documental (SGD)</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/sgd">
+                <MdFolderSpecial />
+                <span>Gestión Documental (SGD)</span>
               </NavLink>
             )}
           </li>

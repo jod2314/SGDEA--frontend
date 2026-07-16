@@ -25,6 +25,7 @@ import Entidades from "./routes/Entidades.tsx";
 import ComiteArchivo from "./routes/ComiteArchivo.tsx";
 import TablaValoracion from "./routes/TablaValoracion.tsx";
 import MatrizRiesgos from "./routes/MatrizRiesgos.tsx";
+import Sgd from "./routes/Sgd.tsx";
 
 import "./index.css";
 
@@ -116,6 +117,10 @@ const router = createBrowserRouter([
       {
         path: "/fondos-acumulados",
         element: <FondosAcumulados />,
+      },
+      {
+        path: "/sgd",
+        element: <Sgd />,
       },
       {
         path: "/entidades",

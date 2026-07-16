@@ -52,3 +52,5 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-07-15 20:15 | ✅ Optimización de Orquestación | Integración de loops recursivos, matriz de gate de triple capa, perfiles de auto-creación dinámica y uso de grafos | 80365e3 |
 | 2026-07-15 20:18 | ✅ Base de Conocimiento de Errores | Integración de docs/LECCIONES.md como base de fallos activa en el loop | 0251f5b |
 | 2026-07-15 20:28 | ✅ Integración de Skill Forge | Protocolo de auditoría, verificación y forjado de nuevas habilidades desde internet | 91ca01d |
+| 2026-07-15 20:54 | [FALLO] Gate frontend v2.0 | Gate fallido - commit bloqueado. Ejecutar rollback.ps1 | - |
+| 2026-07-15 20:54 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Cobertura: no se pudo parsear el porcentaje - revisar manualmente | - |
