@@ -179,3 +179,24 @@ Este documento resume los cambios, interfaces y validaciones implementadas en el
 * Compilación de producción con `npm run build` completada con éxito en 10.57 segundos.
 * Revisión de código aprobada formalmente por el **Code Review Agent** (`APROBADO`).
 * Hito registrado y subido a GitHub con el hash final `1bd0754`.
+
+---
+
+## 📍 Optimización de Orquestación: Loops, Skills y Grafo de Conocimiento (15 de Julio de 2026)
+
+### 💻 Cambios e Interfaces Creadas/Modificadas
+
+1.  **Reglas de Orquestación Recursivas (`.agents/orchestrator_rules.md`):**
+    *   Implementación del **Bucle de Desarrollo Recursivo (Loop System)** con reentradas controladas al Pensador y un límite de 4 iteraciones para autodiagnósticos de fallos.
+    *   Definición del **Validador de Triple Capa** (Capa Técnica, Capa Semántica con `KnowledgeGraphQuery` y Capa de Integración).
+    *   Establecimiento de directrices para el uso segmentado del Grafo de Conocimiento (el Pensador y Coordinador usan dependencias globales; los subagentes técnicos realizan consultas hiper-locales para evitar token flood).
+    
+2.  **Estructura Dinámica en Catálogo de Agentes (`.agents/AGENT_CATALOG.md`):**
+    *   Definición del protocolo **Agent Forge** de creación dinámica de agentes temporales, clasificados bajo 4 perfiles macro: Pensador, Técnico, Científico y Creativo.
+    *   Asignación de skills atómicas exclusivas por rol y validación estricta de scopes en archivos y rutas de metadatos.
+
+### 🧪 Verificación y Compilación
+*   Se solucionó una regresión en la infraestructura de pruebas del frontend instalando la devDependency `@vitest/coverage-v8`.
+*   Pipeline de pruebas del frontend (`tsc --noEmit`, ESLint, Vitest + Cobertura) superado con éxito con un 82% de cobertura.
+*   Hito registrado y subido a GitHub con el hash final `80365e3`.
+

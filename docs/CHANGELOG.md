@@ -9,6 +9,19 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 
 ### Añadido
 
+## [1.2.0] — 2026-07-15
+
+### Añadido
+- **Bucle de Desarrollo Recursivo (Loop System):** Implementación de una espiral de refinamiento con reentrada al Pensador y un límite estricto de 4 iteraciones para evitar bucles de tokens infinitos ante fallos de validación.
+- **Validador de Triple Capa (Loop Controller):** Verificación técnica (TypeScript, lint, tests), semántica (fidelidad del requerimiento mediante el Grafo de Conocimiento) y de integración global.
+- **Sistema Agent Forge (Auto-Creación):** Creación automática de perfiles de subagentes temporales mediante investigación web, clasificados en 4 macro-categorías (Pensador, Técnico, Científico y Creativo).
+- **Asignación Contextual de Habilidades:** Distribución dinámica de skills atómicas exclusivas por rol (p. ej., `KnowledgeGraphQuery` y `SemanticValidator` asignadas bajo demanda al runtime del subagente).
+- **Uso Segmentado del Grafo de Conocimiento:** Directrices que dividen las consultas al grafo en globales (para el Pensador y el Coordinador) e hiper-locales (para subagentes ejecutores).
+
+### Corregido
+- Instalación de la devDependency faltante `@vitest/coverage-v8` en el frontend, solucionando el error en el gate de cobertura del pipeline de pruebas.
+
+
 ## [1.1.1] — 2026-07-13
 
 ### Modificado
