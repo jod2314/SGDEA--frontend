@@ -48,3 +48,5 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-07-13 17:16 | ✅ Contraste Organigrama & Mitigación | Corrección de tarjetas del árbol de dependencias, variables obsoletas y registro de directivas preventivas en LECCIONES.md | 09f7744 |
 | 2026-07-13 17:25 | [OK] Gate frontend v2.0 | TS + Lint + Build OK (Perfil Entidad) | - | - |
 | 2026-07-13 17:26 | ✅ Contraste Perfil & Refactor API | Corrección de tarjetas, bordes, badges e iconos del sidebar del perfil y refactorización a auth.request tipado | 8e4bbb7 |
+| 2026-07-15 20:12 | [FALLO] Gate frontend v2.0 | Gate fallido - commit bloqueado. Ejecutar rollback.ps1 | - |
+| 2026-07-15 20:13 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Cobertura: no se pudo parsear el porcentaje - revisar manualmente | - |
