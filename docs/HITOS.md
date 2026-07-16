@@ -50,3 +50,4 @@ Registro continuo de hitos, commits y eventos del flujo de orquestación.
 | 2026-07-15 20:12 | [FALLO] Gate frontend v2.0 | Gate fallido - falta dependencia @vitest/coverage-v8 | - |
 | 2026-07-15 20:13 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK (tras instalar devDependency de cobertura) | - |
 | 2026-07-15 20:15 | ✅ Optimización de Orquestación | Integración de loops recursivos, matriz de gate de triple capa, perfiles de auto-creación dinámica y uso de grafos | 80365e3 |
+| 2026-07-15 20:18 | [OK] Gate frontend v2.0 | TS + Lint + Tests OK | Advertencias: Cobertura: no se pudo parsear el porcentaje - revisar manualmente | - |
