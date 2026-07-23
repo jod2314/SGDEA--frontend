@@ -49,9 +49,9 @@ export default function Sgd() {
   // Formulario Registro Documento
   const [nuevoDocTipo, setNuevoDocTipo] = useState('');
   const [nuevoDocClasificacion, setNuevoDocClasificacion] = useState('');
-  const [nuevoDocNivel, setNuevoDocNivel] = useState<'PUBLICO' | 'RESTRINGIDO' | 'CONFIDENCIAL'>('PUBLICO');
-  const [nuevoDocSoporte, setNuevoDocSoporte] = useState<'FISICO' | 'DIGITAL' | 'ELECTRONICO'>('ELECTRONICO');
-  const [nuevoDocHash, setNuevoDocHash] = useState('');
+  const [nuevoDocNivel] = useState<'PUBLICO' | 'RESTRINGIDO' | 'CONFIDENCIAL'>('PUBLICO');
+  const [nuevoDocSoporte] = useState<'FISICO' | 'DIGITAL' | 'ELECTRONICO'>('ELECTRONICO');
+  const [nuevoDocHash] = useState('');
   const [metadatosExtendidos, setMetadatosExtendidos] = useState<any>({});
   const [erroresExtendidos, setErroresExtendidos] = useState<any>({});
   const [submittingDoc, setSubmittingDoc] = useState(false);
@@ -102,42 +102,27 @@ export default function Sgd() {
     }
   }
 
-  // Filtrar documentos
+  // Filtrado de documentos
   const documentosFiltrados = documentos.filter(doc => {
-    const cumpleBuscar = filtroBuscar === '' || 
-      doc.codigoClasificacion.toLowerCase().includes(filtroBuscar.toLowerCase()) ||
-      doc.tipoDocumental.toLowerCase().includes(filtroBuscar.toLowerCase()) ||
-      JSON.stringify(doc.metadatosExtendidos).toLowerCase().includes(filtroBuscar.toLowerCase());
-    
+    const cumpleTexto = filtroBuscar === '' || 
+      doc.codigoClasificacion?.toLowerCase().includes(filtroBuscar.toLowerCase()) ||
+      doc.tipoDocumental?.toLowerCase().includes(filtroBuscar.toLowerCase());
     const cumpleTipo = filtroTipo === '' || doc.tipoDocumental === filtroTipo;
-
-    return cumpleBuscar && cumpleTipo;
+    return cumpleTexto && cumpleTipo;
   });
 
-  // Al cambiar tipo documental seleccionado en registro
-  const handleTipoDocChange = (nombre: string) => {
-    setNuevoDocTipo(nombre);
-    setMetadatosExtendidos({});
-    setErroresExtendidos({});
-    
-    const config = tipos.find(t => t.nombre === nombre);
-    if (config) {
-      setNuevoDocClasificacion(config.codigoClasificacionDefault);
-    }
-  };
-
-  // Crear Tipo Documental (Test del Salto)
-  const handleCrearTipo = async (e: React.FormEvent) => {
+  // Guardar Tipo Documental (Salto en Caliente)
+  const handleRegistrarTipo = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingTipo(true);
     setMsgTipo({ type: '', text: '' });
 
     try {
-      let parsedSchema;
+      let parsedSchema = {};
       try {
         parsedSchema = JSON.parse(nuevoTipoSchemaRaw);
-      } catch (err: any) {
-        setMsgTipo({ type: 'error', text: 'El JSON Schema no tiene un formato válido: ' + err.message });
+      } catch (err) {
+        setMsgTipo({ type: 'error', text: 'El JSON Schema no tiene un formato válido.' });
         setSubmittingTipo(false);
         return;
       }
@@ -177,8 +162,7 @@ export default function Sgd() {
     setMsgDoc({ type: '', text: '' });
 
     try {
-      // Simular cálculo de hash simple si no se provee
-      const hash = nuevoDocHash || 'a' + Math.random().toString(16).substring(2, 10) + 'f' + '8f438a2e1d7a3152d1b09b1f7e0258bb27e8a93e3d93ca49b934ca49b934ca49'.substring(10);
+      const hash = nuevoDocHash || 'a' + Math.random().toString(16).substring(2, 10) + 'f8f438a2e1d7a3152d1b09b1f7e0258bb27e8a93e3d93ca49b934ca49b934ca49'.substring(10);
 
       const res = await auth.request<any>('/sgd/documentos', {
         method: 'POST',
@@ -194,16 +178,13 @@ export default function Sgd() {
 
       if (res && res.body && res.body.documento) {
         setMsgDoc({ type: 'success', text: 'Documento registrado y validado en el SGD exitosamente.' });
-        // Limpiar
         setNuevoDocTipo('');
         setNuevoDocClasificacion('');
-        setNuevoDocHash('');
         setMetadatosExtendidos({});
         setErroresExtendidos({});
         cargarDatos();
         setTimeout(() => setActiveTab('documentos'), 1500);
       } else {
-        // Mapear errores de validación
         if (res.body?.detalles) {
           const errs: any = {};
           res.body.detalles.forEach((d: string) => {
@@ -227,199 +208,177 @@ export default function Sgd() {
 
   return (
     <PortalLayout>
-      <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto text-slate-100">
+      <div className="sgd-container" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
-        {/* Encabezado Premium */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700/60 pb-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">
-              Gestión Documental Corporativa
-            </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Ecosistema SGD Polimórfico - Prototipo Fundacional Multi-tenant
-            </p>
+        {/* Encabezado Corporativo Glassmorphism */}
+        <div className="card" style={{ padding: '20px', background: 'var(--surface)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ margin: '0 0 5px 0', color: 'var(--primary)' }}>Gestión Documental Corporativa</h2>
+              <p className="small text-muted" style={{ margin: 0 }}>Ecosistema SGD Polimórfico - Prototipo Fundacional Multi-tenant</p>
+            </div>
+            <button
+              onClick={cargarDatos}
+              className="btn btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
+            >
+              <MdRefresh /> Actualizar
+            </button>
           </div>
-          <button
-            onClick={cargarDatos}
-            className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          >
-            <MdRefresh className="w-4 h-4" />
-            Actualizar
-          </button>
+
+          {/* Navegación por Pestañas del SGD */}
+          <div className="tabs" style={{ display: 'flex', gap: '10px', marginTop: '20px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '10px' }}>
+            <button
+              onClick={() => setActiveTab('documentos')}
+              style={{
+                background: activeTab === 'documentos' ? 'var(--primary)' : 'var(--bg-app)',
+                color: activeTab === 'documentos' ? '#fff' : 'var(--text-primary)',
+                border: '1px solid var(--glass-border)',
+                padding: '8px 14px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <MdInsertDriveFile /> Documentos Registrados
+            </button>
+
+            <button
+              onClick={() => setActiveTab('registro')}
+              style={{
+                background: activeTab === 'registro' ? 'var(--primary)' : 'var(--bg-app)',
+                color: activeTab === 'registro' ? '#fff' : 'var(--text-primary)',
+                border: '1px solid var(--glass-border)',
+                padding: '8px 14px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <MdPlaylistAdd /> Radicar Documento (SGD)
+            </button>
+
+            <button
+              onClick={() => setActiveTab('tipos')}
+              style={{
+                background: activeTab === 'tipos' ? 'var(--primary)' : 'var(--bg-app)',
+                color: activeTab === 'tipos' ? '#fff' : 'var(--text-primary)',
+                border: '1px solid var(--glass-border)',
+                padding: '8px 14px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <MdCode /> Configurar Tipos (Salto en Caliente)
+            </button>
+          </div>
         </div>
 
-        {/* Pestañas de Navegación */}
-        <div className="flex gap-2 border-b border-slate-700/40 pb-px">
-          <button
-            onClick={() => setActiveTab('documentos')}
-            className={`px-4 py-2 text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'documentos'
-                ? 'border-sky-500 text-sky-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span className="flex items-center gap-1">
-              <MdInsertDriveFile className="w-4 h-4" />
-              Documentos Registrados
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab('registro')}
-            className={`px-4 py-2 text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'registro'
-                ? 'border-sky-500 text-sky-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span className="flex items-center gap-1">
-              <MdPlaylistAdd className="w-4 h-4" />
-              Radicar Documento (SGD)
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab('tipos')}
-            className={`px-4 py-2 text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'tipos'
-                ? 'border-sky-500 text-sky-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span className="flex items-center gap-1">
-              <MdCode className="w-4 h-4" />
-              Configurar Tipos (Salto en Caliente)
-            </span>
-          </button>
-        </div>
-
-        {/* Contenido de Pestañas */}
+        {/* Contenido Dinámico */}
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-400"></div>
-          </div>
+          <p>Cargando datos del SGD...</p>
         ) : (
           <>
-            {/* PESTAÑA: LISTADO DE DOCUMENTOS */}
+            {/* PESTAÑA 1: LISTADO DE DOCUMENTOS */}
             {activeTab === 'documentos' && (
-              <div className="flex flex-col gap-4">
-                {/* Filtros */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-800/30 border border-slate-700/50 p-4 rounded-xl">
-                  <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm">
-                    <MdSearch className="text-slate-400 mr-2 w-5 h-5" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="card" style={{ padding: '15px', background: 'var(--surface)', border: '1px solid var(--glass-border)', display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '15px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-app)', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--glass-border)' }}>
+                    <MdSearch color="var(--muted)" />
                     <input
                       type="text"
+                      className="edit-input"
                       placeholder="Buscar por código, tipo o asunto..."
                       value={filtroBuscar}
                       onChange={(e) => setFiltroBuscar(e.target.value)}
-                      className="bg-transparent w-full text-slate-200 focus:outline-none"
+                      style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', width: '100%', outline: 'none' }}
                     />
                   </div>
+
                   <select
+                    className="edit-input"
                     value={filtroTipo}
                     onChange={(e) => setFiltroTipo(e.target.value)}
-                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none"
+                    style={{ padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
                   >
                     <option value="">Todos los tipos documentales</option>
                     {tipos.map(t => (
                       <option key={t._id} value={t.nombre}>{t.nombre}</option>
                     ))}
                   </select>
-                  <div className="flex items-center justify-end text-xs text-slate-400">
-                    Mostrando {documentosFiltrados.length} documentos
-                  </div>
+
+                  <span className="small text-muted">
+                    Mostrando <strong>{documentosFiltrados.length}</strong> documentos
+                  </span>
                 </div>
 
-                {/* Tabla de Documentos */}
-                {documentosFiltrados.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center p-12 bg-slate-800/10 border border-slate-800 rounded-xl text-slate-500">
-                    <MdInfoOutline className="w-12 h-12 mb-2" />
-                    <p className="text-sm">No se encontraron documentos en la base de datos.</p>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto border border-slate-700/50 rounded-xl bg-slate-850">
-                    <table className="w-full text-left border-collapse">
+                <div className="card" style={{ padding: '20px', background: 'var(--surface)', border: '1px solid var(--glass-border)' }}>
+                  {documentosFiltrados.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                      <MdInfoOutline size={40} color="var(--muted)" />
+                      <p className="small text-muted" style={{ marginTop: '10px' }}>No se encontraron documentos en la base de datos.</p>
+                    </div>
+                  ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead>
-                        <tr className="bg-slate-800/50 text-xs font-semibold text-sky-400 uppercase border-b border-slate-700">
-                          <th className="px-4 py-3">Código Clasificación</th>
-                          <th className="px-4 py-3">Tipo Documental</th>
-                          <th className="px-4 py-3">Soporte</th>
-                          <th className="px-4 py-3">Acceso</th>
-                          <th className="px-4 py-3">Vigencia (G / C)</th>
-                          <th className="px-4 py-3 text-right">Acciones</th>
+                        <tr style={{ borderBottom: '2px solid var(--glass-border)', textAlign: 'left', background: 'var(--bg-app)' }}>
+                          <th style={{ padding: '10px' }}>Código Clasificación</th>
+                          <th style={{ padding: '10px' }}>Tipo Documental</th>
+                          <th style={{ padding: '10px' }}>Soporte</th>
+                          <th style={{ padding: '10px' }}>Acceso</th>
+                          <th style={{ padding: '10px' }}>Vigencia (G / C)</th>
+                          <th style={{ padding: '10px', textAlign: 'right' }}>Acciones</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800 text-xs text-slate-300">
+                      <tbody>
                         {documentosFiltrados.map((doc) => (
                           <React.Fragment key={doc._id}>
-                            <tr className="hover:bg-slate-800/30 transition-colors">
-                              <td className="px-4 py-3 font-mono font-bold text-slate-100 flex items-center gap-1.5">
-                                <MdFolder className="text-sky-400 w-4 h-4" />
+                            <tr style={{ borderBottom: '1px dashed var(--glass-border)' }}>
+                              <td style={{ padding: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <MdFolder color="var(--primary)" />
                                 {doc.codigoClasificacion}
                               </td>
-                              <td className="px-4 py-3 font-semibold">{doc.tipoDocumental}</td>
-                              <td className="px-4 py-3">
-                                <span className={`px-2 py-0.5 rounded text-[10px] ${
-                                  doc.soporte === 'ELECTRONICO' ? 'bg-sky-500/15 text-sky-400' : 'bg-amber-500/15 text-amber-400'
-                                }`}>
+                              <td style={{ padding: '10px' }}>{doc.tipoDocumental}</td>
+                              <td style={{ padding: '10px' }}>
+                                <span className="badge" style={{ background: 'var(--primary-light-2)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px' }}>
                                   {doc.soporte}
                                 </span>
                               </td>
-                              <td className="px-4 py-3">
-                                <span className={`px-2 py-0.5 rounded text-[10px] ${
-                                  doc.nivelAcceso === 'PUBLICO' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'
-                                }`}>
-                                  {doc.nivelAcceso}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-slate-400">
-                                {doc.vigencia.gestionAnios} años / {doc.vigencia.centralAnios} años
-                              </td>
-                              <td className="px-4 py-3 text-right">
+                              <td style={{ padding: '10px' }}>{doc.nivelAcceso}</td>
+                              <td style={{ padding: '10px' }}>{doc.vigencia?.gestionAnios || 0}a / {doc.vigencia?.centralAnios || 0}a</td>
+                              <td style={{ padding: '10px', textAlign: 'right' }}>
                                 <button
+                                  className="btn btn-secondary"
                                   onClick={() => setDocExpandido(docExpandido === doc._id ? null : doc._id)}
-                                  className="text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                                  style={{ padding: '4px 8px', fontSize: '0.75rem', cursor: 'pointer' }}
                                 >
-                                  {docExpandido === doc._id ? 'Ocultar Metadatos' : 'Ver Metadatos'}
+                                  {docExpandido === doc._id ? 'Ocultar' : 'Ver Metadatos'}
                                 </button>
                               </td>
                             </tr>
-                            
-                            {/* Desglose de Metadatos Extendidos */}
+
                             {docExpandido === doc._id && (
-                              <tr className="bg-slate-900/60">
-                                <td colSpan={6} className="px-6 py-4">
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <tr style={{ background: 'var(--bg-app)' }}>
+                                <td colSpan={6} style={{ padding: '15px' }}>
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                     <div>
-                                      <h4 className="text-xs font-bold text-sky-400 border-b border-slate-700/60 pb-1.5 mb-2">
-                                        Metadatos Extendidos (Polimórficos)
-                                      </h4>
-                                      {Object.keys(doc.metadatosExtendidos || {}).length === 0 ? (
-                                        <p className="text-xs text-slate-500">Sin metadatos específicos.</p>
-                                      ) : (
-                                        <div className="grid grid-cols-2 gap-2 text-xs">
-                                          {Object.entries(doc.metadatosExtendidos).map(([k, v]) => (
-                                            <div key={k} className="flex flex-col bg-slate-900/40 p-2 rounded border border-slate-800">
-                                              <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">{k}</span>
-                                              <span className="text-slate-200 mt-0.5">{String(v)}</span>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
+                                      <h5 style={{ margin: '0 0 10px 0', color: 'var(--primary)' }}>Metadatos Extendidos (Polimórficos)</h5>
+                                      <pre style={{ background: 'var(--surface)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', border: '1px solid var(--glass-border)' }}>
+                                        {JSON.stringify(doc.metadatosExtendidos, null, 2)}
+                                      </pre>
                                     </div>
-                                    <div className="flex flex-col justify-between border-l border-slate-800 pl-4">
-                                      <div>
-                                        <h4 className="text-xs font-bold text-slate-400 border-b border-slate-700/60 pb-1.5 mb-2">
-                                          Huella Criptográfica e Integridad
-                                        </h4>
-                                        <div className="flex flex-col bg-slate-900/40 p-2 rounded border border-slate-800">
-                                          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">SHA-256</span>
-                                          <span className="text-[10px] font-mono text-slate-300 mt-0.5 break-all">
-                                            {doc.hashIntegridad}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div className="text-[10px] text-slate-500 mt-2">
-                                        Creado el: {new Date(doc.fechaCreacion).toLocaleString('es-CO')}
-                                      </div>
+                                    <div>
+                                      <h5 style={{ margin: '0 0 10px 0', color: 'var(--primary)' }}>Huella SHA-256 de Integridad</h5>
+                                      <code style={{ wordBreak: 'break-all', fontSize: '0.75rem', color: 'var(--muted)' }}>
+                                        {doc.hashIntegridad}
+                                      </code>
                                     </div>
                                   </div>
                                 </td>
@@ -429,235 +388,162 @@ export default function Sgd() {
                         ))}
                       </tbody>
                     </table>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
 
-            {/* PESTAÑA: RADICACIÓN DE DOCUMENTOS (FORMULARIO DINÁMICO) */}
+            {/* PESTAÑA 2: RADICAR DOCUMENTO */}
             {activeTab === 'registro' && (
-              <form onSubmit={handleRegistrarDocumento} className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6 flex flex-col gap-6 max-w-3xl mx-auto">
-                <div className="border-b border-slate-700/60 pb-2">
-                  <h2 className="text-base font-bold text-sky-400">Radicar Documento en el SGD</h2>
-                  <p className="text-xs text-slate-400">Los campos se inyectarán de forma dinámica en base al tipo de documento.</p>
-                </div>
-
+              <div className="card" style={{ padding: '20px', background: 'var(--surface)', border: '1px solid var(--glass-border)', maxWidth: '800px', margin: '0 auto' }}>
+                <h3 style={{ margin: '0 0 15px 0', color: 'var(--primary)' }}>Radicar Nuevo Documento en SGD</h3>
+                
                 {msgDoc.text && (
-                  <div className={`p-3 rounded-lg text-xs font-semibold ${
-                    msgDoc.type === 'success' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30'
-                  }`}>
+                  <div style={{ padding: '10px', marginBottom: '15px', borderRadius: '6px', background: msgDoc.type === 'success' ? 'var(--primary-light-2)' : 'rgba(239,68,68,0.1)', color: msgDoc.type === 'success' ? 'var(--primary)' : 'var(--danger)' }}>
                     {msgDoc.text}
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-300">Tipo de Documento *</label>
+                <form onSubmit={handleRegistrarDocumento} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '5px' }}>Tipo Documental *</label>
                     <select
+                      className="edit-input"
                       value={nuevoDocTipo}
-                      onChange={(e) => handleTipoDocChange(e.target.value)}
-                      required
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
+                      onChange={(e) => {
+                        setNuevoDocTipo(e.target.value);
+                        const sel = tipos.find(t => t.nombre === e.target.value);
+                        if (sel) setNuevoDocClasificacion(sel.codigoClasificacionDefault);
+                      }}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
                     >
-                      <option value="">-- Seleccionar --</option>
+                      <option value="">Seleccione un tipo documental...</option>
                       {tipos.map(t => (
                         <option key={t._id} value={t.nombre}>{t.nombre}</option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-300">Código de Clasificación</label>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '5px' }}>Código de Clasificación *</label>
                     <input
                       type="text"
-                      placeholder="Ej. 1000-1100-001"
+                      className="edit-input"
                       value={nuevoDocClasificacion}
                       onChange={(e) => setNuevoDocClasificacion(e.target.value)}
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-300">Nivel de Acceso</label>
-                    <select
-                      value={nuevoDocNivel}
-                      onChange={(e: any) => setNuevoDocNivel(e.target.value)}
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
-                    >
-                      <option value="PUBLICO">Público</option>
-                      <option value="RESTRINGIDO">Restringido</option>
-                      <option value="CONFIDENCIAL">Confidencial</option>
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-300">Soporte Original</label>
-                    <select
-                      value={nuevoDocSoporte}
-                      onChange={(e: any) => setNuevoDocSoporte(e.target.value)}
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
-                    >
-                      <option value="ELECTRONICO">Electrónico</option>
-                      <option value="DIGITAL">Digitalizado</option>
-                      <option value="FISICO">Físico</option>
-                    </select>
-                  </div>
-
-                  <div className="col-span-full flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-300">Hash SHA-256 (Opcional - Simulado si se omite)</label>
-                    <input
-                      type="text"
-                      placeholder="64 caracteres hexadecimales"
-                      value={nuevoDocHash}
-                      onChange={(e) => setNuevoDocHash(e.target.value)}
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Formulario Dinámico de Metadatos Extendidos */}
-                {nuevoDocTipo && (
-                  <FormularioDinamico
-                    schema={schemaSeleccionado}
-                    values={metadatosExtendidos}
-                    onChange={(key, val) => setMetadatosExtendidos({ ...metadatosExtendidos, [key]: val })}
-                    errors={erroresExtendidos}
-                  />
-                )}
-
-                <button
-                  type="submit"
-                  disabled={submittingDoc || !nuevoDocTipo}
-                  className="bg-sky-500 hover:bg-sky-400 disabled:bg-slate-700 disabled:text-slate-500 rounded-lg px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors flex items-center justify-center gap-1.5 mt-2"
-                >
-                  <MdSave className="w-5 h-5" />
-                  {submittingDoc ? 'Validando y Guardando...' : 'Radicar Documento'}
-                </button>
-              </form>
-            )}
-
-            {/* PESTAÑA: CONFIGURACIÓN DE TIPOS DOCUMENTALES (TEST DEL SALTO) */}
-            {activeTab === 'tipos' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
-                {/* Formulario de Registro de Tipo Documental */}
-                <form onSubmit={handleCrearTipo} className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6 flex flex-col gap-4">
-                  <div className="border-b border-slate-700/60 pb-2">
-                    <h2 className="text-base font-bold text-sky-400">Crear Tipo Documental en Caliente</h2>
-                    <p className="text-xs text-slate-400">Inyecta un JSON Schema para crear un formulario dinámico y hacerlo funcionar en producción inmediatamente.</p>
-                  </div>
-
-                  {msgTipo.text && (
-                    <div className={`p-3 rounded-lg text-xs font-semibold ${
-                      msgTipo.type === 'success' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30'
-                    }`}>
-                      {msgTipo.text}
+                  {nuevoDocTipo && (
+                    <div style={{ marginTop: '10px', padding: '15px', background: 'var(--bg-app)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                      <h4 style={{ margin: '0 0 10px 0', color: 'var(--primary)' }}>Campos Extendidos del Tipo Documental</h4>
+                      <FormularioDinamico
+                        schema={schemaSeleccionado}
+                        values={metadatosExtendidos}
+                        onChange={(vals) => setMetadatosExtendidos(vals)}
+                        errors={erroresExtendidos}
+                      />
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5 col-span-2">
-                      <label className="text-xs font-semibold text-slate-300">Nombre del Tipo Documental *</label>
-                      <input
-                        type="text"
-                        placeholder="Ej. HISTORIA_LABORAL"
-                        value={nuevoTipoNombre}
-                        onChange={(e) => setNuevoTipoNombre(e.target.value.toUpperCase().replace(/\s+/g, '_'))}
-                        required
-                        className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5 col-span-2">
-                      <label className="text-xs font-semibold text-slate-300">Código Clasificación Default *</label>
-                      <input
-                        type="text"
-                        placeholder="Ej. 5000-5100-001"
-                        value={nuevoTipoClasificacion}
-                        onChange={(e) => setNuevoTipoClasificacion(e.target.value)}
-                        required
-                        className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-slate-300">Años Retención Gestión *</label>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={submittingDoc}
+                    style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+                  >
+                    <MdSave /> {submittingDoc ? 'Guardando...' : 'Radicar Documento'}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* PESTAÑA 3: CONFIGURAR TIPOS DOCUMENTALES */}
+            {activeTab === 'tipos' && (
+              <div className="card" style={{ padding: '20px', background: 'var(--surface)', border: '1px solid var(--glass-border)', maxWidth: '800px', margin: '0 auto' }}>
+                <h3 style={{ margin: '0 0 15px 0', color: 'var(--primary)' }}>Crear Tipo Documental en Caliente</h3>
+                <p className="small text-muted" style={{ marginBottom: '15px' }}>Inyecta un JSON Schema para crear un formulario dinámico y hacerlo funcionar en producción inmediatamente.</p>
+
+                {msgTipo.text && (
+                  <div style={{ padding: '10px', marginBottom: '15px', borderRadius: '6px', background: msgTipo.type === 'success' ? 'var(--primary-light-2)' : 'rgba(239,68,68,0.1)', color: msgTipo.type === 'success' ? 'var(--primary)' : 'var(--danger)' }}>
+                    {msgTipo.text}
+                  </div>
+                )}
+
+                <form onSubmit={handleRegistrarTipo} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '5px' }}>Nombre del Tipo Documental *</label>
+                    <input
+                      type="text"
+                      className="edit-input"
+                      value={nuevoTipoNombre}
+                      placeholder="Ej. HISTORIA_LABORAL"
+                      onChange={(e) => setNuevoTipoNombre(e.target.value)}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '5px' }}>Código Clasificación Default *</label>
+                    <input
+                      type="text"
+                      className="edit-input"
+                      value={nuevoTipoClasificacion}
+                      placeholder="Ej. 5000-5100-001"
+                      onChange={(e) => setNuevoTipoClasificacion(e.target.value)}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '5px' }}>Años Retención Gestión *</label>
                       <input
                         type="number"
-                        min={0}
+                        className="edit-input"
                         value={nuevoTipoGestion}
-                        onChange={(e) => setNuevoTipoGestion(Number(e.target.value))}
-                        required
-                        className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
+                        onChange={(e) => setNuevoTipoGestion(parseInt(e.target.value) || 0)}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
                       />
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-slate-300">Años Retención Central *</label>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '5px' }}>Años Retención Central *</label>
                       <input
                         type="number"
-                        min={0}
+                        className="edit-input"
                         value={nuevoTipoCentral}
-                        onChange={(e) => setNuevoTipoCentral(Number(e.target.value))}
-                        required
-                        className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
+                        onChange={(e) => setNuevoTipoCentral(parseInt(e.target.value) || 0)}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
                       />
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-300">JSON Schema de Campos Extendidos *</label>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '5px' }}>JSON Schema de Campos Extendidos *</label>
                     <textarea
+                      className="edit-input"
                       rows={8}
                       value={nuevoTipoSchemaRaw}
                       onChange={(e) => setNuevoTipoSchemaRaw(e.target.value)}
-                      required
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-sky-500 transition-colors"
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-app)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)', fontFamily: 'monospace', fontSize: '0.8rem' }}
                     />
                   </div>
 
                   <button
                     type="submit"
+                    className="btn btn-primary"
                     disabled={submittingTipo}
-                    className="bg-sky-500 hover:bg-sky-400 disabled:bg-slate-700 disabled:text-slate-500 rounded-lg px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors flex items-center justify-center gap-1.5 mt-2"
+                    style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
                   >
-                    <MdSave className="w-5 h-5" />
-                    {submittingTipo ? 'Guardando Configuración...' : 'Configurar en Caliente'}
+                    <MdSave /> {submittingTipo ? 'Guardando...' : 'Configurar en Caliente'}
                   </button>
                 </form>
-
-                {/* Listado de configuraciones cargadas */}
-                <div className="flex flex-col gap-4 border border-slate-700/50 rounded-xl bg-slate-800/10 p-6">
-                  <div className="border-b border-slate-700/60 pb-2">
-                    <h2 className="text-base font-bold text-slate-300">Tipos Documentales Activos</h2>
-                    <p className="text-xs text-slate-500">Esquemas en caliente registrados para el SGD de este Tenant.</p>
-                  </div>
-
-                  {tipos.length === 0 ? (
-                    <p className="text-xs text-slate-500">Sin esquemas cargados.</p>
-                  ) : (
-                    <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-2">
-                      {tipos.map(t => (
-                        <div key={t._id} className="bg-slate-900/50 border border-slate-850 p-4 rounded-xl flex flex-col gap-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <span className="text-xs font-bold text-sky-400">{t.nombre}</span>
-                              <div className="text-[10px] text-slate-400 font-mono mt-0.5">Clasificación: {t.codigoClasificacionDefault}</div>
-                            </div>
-                            <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                              {t.gestionAniosDefault + t.centralAniosDefault} años retención total
-                            </span>
-                          </div>
-                          
-                          {/* Muestra simplificada de propiedades */}
-                          <div className="text-[10px] text-slate-500 font-mono bg-slate-950/40 p-2 rounded border border-slate-900/60 max-h-24 overflow-y-auto">
-                            Properties: {Object.keys(t.jsonSchema.properties || {}).join(', ') || 'Ninguna'}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </div>
             )}
           </>
         )}
+
       </div>
     </PortalLayout>
   );
