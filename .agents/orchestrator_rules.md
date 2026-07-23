@@ -85,27 +85,21 @@ El **Performance Agent** audita redundancias en cada gate y registra en `docs/RE
 
 ---
 
-## 📋 Formato de Commit
+## 📋 Protocolo de Commits Únicos por Hito
 
+> [!CAUTION]
+> **REGLA DE COMMITS POR HITO:** Queda estrictamente PROHIBIDO hacer commits parciales por cada paso o archivo modificado. 
+
+1. Durante la Fase 2 (Ejecución), los subagentes trabajan en su rama/directorio y acumulan los cambios sin hacer `git commit`.
+2. Se realizan las pruebas y verificaciones requeridas.
+3. SOLO cuando TODOS los pasos del plan (`PROXIMA_TAREA.md`) estén listos y aprobados, se ejecuta **1 SOLO COMMIT Y PUSH POR HITO COMPLETO**.
+
+### Formato de Commit de Hito
 ```
-tipo(scope): descripción concisa [hash-sec]
+hito(scope): [descripción completa del hito alcanzado] [hash-sec]
 ```
 
-**Donde `[hash-sec]`** es un mini-hash de 4 chars generado por el Security Agent para trazabilidad de revisiones de seguridad. Si el Security Agent no ejecutó (tarea sin cambios de seguridad), omitir el hash.
-
-### Tipos de Commit Permitidos
-
-| Tipo | Uso |
-|:-----|:----|
-| `feat` | Nueva funcionalidad |
-| `fix` | Corrección de bug |
-| `refactor` | Refactorización sin cambio funcional |
-| `style` | Cambios de UI/estilos |
-| `docs` | Documentación |
-| `test` | Tests |
-| `chore` | Mantenimiento (deps, config) |
-| `perf` | Optimización de performance |
-| `security` | Parche de seguridad |
+**Ejemplo:** `hito(ui-contraste): corrección integral de colores fijos y refactorización a variables de tema [a1b2]`
 
 ---
 
