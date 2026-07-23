@@ -6,12 +6,15 @@ import PasoAlistamiento from "../components/fda/PasoAlistamiento";
 import PasoHistoriaCEOF from "../components/fda/PasoHistoriaCEOF";
 import PasoDiagnosticoDIA from "../components/fda/PasoDiagnosticoDIA";
 import PasoOrganizacionFUID from "../components/fda/PasoOrganizacionFUID";
+import PasoValoracionTVD from "../components/fda/PasoValoracionTVD";
+import PasoCierreInforme from "../components/fda/PasoCierreInforme";
 
 const MdFolderSpecial = (IconsMd as any).MdFolderSpecial || (IconsMd as any).MdFolder;
 const MdCalculate = (IconsMd as any).MdCalculate || (IconsMd as any).MdFunctions;
 const MdHistoryEdu = (IconsMd as any).MdHistoryEdu || (IconsMd as any).MdMenuBook;
 const MdAssessment = (IconsMd as any).MdAssessment || (IconsMd as any).MdAnalytics;
 const MdCleaningServices = (IconsMd as any).MdCleaningServices || (IconsMd as any).MdBroom;
+const MdGavel = (IconsMd as any).MdGavel;
 const MdAssignmentCheck = (IconsMd as any).MdAssignmentTurnedIn || (IconsMd as any).MdCheckCircle;
 
 interface FondoAcumulado {
@@ -39,8 +42,8 @@ export default function FondosAcumulados() {
   const [fondos, setFondos] = useState<FondoAcumulado[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Pestaña activa del módulo (Workflow de 4 pasos para Hito 2)
-  const [activeTab, setActiveTab] = useState<"paso0" | "paso1" | "paso2" | "paso3" | "inventario">("paso0");
+  // Workflow Completo de 6 Pasos para Fondos Acumulados
+  const [activeTab, setActiveTab] = useState<"paso0" | "paso1" | "paso2" | "paso3" | "paso4" | "paso5" | "inventario">("paso0");
 
   useEffect(() => {
     fetchFondos();
@@ -72,11 +75,10 @@ export default function FondosAcumulados() {
             Guía metodológica paso a paso para la intervención, diagnóstico DIA, valoración y organización de fondos acumulados desorganizados (Normativa AGN - Ley 594 de 2000).
           </p>
 
-          {/* Navegación por Pestañas del Workflow */}
+          {/* Navegación por Pestañas del Workflow Completo */}
           <div className="tabs" style={{ display: "flex", gap: "10px", marginTop: "20px", borderBottom: "1px solid var(--glass-border)", paddingBottom: "10px", overflowX: "auto" }}>
             <button
               onClick={() => setActiveTab("paso0")}
-              className={`btn ${activeTab === "paso0" ? "btn-primary" : ""}`}
               style={{
                 background: activeTab === "paso0" ? "var(--primary)" : "var(--bg-app)",
                 color: activeTab === "paso0" ? "#fff" : "var(--text-primary)",
@@ -89,12 +91,11 @@ export default function FondosAcumulados() {
                 gap: "6px"
               }}
             >
-              <MdCalculate /> Paso 0: Alistamiento & EPP (N95)
+              <MdCalculate /> Paso 0: Alistamiento & N95
             </button>
 
             <button
               onClick={() => setActiveTab("paso1")}
-              className={`btn ${activeTab === "paso1" ? "btn-primary" : ""}`}
               style={{
                 background: activeTab === "paso1" ? "var(--primary)" : "var(--bg-app)",
                 color: activeTab === "paso1" ? "#fff" : "var(--text-primary)",
@@ -112,7 +113,6 @@ export default function FondosAcumulados() {
 
             <button
               onClick={() => setActiveTab("paso2")}
-              className={`btn ${activeTab === "paso2" ? "btn-primary" : ""}`}
               style={{
                 background: activeTab === "paso2" ? "var(--primary)" : "var(--bg-app)",
                 color: activeTab === "paso2" ? "#fff" : "var(--text-primary)",
@@ -130,7 +130,6 @@ export default function FondosAcumulados() {
 
             <button
               onClick={() => setActiveTab("paso3")}
-              className={`btn ${activeTab === "paso3" ? "btn-primary" : ""}`}
               style={{
                 background: activeTab === "paso3" ? "var(--primary)" : "var(--bg-app)",
                 color: activeTab === "paso3" ? "#fff" : "var(--text-primary)",
@@ -147,11 +146,10 @@ export default function FondosAcumulados() {
             </button>
 
             <button
-              onClick={() => setActiveTab("inventario")}
-              className={`btn ${activeTab === "inventario" ? "btn-primary" : ""}`}
+              onClick={() => setActiveTab("paso4")}
               style={{
-                background: activeTab === "inventario" ? "var(--primary)" : "var(--bg-app)",
-                color: activeTab === "inventario" ? "#fff" : "var(--text-primary)",
+                background: activeTab === "paso4" ? "var(--primary)" : "var(--bg-app)",
+                color: activeTab === "paso4" ? "#fff" : "var(--text-primary)",
                 border: "1px solid var(--glass-border)",
                 padding: "8px 14px",
                 borderRadius: "6px",
@@ -161,16 +159,35 @@ export default function FondosAcumulados() {
                 gap: "6px"
               }}
             >
-              <MdAssignmentCheck /> Inventario FUID Consolidado
+              <MdGavel /> Paso 4: Valoración (TVD)
+            </button>
+
+            <button
+              onClick={() => setActiveTab("paso5")}
+              style={{
+                background: activeTab === "paso5" ? "var(--primary)" : "var(--bg-app)",
+                color: activeTab === "paso5" ? "#fff" : "var(--text-primary)",
+                border: "1px solid var(--glass-border)",
+                padding: "8px 14px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px"
+              }}
+            >
+              <MdAssignmentCheck /> Paso 5: FUID & Cierre
             </button>
           </div>
         </div>
 
-        {/* Renderizado Dinámico según la Pestaña Activa */}
+        {/* Renderizado Dinámico de los 6 Pasos Metodológicos */}
         {activeTab === "paso0" && <PasoAlistamiento />}
         {activeTab === "paso1" && <PasoHistoriaCEOF />}
         {activeTab === "paso2" && <PasoDiagnosticoDIA />}
         {activeTab === "paso3" && <PasoOrganizacionFUID />}
+        {activeTab === "paso4" && <PasoValoracionTVD />}
+        {activeTab === "paso5" && <PasoCierreInforme />}
 
         {/* Tabla de Inventario FUID Registrado */}
         {activeTab === "inventario" && (
