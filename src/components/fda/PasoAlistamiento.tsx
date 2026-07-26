@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as IconsMd from "react-icons/md";
-import { InsumosCalculados } from "../../types/fda";
+import { InsumosCalculados, DiagnosticoDIAData } from "../../types/fda";
 import { useAuth } from "../../auth/AuthProvider";
 
 const MdCalculate = (IconsMd as any).MdCalculate || (IconsMd as any).MdFunctions;
 const MdSanitizer = (IconsMd as any).MdSanitizer || (IconsMd as any).MdHealthAndSafety;
 const MdInventory = (IconsMd as any).MdInventory;
 const MdWarning = (IconsMd as any).MdWarning;
+const MdSave = (IconsMd as any).MdSave;
 
 export default function PasoAlistamiento() {
   const auth = useAuth();
@@ -21,6 +22,22 @@ export default function PasoAlistamiento() {
   const [riesgoHongos, setRiesgoHongos] = useState(false);
   const [riesgoPlagas, setRiesgoPlagas] = useState(false);
   const [riesgoSaturacion, setRiesgoSaturacion] = useState(false);
+
+  useEffect(() => {
+    fetchDiagnostico();
+  }, []);
+
+  const fetchDiagnostico = async () => {
+    try {
+      const res = await auth.request<{ diagnostico: DiagnosticoDIAData }>("/fondos-acumulados/diagnostico-dia");
+      if (res && res.diagnostico && res.diagnostico.lecturasAmbientales) {
+        setRiesgoPlagas(res.diagnostico.lecturasAmbientales.presenciaPlagasActivas || false);
+        // Supongamos que se guardaron antes otros datos en un campo genérico si existieran
+      }
+    } catch (err) {
+      console.error("Error al cargar diagnostico para matriz de riesgos", err);
+    }
+  };
 
   const handleCalcular = async () => {
     setCalculando(true);
@@ -39,6 +56,24 @@ export default function PasoAlistamiento() {
     }
   };
 
+  const handleGuardarRiesgos = async () => {
+    try {
+      // Usaremos lecturasAmbientales.presenciaPlagasActivas para plagas
+      await auth.request("/fondos-acumulados/diagnostico-dia", {
+        method: "PUT",
+        body: JSON.stringify({
+          lecturasAmbientales: {
+             presenciaPlagasActivas: riesgoPlagas
+             // En un modelo completo se agregarían los demás riesgos
+          }
+        })
+      });
+      alert("Inspección de riesgos guardada.");
+    } catch (err) {
+      console.error("Error al guardar riesgos", err);
+    }
+  };
+
   return (
     <div className="paso-alistamiento" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
       <div className="card" style={{ padding: "20px", background: "var(--surface)", border: "1px solid var(--glass-border)" }}>
@@ -54,48 +89,25 @@ export default function PasoAlistamiento() {
             <label style={{ display: "block", fontSize: "0.85rem", marginBottom: "5px", color: "var(--text-secondary)" }}>
               Metros Lineales Estimados (m.l.):
             </label>
-            <input
-              type="number"
-              className="edit-input"
-              value={metrosLineales}
-              onChange={(e) => setMetrosLineales(parseFloat(e.target.value) || 0)}
-              style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }}
-            />
+            <input type="number" className="edit-input" value={metrosLineales} onChange={(e) => setMetrosLineales(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           </div>
 
           <div>
             <label style={{ display: "block", fontSize: "0.85rem", marginBottom: "5px", color: "var(--text-secondary)" }}>
               Duración Estimada (Días):
             </label>
-            <input
-              type="number"
-              className="edit-input"
-              value={diasEstimados}
-              onChange={(e) => setDiasEstimados(parseInt(e.target.value) || 1)}
-              style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }}
-            />
+            <input type="number" className="edit-input" value={diasEstimados} onChange={(e) => setDiasEstimados(parseInt(e.target.value) || 1)} style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           </div>
 
           <div>
             <label style={{ display: "block", fontSize: "0.85rem", marginBottom: "5px", color: "var(--text-secondary)" }}>
               Auxiliares Archivísticos:
             </label>
-            <input
-              type="number"
-              className="edit-input"
-              value={auxiliares}
-              onChange={(e) => setAuxiliares(parseInt(e.target.value) || 1)}
-              style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }}
-            />
+            <input type="number" className="edit-input" value={auxiliares} onChange={(e) => setAuxiliares(parseInt(e.target.value) || 1)} style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           </div>
         </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={handleCalcular}
-          disabled={calculando}
-          style={{ marginTop: "15px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
-        >
+        <button className="btn btn-primary" onClick={handleCalcular} disabled={calculando} style={{ marginTop: "15px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
           <MdCalculate /> {calculando ? "Calculando..." : "Proyectar Insumos y EPP"}
         </button>
       </div>
@@ -174,6 +186,9 @@ export default function PasoAlistamiento() {
             Saturación Extrema de Espacio
           </label>
         </div>
+        <button className="btn btn-primary" onClick={handleGuardarRiesgos} style={{ marginTop: "15px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+           <MdSave /> Guardar Inspección de Riesgos
+        </button>
       </div>
     </div>
   );

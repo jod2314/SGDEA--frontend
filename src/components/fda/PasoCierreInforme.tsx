@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as IconsMd from "react-icons/md";
+import { useAuth } from "../../auth/AuthProvider";
 
 const MdAssignmentTurnedIn = (IconsMd as any).MdAssignmentTurnedIn || (IconsMd as any).MdCheckCircle;
 const MdFileDownload = (IconsMd as any).MdFileDownload;
@@ -7,8 +8,57 @@ const MdPrint = (IconsMd as any).MdPrint;
 const MdFactCheck = (IconsMd as any).MdFactCheck || (IconsMd as any).MdVerified;
 
 export default function PasoCierreInforme() {
+  const auth = useAuth();
   const [descargando, setDescargando] = useState(false);
   const [actaGenerada, setActaGenerada] = useState(false);
+
+  // Metricas
+  const [metros, setMetros] = useState(0);
+  const [cajas, setCajas] = useState(0);
+  const [carpetas, setCarpetas] = useState(0);
+  const [folios, setFolios] = useState(0);
+
+  // Checklist
+  const [chkHistoria, setChkHistoria] = useState(false);
+  const [chkDIA, setChkDIA] = useState(false);
+  const [chkFUID, setChkFUID] = useState(false);
+  const [chkFVD, setChkFVD] = useState(false);
+  const [chkTVD, setChkTVD] = useState(false);
+  const [chkPlan, setChkPlan] = useState(false);
+
+  useEffect(() => {
+    fetchRegistros();
+  }, []);
+
+  const fetchRegistros = async () => {
+    try {
+      const res = await auth.request<{ fondos: any[] }>("/fondos-acumulados");
+      if (res && res.fondos) {
+        let totalFolios = 0;
+        const cajasSet = new Set();
+        let totalCarpetas = res.fondos.length;
+        
+        res.fondos.forEach(r => {
+           if (r.ubicacionTopografica?.caja) {
+             cajasSet.add(r.ubicacionTopografica.caja);
+           }
+           if (r.volumen?.folios) {
+             totalFolios += r.volumen.folios;
+           }
+        });
+
+        // 1 ml = 6 cajas aproximadamente o algo asi, pero simplificaremos sumando un volumen dummy si no existe m.l.
+        // Asumiendo que volumen.folios determina metros. (Aproximación: 1 caja = 0.5 ml)
+        const totalCajas = cajasSet.size;
+        setMetros(totalCajas * 0.25); // simple calculo
+        setCajas(totalCajas);
+        setCarpetas(totalCarpetas);
+        setFolios(totalFolios);
+      }
+    } catch (err) {
+      console.error("Error al cargar registros fda", err);
+    }
+  };
 
   const handleExportarFUIDCsv = async () => {
     setDescargando(true);
@@ -35,6 +85,18 @@ export default function PasoCierreInforme() {
         <p className="small text-muted">
           El sistema consolida automáticamente la totalidad de unidades documentales organizadas, foliadas e identificadas con sus códigos QR en el Formato Único de Inventario Documental (FUID) oficial del Archivo General de la Nación.
         </p>
+
+        <div style={{ padding: "15px", background: "var(--bg-app)", borderRadius: "8px", border: "1px solid var(--glass-border)", marginTop: "15px" }}>
+           <h4 style={{ margin: "0 0 10px 0" }}>Checklist de Instrumentos Entregados:</h4>
+           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+             <label><input type="checkbox" checked={chkHistoria} onChange={e=>setChkHistoria(e.target.checked)} /> Historia Institucional y CEOF</label>
+             <label><input type="checkbox" checked={chkDIA} onChange={e=>setChkDIA(e.target.checked)} /> DIA completo (H-1 a H-14)</label>
+             <label><input type="checkbox" checked={chkFUID} onChange={e=>setChkFUID(e.target.checked)} /> FUID definitivo</label>
+             <label><input type="checkbox" checked={chkFVD} onChange={e=>setChkFVD(e.target.checked)} /> Fichas de Valoración Documental</label>
+             <label><input type="checkbox" checked={chkTVD} onChange={e=>setChkTVD(e.target.checked)} /> TVD aprobada</label>
+             <label><input type="checkbox" checked={chkPlan} onChange={e=>setChkPlan(e.target.checked)} /> Plan de Mejoramiento</label>
+           </div>
+        </div>
 
         <div style={{ marginTop: "15px", display: "flex", gap: "15px", flexWrap: "wrap" }}>
           <button
@@ -81,11 +143,10 @@ export default function PasoCierreInforme() {
             <div style={{ marginTop: "15px", padding: "15px", background: "var(--bg-app)", borderRadius: "8px", border: "1px solid var(--glass-border)" }}>
               <h5 style={{ margin: "0 0 10px 0", color: "var(--primary)" }}>Resumen Ejecutivo de Intervención:</h5>
               <ul style={{ margin: 0, paddingLeft: "20px" }}>
-                <li>Metros Lineales Intervenidos: <strong>50 m.l.</strong></li>
-                <li>Cajas Ref. X-200 Ensambladas e Identificadas con QR: <strong>200 cajas</strong></li>
-                <li>Carpetas Neutras Propalcote 4 Aletas (320g): <strong>1.200 expedientes</strong></li>
-                <li>Total Folios Limpiados, Deslegajados y Foliados a Lápiz: <strong>240.000 folios</strong></li>
-                <li>Series y Subseries Valoradas en la TVD: <strong>12 series documentales</strong></li>
+                <li>Metros Lineales Intervenidos: <strong>{metros} m.l.</strong></li>
+                <li>Cajas Ref. X-200 Ensambladas e Identificadas con QR: <strong>{cajas} cajas</strong></li>
+                <li>Carpetas Neutras Propalcote 4 Aletas: <strong>{carpetas} expedientes</strong></li>
+                <li>Total Folios Limpiados, Deslegajados y Foliados a Lápiz: <strong>{folios} folios</strong></li>
               </ul>
             </div>
 

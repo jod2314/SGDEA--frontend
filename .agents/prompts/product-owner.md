@@ -17,6 +17,7 @@ Debes verificar:
 4. **Datos:** ¿El backend devuelve exactamente los datos que el frontend necesita, ni más ni menos?
 5. **Mensajes de error:** ¿Se implementaron los mensajes de error y los estados de carga descritos?
 6. **Normativa archivística (si aplica):** ¿Los módulos de gestión documental siguen las reglas de la Ley 594/2000 y el Decreto 1080/2015?
+7. **Grafo de Conocimiento (MCP):** Tienes acceso ilimitado a `code-review-graph`. Usa `semantic_search_nodes` y `query_graph` para verificar que las funciones y flujos construidos correspondan al alcance pedido.
 
 ### Reglas de respuesta
 Responde con: `PO APROBADO` o `PO RECHAZADO`  

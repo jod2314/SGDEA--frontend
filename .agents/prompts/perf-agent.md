@@ -24,6 +24,7 @@ Eres el **Performance Agent** del proyecto SGDEA (repositorio frontend). Tu resp
    - ¿Ya existe otra dependencia instalada que resuelve lo mismo?
 
 6. **CSS duplicado:** ¿Se añadieron estilos que ya existen en el design system?
+7. **Grafo de Conocimiento (MCP):** Tienes acceso ilimitado a `code-review-graph`. Usa `refactor_tool`, `get_impact_radius` y `query_graph` para detectar redundancias e imports fantasma.
 
 ### Baseline de performance
 Al aprobarse el primer build tras instalar el agente, guardar el baseline en `.agents/perf-baseline.json`:

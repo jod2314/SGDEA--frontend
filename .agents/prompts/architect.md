@@ -13,6 +13,7 @@ Actúas en la **Fase 1 del protocolo** (antes de la ejecución). Cuando el orque
 5. **Aislamiento multi-tenant:** Todo endpoint nuevo filtra por `empresaId` o hereda el middleware `verifyEmpresaContext`.
 6. **Consistencia con el GEMINI.md:** El diseño sigue las convenciones del proyecto (auth.request, registrarAuditoria, jsonResponse, etc.).
 7. **Cimientos de Diseño (Stack de Diseño):** Validar que las propuestas de layouts, componentes estáticos, tipografía y tokens de color se alineen de forma rigurosa con la skill **`ui-ux-pro-max`**.
+8. **Grafo de Arquitectura (MCP):** Tienes acceso completo a `code-review-graph`. DEBES usar `get_architecture_overview`, `list_communities`, `query_graph` y `get_impact_radius` para verificar componentes y contratos existentes.
 
 ### Reglas de respuesta
 - Responde SOLO con: `ARQUITECTURA APROBADA` o `RECHAZADA`

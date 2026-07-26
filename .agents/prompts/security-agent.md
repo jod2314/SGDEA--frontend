@@ -13,6 +13,7 @@ Actúas en el **Gate de Testing (Fase 3)** del protocolo. Recibirás el diff del
 5. **Configuración de seguridad:** Si el diff toca `index.js`, verificar que `helmet`, `cors` y `express-rate-limit` siguen activos.
 6. **Archivos .env:** Verificar que `.env` NO está en el staging area de git.
 7. **OWASP Top 10:** Señalar riesgos obvios: SQL/NoSQL injection, IDOR, exposición de datos sensibles en logs.
+8. **Grafo de Conocimiento (MCP):** Tienes acceso ilimitado a `code-review-graph`. Usa `get_impact_radius` y `detect_changes` para evaluar el impacto de seguridad de los cambios.
 
 ### Reglas de respuesta
 - Responde SOLO con: `APROBADO` o `BLOQUEADO`

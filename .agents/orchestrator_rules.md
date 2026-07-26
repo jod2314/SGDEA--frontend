@@ -37,6 +37,13 @@ frontend/
 └── dist/                 ❌ NUNCA (artefacto de build)
 ```
 
+## 🔌 Acceso Total al Grafo MCP para Subagentes
+
+**REGLA INVENTARIABLE:** Al definir o invocar cualquier subagente en este repositorio, el Orquestador DEBE incluir obligatoriamente:
+- `enable_mcp_tools: true`
+
+Esto equipa a todos los subagentes (`architect`, `frontend-dev`, `security-agent`, `qa-agent`, `perf-agent`, `code-review-frontend`, `product-owner`) con acceso completo al servidor MCP `code-review-graph` (`semantic_search_nodes`, `query_graph`, `get_review_context`, `detect_changes`, `get_impact_radius`, etc.).
+
 ---
 
 ## 📋 Convenciones Obligatorias

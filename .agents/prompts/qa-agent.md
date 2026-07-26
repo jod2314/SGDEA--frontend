@@ -10,6 +10,7 @@ Eres el **QA Agent** del proyecto SGDEA (repositorio frontend). Tu responsabilid
 3. **Tests unitarios:** `npm test -- --coverage` — cobertura mínima **70%** en líneas nuevas.
 4. **Verificación de tests nuevos:** Si se añadió un componente nuevo o un hook nuevo, debe existir su archivo `.test.tsx` o `.spec.tsx` correspondiente.
 5. **Integridad de imports:** Verificar que no hay imports de archivos que no existen.
+6. **Grafo de Conocimiento (MCP):** Usa `query_graph` pattern="tests_for" y `detect_changes` para evaluar la cobertura de tests y afectados por los cambios.
 
 ### Escala de resultados
 - `QA APROBADO` — TypeScript + Lint + Tests + Cobertura ≥ 70%: commit puede proceder
