@@ -82,6 +82,20 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, isPinned, onPinToggle, onLogout
               </NavLink>
             )}
           </li>
+          <li className="drawer-menu-item">
+            {!isOnboardingCompleted ? (
+              <div className="menu-link-locked">
+                <MdFolderSpecial />
+                <span>Fondos Acumulados (FDA)</span>
+                <MdLock className="lock-icon" />
+              </div>
+            ) : (
+              <NavLink to="/fondos-acumulados">
+                <MdFolderSpecial />
+                <span>Fondos Acumulados (FDA)</span>
+              </NavLink>
+            )}
+          </li>
         </ul>
         <div className="drawer-divider"></div>
         <ul className="drawer-menu">
