@@ -1,12 +1,2 @@
-# 🏛️ SGDEA — Frontend
-
-Este es el repositorio Frontend para el Sistema de Gestión Documental Electrónica de Archivos (SGDEA), un proyecto personal para aprender programación y el uso avanzado de Git/GitHub, proyectando extender las fronteras del conocimiento frente a las herramientas tecnológicas.
-
-## 🚀 Estado Actual del Proyecto (Hitos)
-- **Infraestructura SaaS Base:** `✅ Completado` (MERN, JWT, Multi-tenant)
-- **Inteligencia Archivística:** `✅ Completado` (Fondo, Secciones, BANTER, TRD)
-- **Producción Documental:** `✅ Completado` (Tiptap, Radicación, PDF/A, SHA-256)
-- **Módulo Fondos Acumulados (FDA V3):** `✅ Completado` (Asistente Wizard, Topografía Física y Digital, Generación de Actas Base64 y Comité de Archivo).
-- **Módulo Transferencias Documentales:** `⏳ En Planeación`.
-
-*Toda la documentación técnica y arquitectónica reposa en la carpeta `docs` de la raíz del servidor principal.*
+# SGDEA--frontend
+un proyecto personal para la implementacion de un sistema de gestion documental, estoy aprendiendo a programar y ha usar herramientas como git y ahora github, pretendo extender mis fronteras de conocimiento frente a las herramientas tecnologicas que nos brinda la comunidad.
