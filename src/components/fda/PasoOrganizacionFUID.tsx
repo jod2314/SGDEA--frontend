@@ -22,16 +22,29 @@ export default function PasoOrganizacionFUID() {
   const [entrepano, setEntrepano] = useState("EN-02");
   const [qrGenerado, setQrGenerado] = useState(false);
 
+  // EPP
+  const [eppNitrilo, setEppNitrilo] = useState(false);
+  const [eppTapabocas, setEppTapabocas] = useState(false);
+  const [eppBata, setEppBata] = useState(false);
+
   // Registros FUID
   const [registros, setRegistros] = useState<any[]>([]);
   const [fuidCodigo, setFuidCodigo] = useState("");
   const [fuidSerie, setFuidSerie] = useState("");
   const [fuidTitulo, setFuidTitulo] = useState("");
   const [fuidFechas, setFuidFechas] = useState("");
+  
+  // Topografía
+  const [fuidDeposito, setFuidDeposito] = useState("");
+  const [fuidModulo, setFuidModulo] = useState("");
+  const [fuidEstante, setFuidEstante] = useState("");
+  const [fuidEntrepano, setFuidEntrepano] = useState("");
   const [fuidCaja, setFuidCaja] = useState("");
   const [fuidCarpeta, setFuidCarpeta] = useState("");
+  
   const [fuidFolios, setFuidFolios] = useState("");
   const [fuidSoporte, setFuidSoporte] = useState("Papel");
+  const [fuidArchivoDigital, setFuidArchivoDigital] = useState("");
   const [esDDHH, setEsDDHH] = useState(false);
 
   useEffect(() => {
@@ -63,6 +76,10 @@ export default function PasoOrganizacionFUID() {
           tituloExpediente: fuidTitulo,
           fechasExtremas: fuidFechas,
           ubicacionTopografica: {
+            deposito: fuidDeposito,
+            modulo: fuidModulo,
+            estante: fuidEstante,
+            entrepano: fuidEntrepano,
             caja: fuidCaja,
             carpeta: fuidCarpeta,
           },
@@ -70,13 +87,15 @@ export default function PasoOrganizacionFUID() {
              folios: parseInt(fuidFolios) || 0
           },
           soporteFisico: fuidSoporte,
+          archivoDigital: fuidArchivoDigital,
           esDDHH
         })
       });
       alert("Registro FUID agregado.");
       fetchRegistros();
       setFuidCodigo(""); setFuidSerie(""); setFuidTitulo(""); setFuidFechas("");
-      setFuidCaja(""); setFuidCarpeta(""); setFuidFolios(""); setEsDDHH(false);
+      setFuidDeposito(""); setFuidModulo(""); setFuidEstante(""); setFuidEntrepano("");
+      setFuidCaja(""); setFuidCarpeta(""); setFuidFolios(""); setFuidArchivoDigital(""); setEsDDHH(false);
     } catch (err) {
       console.error("Error al guardar FUID", err);
     }
@@ -110,6 +129,27 @@ export default function PasoOrganizacionFUID() {
             <input type="checkbox" checked={encarpetado} onChange={(e) => setEncarpetado(e.target.checked)} />
             Encarpetado Neutro Propalcote 4 Aletas
           </label>
+        </div>
+
+        {/* Barrera EPP Obligatorio */}
+        <div style={{ padding: "15px", background: "rgba(231, 76, 60, 0.1)", borderRadius: "8px", border: "1px solid var(--danger)", marginTop: "15px" }}>
+          <h4 style={{ margin: "0 0 10px 0", color: "var(--danger)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <MdWarning /> Verificación EPP (Obligatorio)
+          </h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: "bold" }}>
+              <input type="checkbox" checked={eppNitrilo} onChange={(e) => setEppNitrilo(e.target.checked)} />
+              Guantes de nitrilo
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: "bold" }}>
+              <input type="checkbox" checked={eppTapabocas} onChange={(e) => setEppTapabocas(e.target.checked)} />
+              Tapabocas N95
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: "bold" }}>
+              <input type="checkbox" checked={eppBata} onChange={(e) => setEppBata(e.target.checked)} />
+              Bata antifluido
+            </label>
+          </div>
         </div>
       </div>
 
@@ -179,10 +219,25 @@ export default function PasoOrganizacionFUID() {
           <input type="text" placeholder="Serie" value={fuidSerie} onChange={e => setFuidSerie(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           <input type="text" placeholder="Título Expediente" value={fuidTitulo} onChange={e => setFuidTitulo(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           <input type="text" placeholder="Fechas Extremas" value={fuidFechas} onChange={e => setFuidFechas(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
+          <input type="text" placeholder="Depósito" value={fuidDeposito} onChange={e => setFuidDeposito(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
+          <input type="text" placeholder="Módulo" value={fuidModulo} onChange={e => setFuidModulo(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
+          <input type="text" placeholder="Estante" value={fuidEstante} onChange={e => setFuidEstante(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
+          <input type="text" placeholder="Entrepaño" value={fuidEntrepano} onChange={e => setFuidEntrepano(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           <input type="text" placeholder="Caja" value={fuidCaja} onChange={e => setFuidCaja(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           <input type="text" placeholder="Carpeta" value={fuidCarpeta} onChange={e => setFuidCarpeta(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           <input type="number" placeholder="Folios" value={fuidFolios} onChange={e => setFuidFolios(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
           <input type="text" placeholder="Soporte (ej. Papel)" value={fuidSoporte} onChange={e => setFuidSoporte(e.target.value)} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
+          <div>
+            <input type="file" accept=".pdf" onChange={e => {
+                const file = e.target.files?.[0];
+                if (file && file.name.toLowerCase().endsWith('.pdf')) {
+                  // normally we'd upload and get URL, here we mock it
+                  setFuidArchivoDigital(URL.createObjectURL(file));
+                } else if (file) {
+                  alert("Solo se admiten archivos PDF");
+                }
+              }} className="edit-input" style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "var(--bg-app)", color: "var(--text-primary)", border: "1px solid var(--glass-border)" }} />
+          </div>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "var(--danger)", fontWeight: "bold" }}>

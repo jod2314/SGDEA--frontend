@@ -25,6 +25,8 @@ export default function PasoCierreInforme() {
   const [chkFVD, setChkFVD] = useState(false);
   const [chkTVD, setChkTVD] = useState(false);
   const [chkPlan, setChkPlan] = useState(false);
+  const [chkActas, setChkActas] = useState(false);
+  const [chkDocTecnico, setChkDocTecnico] = useState(false);
 
   useEffect(() => {
     fetchRegistros();
@@ -87,14 +89,18 @@ export default function PasoCierreInforme() {
         </p>
 
         <div style={{ padding: "15px", background: "var(--bg-app)", borderRadius: "8px", border: "1px solid var(--glass-border)", marginTop: "15px" }}>
-           <h4 style={{ margin: "0 0 10px 0" }}>Checklist de Instrumentos Entregados:</h4>
-           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-             <label><input type="checkbox" checked={chkHistoria} onChange={e=>setChkHistoria(e.target.checked)} /> Historia Institucional y CEOF</label>
-             <label><input type="checkbox" checked={chkDIA} onChange={e=>setChkDIA(e.target.checked)} /> DIA completo (H-1 a H-14)</label>
-             <label><input type="checkbox" checked={chkFUID} onChange={e=>setChkFUID(e.target.checked)} /> FUID definitivo</label>
-             <label><input type="checkbox" checked={chkFVD} onChange={e=>setChkFVD(e.target.checked)} /> Fichas de Valoración Documental</label>
-             <label><input type="checkbox" checked={chkTVD} onChange={e=>setChkTVD(e.target.checked)} /> TVD aprobada</label>
-             <label><input type="checkbox" checked={chkPlan} onChange={e=>setChkPlan(e.target.checked)} /> Plan de Mejoramiento</label>
+           <h4 style={{ margin: "0 0 10px 0", display: "flex", alignItems: "center", gap: "8px" }}>
+             <MdFactCheck style={{ color: "var(--primary)" }} /> Checklist Estricto de Entregables (Exigencia AGN)
+           </h4>
+           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "0.9rem" }}>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkHistoria} onChange={e=>setChkHistoria(e.target.checked)} /> 1. Historia Institucional y CEOF</label>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkDIA} onChange={e=>setChkDIA(e.target.checked)} /> 2. Diagnóstico Integral de Archivos (DIA)</label>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkPlan} onChange={e=>setChkPlan(e.target.checked)} /> 3. Plan de Trabajo Archivístico Integral</label>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkFUID} onChange={e=>setChkFUID(e.target.checked)} /> 4. Inventario Documental Definitivo (FUID)</label>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkFVD} onChange={e=>setChkFVD(e.target.checked)} /> 5. Fichas de Valoración Documental (FVD)</label>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkDocTecnico} onChange={e=>setChkDocTecnico(e.target.checked)} /> 6. Documento Técnico de Formulación</label>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkTVD} onChange={e=>setChkTVD(e.target.checked)} /> 7. Tabla de Valoración Documental (TVD)</label>
+             <label style={{ display: "flex", alignItems: "center", gap: "6px" }}><input type="checkbox" checked={chkActas} onChange={e=>setChkActas(e.target.checked)} /> 8. Actas de Comité (Aprobación y Conformación)</label>
            </div>
         </div>
 

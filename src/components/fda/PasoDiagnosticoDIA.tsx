@@ -8,9 +8,11 @@ const MdFunctions = (IconsMd as any).MdFunctions || (IconsMd as any).MdCalculate
 const MdThermostat = (IconsMd as any).MdThermostat || (IconsMd as any).MdDeviceThermostat;
 const MdSave = (IconsMd as any).MdSave;
 const MdScience = (IconsMd as any).MdScience;
+const MdWarning = (IconsMd as any).MdWarning;
 
 export default function PasoDiagnosticoDIA() {
   const auth = useAuth();
+  const [eppCompleto, setEppCompleto] = useState(false);
   const [poblacionCarpetas, setPoblacionCarpetas] = useState<number>(2000);
   const [margenError, setMargenError] = useState<number>(0.08); // 8%
   const [muestra, setMuestra] = useState<MuestraDIACalculada | null>(null);
@@ -110,8 +112,22 @@ export default function PasoDiagnosticoDIA() {
           Alique la metodología de muestreo aleatorio representativo ($n$) para la inspección física (Ficha H-12) y el registro ambiental del depósito (Ficha H-14).
         </p>
 
+        {/* Barrera EPP Obligatorio */}
+        <div style={{ padding: "15px", background: "rgba(231, 76, 60, 0.1)", borderRadius: "8px", border: "1px solid var(--danger)", marginTop: "15px" }}>
+          <h4 style={{ margin: "0 0 10px 0", color: "var(--danger)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <MdWarning /> Barrera de Seguridad (EPP Obligatorio)
+          </h4>
+          <p className="small text-muted" style={{ margin: "0 0 10px 0" }}>
+            Debe confirmar el uso de Elementos de Protección Personal antes de iniciar la inspección física.
+          </p>
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: "bold" }}>
+            <input type="checkbox" checked={eppCompleto} onChange={(e) => setEppCompleto(e.target.checked)} />
+            Confirmo el uso de tapabocas N95, guantes de nitrilo, bata antifluido y gafas de seguridad.
+          </label>
+        </div>
+
         {/* Calculadora Muestral Ficha H-12 */}
-        <div style={{ padding: "15px", background: "var(--bg-app)", borderRadius: "8px", border: "1px solid var(--glass-border)", marginTop: "15px" }}>
+        <div style={{ padding: "15px", background: "var(--bg-app)", borderRadius: "8px", border: "1px solid var(--glass-border)", marginTop: "15px", opacity: eppCompleto ? 1 : 0.5, pointerEvents: eppCompleto ? "auto" : "none" }}>
           <h4 style={{ margin: "0 0 10px 0", color: "var(--primary)", display: "flex", alignItems: "center", gap: "8px" }}>
             <MdFunctions /> Ficha H-12: Muestreo Estadístico Representativo (Confianza 95%)
           </h4>
@@ -144,6 +160,10 @@ export default function PasoDiagnosticoDIA() {
                 <option value={0.10}>10% (Estándar rápido)</option>
               </select>
             </div>
+          </div>
+
+          <div style={{ marginTop: "15px", padding: "10px", background: "var(--primary-light-2)", borderRadius: "6px", border: "1px solid var(--primary)", fontSize: "0.85rem" }}>
+            <strong>💡 Ayuda para Volumetría AZ:</strong> Para el cálculo de metros lineales en carpetas AZ, mida la estantería y <em>descuente el porcentaje de aire/vacío</em> interno de las carpetas (el espacio no ocupado por folios).
           </div>
 
           <button

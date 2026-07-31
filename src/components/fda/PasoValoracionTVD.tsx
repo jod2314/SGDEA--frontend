@@ -162,8 +162,16 @@ export default function PasoValoracionTVD() {
           <MdGavel /> Paso 4: Fichas de Valoración Documental (FVD) y Matriz TVD
         </h3>
         <p className="small text-muted">
-          Registre los valores primarios (administrativo, jurídico, contable, fiscal) y secundarios (historico, DDHH) para determinar el tiempo de retención en Central y la Disposición Final de las series.
+          Registre los valores primarios (administrativo, jurídico, contable, fiscal) y secundarios (histórico, DDHH) para determinar el tiempo de retención en Central y la Disposición Final de las series.
         </p>
+
+        <div style={{ marginTop: "15px", padding: "12px", background: "var(--primary-light-2)", borderRadius: "8px", border: "1px solid var(--primary)", fontSize: "0.85rem", color: "var(--text-primary)" }}>
+          <strong style={{ display: "flex", alignItems: "center", gap: "6px" }}><MdGavel /> 💡 Guía para Valoración (Acuerdo 004 de 2013 AGN):</strong>
+          <ul style={{ margin: "8px 0 0 20px", padding: 0, display: "flex", flexDirection: "column", gap: "6px" }}>
+            <li><strong>Valores Primarios:</strong> Aplican mientras el documento sirva a la institución (Administrativo, Legal/Jurídico, Fiscal, Contable, Técnico). Definen los años de <em>Retención en el Archivo Central</em>.</li>
+            <li><strong>Valores Secundarios:</strong> Aplican cuando la serie pierde utilidad administrativa pero adquiere valor para la sociedad (Histórico, Científico, Cultural, DDHH). Definen si la <em>Disposición Final</em> es Conservación Total (CT).</li>
+          </ul>
+        </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginTop: "15px" }}>
           <div>
