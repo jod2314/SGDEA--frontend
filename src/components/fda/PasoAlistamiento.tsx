@@ -37,18 +37,19 @@ export default function PasoAlistamiento() {
 
   const fetchDiagnostico = async () => {
     try {
-      const res = await auth.request<{ diagnostico: DiagnosticoDIAData | any }>("/fondos-acumulados/diagnostico-dia");
-      if (res && res.diagnostico) {
-        if (res.diagnostico.lecturasAmbientales) {
-          setRiesgoPlagas(res.diagnostico.lecturasAmbientales.presenciaPlagasActivas || false);
-          setRiesgoGoteras(res.diagnostico.lecturasAmbientales.goteras || false);
-          setRiesgoHongos(res.diagnostico.lecturasAmbientales.hongos || false);
-          setRiesgoSaturacion(res.diagnostico.lecturasAmbientales.saturacion || false);
+      const res = await auth.request<any>("/fondos-acumulados/diagnostico-dia");
+      const diag = res?.body?.diagnostico || res?.diagnostico;
+      if (diag) {
+        if (diag.lecturasAmbientales) {
+          setRiesgoPlagas(diag.lecturasAmbientales.presenciaPlagasActivas || false);
+          setRiesgoGoteras(diag.lecturasAmbientales.goteras || false);
+          setRiesgoHongos(diag.lecturasAmbientales.hongos || false);
+          setRiesgoSaturacion(diag.lecturasAmbientales.saturacion || false);
         }
-        if (res.diagnostico.alistamientoInformativo) {
-          setMesaTrabajo(res.diagnostico.alistamientoInformativo.mesaTrabajo || false);
-          setQuimicosPermitidos(res.diagnostico.alistamientoInformativo.quimicosPermitidos || false);
-          setHerramientasLimpieza(res.diagnostico.alistamientoInformativo.herramientasLimpieza || false);
+        if (diag.alistamientoInformativo) {
+          setMesaTrabajo(diag.alistamientoInformativo.mesaTrabajo || false);
+          setQuimicosPermitidos(diag.alistamientoInformativo.quimicosPermitidos || false);
+          setHerramientasLimpieza(diag.alistamientoInformativo.herramientasLimpieza || false);
         }
       }
     } catch (err) {
@@ -60,12 +61,13 @@ export default function PasoAlistamiento() {
     setCalculando(true);
     setErrorCalculo(null);
     try {
-      const res = await auth.request<{ insumos: InsumosCalculados }>("/fondos-acumulados/calculo-insumos", {
+      const res = await auth.request<any>("/fondos-acumulados/calculo-insumos", {
         method: "POST",
         body: JSON.stringify({ metrosLineales, diasEstimados, auxiliares })
       });
-      if (res && res.insumos) {
-        setInsumos(res.insumos);
+      const calcInsumos = res?.body?.insumos || res?.insumos;
+      if (calcInsumos) {
+        setInsumos(calcInsumos);
       } else {
         setErrorCalculo("La respuesta del servidor no incluyó los insumos calculados.");
       }
