@@ -208,15 +208,15 @@ export default function PasoAlistamiento() {
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
               <li style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)", paddingBottom: "5px" }}>
                 <span>Cajas Ref. X-200 (Cartón Neutro):</span>
-                <strong>{insumos.almacenamiento.cajasX200} uds.</strong>
+                <strong>{insumos.almacenamiento?.cajasX200 || 0} uds.</strong>
               </li>
               <li style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)", paddingBottom: "5px" }}>
                 <span>Carpetas Propalcote 4 Aletas:</span>
-                <strong>{insumos.almacenamiento.carpetas4Aletas} uds.</strong>
+                <strong>{insumos.almacenamiento?.carpetas4Aletas || 0} uds.</strong>
               </li>
               <li style={{ display: "flex", justifyContent: "space-between", paddingBottom: "5px" }}>
                 <span>Cinta de Algodón (Rollos x 100m):</span>
-                <strong>{insumos.almacenamiento.rollosCintaAlgodon} rollos</strong>
+                <strong>{insumos.almacenamiento?.rollosCintaAlgodon || 0} rollos</strong>
               </li>
             </ul>
           </div>
@@ -228,19 +228,19 @@ export default function PasoAlistamiento() {
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
               <li style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)", paddingBottom: "5px" }}>
                 <span>Mascarillas N95 (NIOSH):</span>
-                <strong style={{ color: "var(--danger)" }}>{insumos.bioseguridadEPP.tapabocasN95Unidades} uds.</strong>
+                <strong style={{ color: "var(--danger)" }}>{insumos.bioseguridadEPP?.tapabocasN95Unidades || 0} uds.</strong>
               </li>
               <li style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)", paddingBottom: "5px" }}>
                 <span>Guantes Nitrilo (Cajas x 100):</span>
-                <strong>{insumos.bioseguridadEPP.cajasGuantesNitrilo100} cajas</strong>
+                <strong>{insumos.bioseguridadEPP?.cajasGuantesNitrilo100 || 0} cajas</strong>
               </li>
               <li style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)", paddingBottom: "5px" }}>
                 <span>Batas Tyvek Desechables:</span>
-                <strong>{insumos.bioseguridadEPP.batasTyvek} uds.</strong>
+                <strong>{insumos.bioseguridadEPP?.batasTyvek || 0} uds.</strong>
               </li>
               <li style={{ display: "flex", justifyContent: "space-between", paddingBottom: "5px" }}>
                 <span>Lápices HB (Foliación Técnica):</span>
-                <strong>{insumos.bioseguridadEPP.lapicesHB} uds.</strong>
+                <strong>{insumos.bioseguridadEPP?.lapicesHB || 0} uds.</strong>
               </li>
             </ul>
           </div>
