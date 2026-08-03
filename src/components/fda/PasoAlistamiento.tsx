@@ -37,7 +37,7 @@ export default function PasoAlistamiento() {
 
   const fetchDiagnostico = async () => {
     try {
-      const res = await auth.request<{ diagnostico: any }>("/fondos-acumulados/diagnostico-dia");
+      const res = await auth.request<{ diagnostico: DiagnosticoDIAData | any }>("/fondos-acumulados/diagnostico-dia");
       if (res && res.diagnostico) {
         if (res.diagnostico.lecturasAmbientales) {
           setRiesgoPlagas(res.diagnostico.lecturasAmbientales.presenciaPlagasActivas || false);
