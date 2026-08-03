@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import * as IconsMd from "react-icons/md";
-import { InsumosCalculados, DiagnosticoDIAData } from "../../types/fda";
+import { InsumosCalculados } from "../../types/fda";
 import { useAuth } from "../../auth/AuthProvider";
 
 const MdCalculate = (IconsMd as any).MdCalculate || (IconsMd as any).MdFunctions;
