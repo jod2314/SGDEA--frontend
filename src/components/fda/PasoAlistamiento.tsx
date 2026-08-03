@@ -51,6 +51,12 @@ export default function PasoAlistamiento() {
           setQuimicosPermitidos(diag.alistamientoInformativo.quimicosPermitidos || false);
           setHerramientasLimpieza(diag.alistamientoInformativo.herramientasLimpieza || false);
         }
+        if (diag.proyeccionInsumos) {
+          setMetrosLineales(diag.proyeccionInsumos.metrosLineales || 0);
+          setDiasEstimados(diag.proyeccionInsumos.diasEstimados || 0);
+          setAuxiliares(diag.proyeccionInsumos.auxiliares || 0);
+          setInsumos(diag.proyeccionInsumos);
+        }
       }
     } catch (err) {
       console.error("Error al cargar diagnostico para matriz de riesgos", err);
